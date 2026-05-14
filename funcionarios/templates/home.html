@@ -93,7 +93,7 @@
             display:block;
             color:#38bdf8;
             font-size:15px;
-            margin-bottom:14px;
+            margin-bottom:12px;
         }
 
         .btn-logout{
@@ -114,7 +114,7 @@
         .content{
             margin-left:260px;
             width:100%;
-            padding:32px;
+            padding:30px;
         }
 
         .topo{
@@ -137,8 +137,8 @@
 
         .mes-atual{
             display:inline-block;
-            margin-top:12px;
-            padding:10px 16px;
+            margin-top:14px;
+            padding:10px 18px;
             background:#082f49;
             color:#7dd3fc;
             border:1px solid #0ea5e9;
@@ -149,7 +149,7 @@
 
         .cards{
             display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
             gap:20px;
             margin-bottom:30px;
         }
@@ -169,20 +169,19 @@
 
         .card h3{
             color:#94a3b8;
-            font-size:14px;
-            margin-bottom:12px;
+            font-size:15px;
+            margin-bottom:14px;
         }
 
         .card p{
-            font-size:36px;
+            font-size:38px;
             font-weight:800;
-            color:#f8fafc;
         }
 
         .dashboard-grid{
             display:grid;
-            grid-template-columns:1.4fr 1fr;
-            gap:22px;
+            grid-template-columns:1.5fr 1fr;
+            gap:24px;
             margin-bottom:30px;
         }
 
@@ -210,9 +209,9 @@
 
         .linha-grafico{
             display:grid;
-            grid-template-columns:120px 1fr 55px;
-            align-items:center;
+            grid-template-columns:120px 1fr 50px;
             gap:14px;
+            align-items:center;
         }
 
         .nome-grafico{
@@ -232,21 +231,16 @@
         .barra{
             height:100%;
             border-radius:999px;
-            background:linear-gradient(90deg,#38bdf8,#22c55e);
-        }
-
-        .valor-grafico{
-            font-weight:800;
-            color:#f8fafc;
-            text-align:right;
         }
 
         .total{
             width:90%;
+            background:linear-gradient(90deg,#38bdf8,#22c55e);
         }
 
         .ativos{
             width:70%;
+            background:linear-gradient(90deg,#38bdf8,#22c55e);
         }
 
         .demitidos{
@@ -259,17 +253,22 @@
             background:linear-gradient(90deg,#facc15,#f59e0b);
         }
 
+        .valor-grafico{
+            text-align:right;
+            font-weight:800;
+        }
+
         .status-list{
             display:flex;
             flex-direction:column;
-            gap:14px;
+            gap:15px;
         }
 
         .status-item{
             background:#020617;
             border:1px solid #1e293b;
             border-radius:14px;
-            padding:15px;
+            padding:16px;
         }
 
         .status-item strong{
@@ -301,7 +300,6 @@
         td{
             padding:15px;
             border-bottom:1px solid #1e293b;
-            color:#e5e7eb;
         }
 
         tr:hover{
@@ -365,10 +363,6 @@
 
         <a href="/relatorio-mensal/">
             Relatório Mensal
-        </a>
-
-        <a href="/exportar-excel/">
-            Exportar Excel
         </a>
 
         <div class="usuario-menu">
@@ -527,7 +521,7 @@
 
                     <div class="status-item">
                         <strong>Funcionários Fixos</strong>
-                        <span>Cadastro permanente dos servidores.</span>
+                        <span>Cadastro permanente dos servidores no banco.</span>
                     </div>
 
                     <div class="status-item">
@@ -537,17 +531,88 @@
 
                     <div class="status-item">
                         <strong>Histórico</strong>
-                        <span>Todos os meses permanecem salvos.</span>
+                        <span>Meses anteriores permanecem salvos.</span>
                     </div>
 
                     <div class="status-item">
                         <strong>Excel</strong>
-                        <span>Exportação de relatórios mensais.</span>
+                        <span>Exportação futura por competência mensal.</span>
                     </div>
 
                 </div>
 
             </div>
+
+        </div>
+
+        <div class="box">
+
+            <h2>
+                Funcionários Recentes
+            </h2>
+
+            <table>
+
+                <tr>
+
+                    <th>Nome</th>
+                    <th>Cargo</th>
+                    <th>Status</th>
+                    <th>Admissão</th>
+
+                </tr>
+
+                {% for funcionario in funcionarios %}
+
+                <tr>
+
+                    <td>{{ funcionario.nome }}</td>
+
+                    <td>{{ funcionario.cargo }}</td>
+
+                    <td>
+
+                        {% if funcionario.status == 'ativo' %}
+
+                            <span class="ativo">
+                                Ativo
+                            </span>
+
+                        {% elif funcionario.status == 'inativo' %}
+
+                            <span class="inativo">
+                                Inativo
+                            </span>
+
+                        {% else %}
+
+                            <span class="demitido">
+                                Demitido
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ funcionario.data_admissao|date:"d/m/Y" }}
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="4">
+                        Nenhum funcionário cadastrado.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
 
         </div>
 
