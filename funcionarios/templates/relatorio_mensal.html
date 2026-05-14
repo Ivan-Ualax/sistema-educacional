@@ -1,123 +1,147 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
 
     <title>Relatório Mensal</title>
 
     <style>
-
-        body{
-            background:#020617;
-            color:white;
-            font-family:Arial;
-            padding:30px;
+        body {
+            background: #020617;
+            color: white;
+            font-family: Arial;
+            padding: 30px;
         }
 
-        h1{
-            margin-bottom:25px;
+        h1 {
+            margin-bottom: 25px;
         }
 
-        form{
-            display:flex;
-            gap:15px;
-            margin-bottom:30px;
-            flex-wrap:wrap;
-            align-items:center;
+        form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
-        select,input{
-            background:#0f172a;
-            border:1px solid #1e293b;
-            color:white;
-            padding:12px;
-            border-radius:10px;
+        select,
+        input {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
         }
 
-        button{
-            background:#0ea5e9;
-            cursor:pointer;
-            border:none;
-            font-weight:bold;
-            color:white;
-            padding:12px 18px;
-            border-radius:10px;
+        button {
+            background: #0ea5e9;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 10px;
         }
 
-        button:hover{
-            background:#0284c7;
+        button:hover {
+            background: #0284c7;
         }
 
-        .btn-excel{
-            background:#22c55e;
-            color:white;
-            padding:12px 18px;
-            border-radius:10px;
-            text-decoration:none;
-            font-weight:bold;
+        .btn-excel {
+            background: #22c55e;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
         }
 
-        .btn-excel:hover{
-            background:#16a34a;
+        .btn-excel:hover {
+            background: #16a34a;
         }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:20px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        th{
-            background:#0f172a;
-            color:#94a3b8;
-            padding:14px;
-            text-align:left;
+        th {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 14px;
+            text-align: left;
         }
 
-        td{
-            padding:14px;
-            border-bottom:1px solid #1e293b;
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #1e293b;
         }
 
-        tr:hover{
-            background:#111827;
+        tr:hover {
+            background: #111827;
         }
 
-        .box{
-            background:#0f172a;
-            padding:20px;
-            border-radius:18px;
-            border:1px solid #1e293b;
+        .box {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid #1e293b;
         }
 
-        .totais{
-            display:flex;
-            gap:20px;
-            margin-top:25px;
-            flex-wrap:wrap;
+        .totais {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
         }
 
-        .card{
-            background:#111827;
-            padding:20px;
-            border-radius:15px;
-            min-width:220px;
+        .card {
+            background: #111827;
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 220px;
         }
 
-        .card h3{
-            color:#94a3b8;
-            margin-bottom:10px;
+        .card h3 {
+            color: #94a3b8;
+            margin-bottom: 10px;
         }
 
-        .card p{
-            font-size:28px;
-            font-weight:bold;
+        .card p {
+            font-size: 28px;
+            font-weight: bold;
         }
 
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #0ea5e9;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            transition: 0.2s;
+        }
+
+        .btn-voltar:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+        }
     </style>
 
 </head>
+
 <body>
+
+    <a href="/" class="btn-voltar">
+        ← Voltar ao Painel
+    </a>
 
     <h1>Relatório Mensal</h1>
 
@@ -142,12 +166,7 @@
 
         </select>
 
-        <input
-            type="number"
-            name="ano"
-            placeholder="Ano"
-            value="{{ ano }}"
-        >
+        <input type="number" name="ano" placeholder="Ano" value="{{ ano }}">
 
         <button type="submit">
             Gerar Relatório
@@ -155,10 +174,7 @@
 
         {% if mes and ano %}
 
-        <a
-            href="/exportar-excel/?mes={{ mes }}&ano={{ ano }}"
-            class="btn-excel"
-        >
+        <a href="/exportar-excel/?mes={{ mes }}&ano={{ ano }}" class="btn-excel">
             Exportar Excel
         </a>
 
@@ -236,4 +252,5 @@
     </div>
 
 </body>
+
 </html>
