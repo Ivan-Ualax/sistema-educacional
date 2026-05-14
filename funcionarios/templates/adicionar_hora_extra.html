@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Hora Extra</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f172a;
+            font-family: Arial;
+            color: white;
+            display: flex;
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: #020617;
+            padding: 25px;
+            position: fixed;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: #38bdf8;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #1e293b;
+        }
+
+        .content {
+            margin-left: 320px;
+            padding: 40px;
+            width: calc(100% - 320px);
+        }
+
+        .topo {
+            margin-bottom: 25px;
+        }
+
+        .topo h1 {
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .topo p {
+            color: #94a3b8;
+        }
+
+        .form-box {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 18px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 18px;
+        }
+
+        label {
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select,
+        textarea {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #16a34a;
+        }
+
+        .btn-voltar {
+            background: #334155;
+            color: white;
+            text-decoration: none;
+            padding: 14px 25px;
+            border-radius: 12px;
+            margin-left: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #475569;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Sistema Escolar
+        </div>
+
+        <a href="/">
+            Dashboard
+        </a>
+
+        <a href="/funcionarios/">
+            Funcionários
+        </a>
+
+        <a href="/horas-extras/">
+            Horas Extras
+        </a>
+
+    </div>
+
+    <div class="content">
+
+        <div class="topo">
+
+            <h1>Adicionar Hora Extra</h1>
+
+            <p>
+                Funcionário:
+                <strong>{{ funcionario.nome }}</strong>
+            </p>
+
+        </div>
+
+        <div class="form-box">
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="campo">
+
+                    <label>Tipo de Hora Extra</label>
+
+                    <select name="tipo" required>
+
+                        <option value="normal">
+                            Hora Extra Normal
+                        </option>
+
+                        <option value="f1">
+                            Hora Extra F1
+                        </option>
+
+                        <option value="f2">
+                            Hora Extra F2
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="campo">
+
+                    <label>Quantidade de Horas</label>
+
+                    <input type="number" step="0.01" name="quantidade_horas" required>
+
+                </div>
+
+                <div class="campo">
+
+                    <label>Valor</label>
+
+                    <input type="number" step="0.01" name="valor" required>
+
+
+
+                    <div class="campo">
+
+                        <label>Mês de Referência</label>
+
+                        <select name="mes_referencia" required>
+
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="campo">
+
+                        <label>Ano</label>
+
+                        <input type="number" name="ano" value="2026" required>
+
+                    </div>
+
+                </div>
+
+                <div class="campo">
+
+                    <label>Observação</label>
+
+                    <textarea name="observacao" placeholder="Opcional"></textarea>
+
+                </div>
+
+                <button type="submit">
+                    Salvar Hora Extra
+                </button>
+
+                <a href="/horas-extras/" class="btn-voltar">
+                    Voltar
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

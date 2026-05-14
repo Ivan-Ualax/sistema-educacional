@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Horas do Funcionário</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:Arial, sans-serif;
+            display:flex;
+        }
+
+        .sidebar{
+            width:260px;
+            height:100vh;
+            background:#0f172a;
+            padding:25px;
+            position:fixed;
+            border-right:1px solid #1e293b;
+        }
+
+        .logo{
+            font-size:24px;
+            font-weight:bold;
+            color:#38bdf8;
+            margin-bottom:35px;
+        }
+
+        .sidebar a{
+            display:block;
+            color:#cbd5e1;
+            text-decoration:none;
+            padding:14px;
+            border-radius:12px;
+            margin-bottom:10px;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+            color:#38bdf8;
+        }
+
+        .content{
+            margin-left:260px;
+            padding:35px;
+            width:100%;
+        }
+
+        .topo{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:25px;
+            gap:20px;
+        }
+
+        h1{
+            font-size:32px;
+            margin-bottom:8px;
+        }
+
+        .sub{
+            color:#94a3b8;
+        }
+
+        .btn{
+            background:#0ea5e9;
+            color:white;
+            padding:13px 18px;
+            border-radius:12px;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        .btn:hover{
+            background:#0284c7;
+        }
+
+        .box{
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:18px;
+            padding:25px;
+            margin-bottom:25px;
+        }
+
+        .dados{
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+            gap:15px;
+        }
+
+        .item{
+            background:#020617;
+            border:1px solid #1e293b;
+            border-radius:14px;
+            padding:15px;
+        }
+
+        .item span{
+            display:block;
+            color:#94a3b8;
+            font-size:13px;
+            margin-bottom:6px;
+        }
+
+        .item strong{
+            font-size:16px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th{
+            background:#020617;
+            color:#94a3b8;
+            padding:14px;
+            text-align:left;
+            font-size:13px;
+            text-transform:uppercase;
+            border-bottom:1px solid #1e293b;
+        }
+
+        td{
+            padding:14px;
+            border-bottom:1px solid #1e293b;
+            color:#e5e7eb;
+        }
+
+        tr:hover{
+            background:#111827;
+        }
+
+        .vazio{
+            color:#94a3b8;
+            text-align:center;
+            padding:25px;
+        }
+
+        .ativo{
+            color:#22c55e;
+            font-weight:bold;
+        }
+
+        .inativo{
+            color:#f59e0b;
+            font-weight:bold;
+        }
+
+        .demitido{
+            color:#ef4444;
+            font-weight:bold;
+        }
+
+        @media(max-width:800px){
+            body{
+                flex-direction:column;
+            }
+
+            .sidebar{
+                width:100%;
+                height:auto;
+                position:relative;
+            }
+
+            .content{
+                margin-left:0;
+                padding:20px;
+            }
+
+            .topo{
+                flex-direction:column;
+                align-items:flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">Sistema Escolar</div>
+
+        <a href="/">Dashboard</a>
+        <a href="/funcionarios/">Funcionários</a>
+        <a href="/horas-extras/">Horas Extras</a>
+        <a href="/relatorio-mensal/">Relatório Mensal</a>
+    </div>
+
+    <div class="content">
+
+        <div class="topo">
+            <div>
+                <h1>Horas do Funcionário</h1>
+                <p class="sub">Conferência dos lançamentos antes do relatório e Excel</p>
+            </div>
+
+            <a href="/horas-extras/adicionar/{{ funcionario.id }}/" class="btn">
+                + Novo Lançamento
+            </a>
+        </div>
+
+        <div class="box">
+            <div class="dados">
+
+                <div class="item">
+                    <span>Nome</span>
+                    <strong>{{ funcionario.nome }}</strong>
+                </div>
+
+                <div class="item">
+                    <span>CPF</span>
+                    <strong>{{ funcionario.cpf }}</strong>
+                </div>
+
+                <div class="item">
+                    <span>Cargo</span>
+                    <strong>{{ funcionario.cargo }}</strong>
+                </div>
+
+                <div class="item">
+                    <span>Carga Horária</span>
+                    <strong>{{ funcionario.carga_horaria }}</strong>
+                </div>
+
+                <div class="item">
+                    <span>Status</span>
+
+                    {% if funcionario.status == 'ativo' %}
+                        <strong class="ativo">Ativo</strong>
+                    {% elif funcionario.status == 'inativo' %}
+                        <strong class="inativo">Inativo</strong>
+                    {% else %}
+                        <strong class="demitido">Demitido</strong>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="box">
+            <h2 style="margin-bottom:20px;">Lançamentos de Horas Extras</h2>
+
+            <table>
+                <tr>
+                    <th>Mês</th>
+                    <th>Ano</th>
+                    <th>Tipo</th>
+                    <th>Horas</th>
+                    <th>Valor</th>
+                    <th>Observação</th>
+                </tr>
+
+                {% for item in lancamentos %}
+                <tr>
+                    <td>{{ item.get_mes_referencia_display }}</td>
+                    <td>{{ item.ano }}</td>
+                    <td>{{ item.get_tipo_display }}</td>
+                    <td>{{ item.quantidade_horas }}</td>
+                    <td>R$ {{ item.valor }}</td>
+                    <td>{{ item.observacao }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="vazio">
+                        Nenhum lançamento encontrado para este funcionário.
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>

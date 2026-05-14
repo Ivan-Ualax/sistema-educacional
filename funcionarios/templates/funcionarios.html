@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funcionários</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#0f172a;
+            font-family:Arial;
+            color:white;
+            display:flex;
+        }
+
+        .sidebar{
+            width:260px;
+            height:100vh;
+            background:#020617;
+            padding:25px;
+            position:fixed;
+            border-right:1px solid #1e293b;
+        }
+
+        .logo{
+            font-size:24px;
+            font-weight:bold;
+            margin-bottom:40px;
+            color:#38bdf8;
+        }
+
+        .sidebar a{
+            display:block;
+            text-decoration:none;
+            color:#cbd5e1;
+            padding:15px;
+            border-radius:12px;
+            margin-bottom:10px;
+            transition:0.3s;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+        }
+
+        .content{
+            margin-left:260px;
+            width:100%;
+            padding:30px;
+        }
+
+        .topo{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+        }
+
+        .topo a{
+            background:#38bdf8;
+            color:#020617;
+            text-decoration:none;
+            padding:14px 20px;
+            border-radius:12px;
+            font-weight:bold;
+        }
+
+        /* FILTROS */
+
+        .filtros{
+            display:flex;
+            gap:15px;
+            margin-bottom:25px;
+        }
+
+        .filtros input,
+        .filtros select{
+            background:#0f172a;
+            border:1px solid #334155;
+            color:white;
+            padding:14px;
+            border-radius:12px;
+            outline:none;
+        }
+
+        .filtros input{
+            flex:1;
+        }
+
+        .filtros button{
+            background:#38bdf8;
+            color:#020617;
+            border:none;
+            padding:14px 22px;
+            border-radius:12px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        /* BOX */
+
+        .box{
+            background:#1e293b;
+            border-radius:18px;
+            padding:25px;
+            border:1px solid #334155;
+            overflow-x:auto;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            min-width:1200px;
+        }
+
+        th{
+            text-align:left;
+            padding:15px;
+            color:#94a3b8;
+            border-bottom:1px solid #334155;
+        }
+
+        td{
+            padding:15px;
+            border-bottom:1px solid #334155;
+        }
+
+        /* STATUS */
+
+        .ativo,
+        .inativo,
+        .demitido{
+            padding:8px 16px;
+            border-radius:30px;
+            font-weight:600;
+            font-size:14px;
+            display:inline-block;
+            text-align:center;
+            min-width:110px;
+            border:1px solid transparent;
+        }
+
+        .ativo{
+            background:rgba(34,197,94,0.15);
+            color:#4ade80;
+            border-color:rgba(34,197,94,0.4);
+        }
+
+        .inativo{
+            background:rgba(245,158,11,0.15);
+            color:#fbbf24;
+            border-color:rgba(245,158,11,0.4);
+        }
+
+        .demitido{
+            background:rgba(239,68,68,0.15);
+            color:#f87171;
+            border-color:rgba(239,68,68,0.4);
+        }
+
+        /* AÇÕES */
+
+        .acoes{
+            display:flex;
+            gap:10px;
+            align-items:center;
+            flex-wrap:nowrap;
+        }
+
+        .status-select{
+            background:#0f172a;
+            border:1px solid #334155;
+            color:white;
+            padding:9px 12px;
+            border-radius:10px;
+            outline:none;
+            font-size:13px;
+            cursor:pointer;
+        }
+
+        .btn-editar{
+            background:#3b82f6;
+            color:white;
+            padding:9px 12px;
+            border-radius:10px;
+            text-decoration:none;
+            font-size:13px;
+            font-weight:600;
+        }
+
+        .btn-excluir{
+            background:#991b1b;
+            color:white;
+            padding:9px 12px;
+            border-radius:10px;
+            text-decoration:none;
+            font-size:13px;
+            font-weight:600;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- MENU -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Sistema Escolar
+        </div>
+
+        <a href="/">
+            Dashboard
+        </a>
+
+        <a href="/funcionarios/cadastrar/">
+            Cadastrar Funcionário
+        </a>
+
+        <a href="/funcionarios/">
+            Funcionários
+        </a>
+
+        <a href="/horas-extras/">
+            Horas Extras
+        </a>
+
+    </div>
+
+    <!-- CONTEÚDO -->
+
+    <div class="content">
+
+        <!-- TOPO -->
+
+        <div class="topo">
+
+            <h1>Funcionários</h1>
+
+            <a href="/funcionarios/cadastrar/">
+                Novo Funcionário
+            </a>
+
+        </div>
+
+        <!-- FILTROS -->
+
+        <form method="GET" class="filtros">
+
+            <input
+                type="text"
+                name="busca"
+                placeholder="Pesquisar por nome..."
+                value="{{ busca|default:'' }}"
+            >
+
+            <select name="ordem">
+
+                <option
+                    value="recente"
+                    {% if ordem != 'antigo' %}selected{% endif %}
+                >
+                    Mais recente
+                </option>
+
+                <option
+                    value="antigo"
+                    {% if ordem == 'antigo' %}selected{% endif %}
+                >
+                    Mais antigo
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Filtrar
+            </button>
+
+        </form>
+
+        <!-- TABELA -->
+
+        <div class="box">
+
+            <table>
+
+                <tr>
+
+                    <th>Nome</th>
+
+                    <th>CPF</th>
+
+                    <th>Número</th>
+
+                    <th>Profissão</th>
+
+                    <th>Carga Horária</th>
+
+                    <th>Localidade</th>
+
+                    <th>Status</th>
+
+                    <th>Admissão</th>
+
+                    <th>Ações</th>
+
+                </tr>
+
+                {% for funcionario in funcionarios %}
+
+                <tr>
+
+                    <td>
+                        {{ funcionario.nome }}
+                    </td>
+
+                    <td>
+                        {{ funcionario.cpf }}
+                    </td>
+
+                    <td>
+                        {{ funcionario.numero }}
+                    </td>
+
+                    <td>
+
+                        {% if funcionario.cargo %}
+
+                            {{ funcionario.cargo.nome }}
+
+                        {% else %}
+
+                            Não informado
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ funcionario.carga_horaria }}h
+                    </td>
+
+                    <td>
+                        {{ funcionario.localidade }}
+                    </td>
+
+                    <td>
+
+                        {% if funcionario.status == 'ativo' %}
+
+                            <span class="ativo">
+                                Ativo
+                            </span>
+
+                        {% elif funcionario.status == 'inativo' %}
+
+                            <span class="inativo">
+                                Inativo
+                            </span>
+
+                        {% else %}
+
+                            <span class="demitido">
+                                Demitido
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if funcionario.data_admissao %}
+
+                            {{ funcionario.data_admissao|date:"d/m/Y" }}
+
+                        {% else %}
+
+                            Não informado
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <div class="acoes">
+
+                            <form
+                                method="POST"
+                                action="/funcionarios/status/{{ funcionario.id }}/"
+                            >
+
+                                {% csrf_token %}
+
+                                <select
+                                    name="status"
+                                    class="status-select"
+                                    onchange="this.form.submit()"
+                                >
+
+                                    <option
+                                        value="ativo"
+                                        {% if funcionario.status == 'ativo' %}selected{% endif %}
+                                    >
+                                        Ativo
+                                    </option>
+
+                                    <option
+                                        value="inativo"
+                                        {% if funcionario.status == 'inativo' %}selected{% endif %}
+                                    >
+                                        Inativo
+                                    </option>
+
+                                    <option
+                                        value="demitido"
+                                        {% if funcionario.status == 'demitido' %}selected{% endif %}
+                                    >
+                                        Demitido
+                                    </option>
+
+                                </select>
+
+                            </form>
+
+                            <a
+                                href="/funcionarios/editar/{{ funcionario.id }}/"
+                                class="btn-editar"
+                            >
+                                Editar
+                            </a>
+
+                            <a
+                                href="/funcionarios/excluir/{{ funcionario.id }}/"
+                                class="btn-excluir"
+                            >
+                                Excluir
+                            </a>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

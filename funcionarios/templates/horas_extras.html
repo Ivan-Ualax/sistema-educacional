@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horas Extras</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#0f172a;
+            font-family:Arial;
+            color:white;
+            display:flex;
+        }
+
+        /* MENU */
+
+        .sidebar{
+            width:260px;
+            height:100vh;
+            background:#020617;
+            padding:25px;
+            position:fixed;
+            border-right:1px solid #1e293b;
+        }
+
+        .logo{
+            font-size:24px;
+            font-weight:bold;
+            margin-bottom:40px;
+            color:#38bdf8;
+        }
+
+        .sidebar a{
+            display:block;
+            text-decoration:none;
+            color:#cbd5e1;
+            padding:15px;
+            border-radius:12px;
+            margin-bottom:10px;
+            transition:0.3s;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+        }
+
+        /* CONTEÚDO */
+
+        .content{
+            margin-left:260px;
+            width:100%;
+            padding:30px;
+        }
+
+        .topo{
+            margin-bottom:30px;
+        }
+
+        .topo h1{
+            font-size:32px;
+            margin-bottom:10px;
+        }
+
+        .topo p{
+            color:#94a3b8;
+        }
+
+        /* BUSCA */
+
+        .busca-box{
+            background:#1e293b;
+            border:1px solid #334155;
+            padding:25px;
+            border-radius:18px;
+            margin-bottom:30px;
+        }
+
+        .busca-form{
+            display:flex;
+            gap:15px;
+        }
+
+        .busca-form input{
+            flex:1;
+            background:#0f172a;
+            border:1px solid #334155;
+            color:white;
+            padding:14px;
+            border-radius:12px;
+            outline:none;
+            font-size:15px;
+        }
+
+        .busca-form input:focus{
+            border-color:#38bdf8;
+        }
+
+        .busca-form button{
+            background:#38bdf8;
+            color:#020617;
+            border:none;
+            padding:14px 25px;
+            border-radius:12px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        .busca-form button:hover{
+            background:#0ea5e9;
+        }
+
+        /* RESULTADOS */
+
+        .resultados{
+            display:grid;
+            gap:20px;
+        }
+
+        .funcionario-card{
+            background:#1e293b;
+            border:1px solid #334155;
+            border-radius:18px;
+            padding:25px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .funcionario-info h2{
+            margin-bottom:8px;
+            font-size:22px;
+        }
+
+        .funcionario-info p{
+            color:#94a3b8;
+        }
+
+        .btn-add{
+            background:#22c55e;
+            color:white;
+            text-decoration:none;
+            padding:14px 20px;
+            border-radius:12px;
+            font-weight:bold;
+            transition:0.3s;
+        }
+
+        .btn-add:hover{
+            background:#16a34a;
+        }
+
+        .sem-resultados{
+            background:#1e293b;
+            border:1px solid #334155;
+            border-radius:18px;
+            padding:30px;
+            text-align:center;
+            color:#94a3b8;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <!-- MENU -->
+
+    <div class="sidebar">
+
+    <div class="logo">
+        Sistema Escolar
+    </div>
+
+    <a href="/">
+        Dashboard
+    </a>
+
+    <a href="/funcionarios/cadastrar/">
+        Cadastrar Funcionário
+    </a>
+
+    <a href="/funcionarios/">
+        Funcionários
+    </a>
+
+    <a href="/horas-extras/">
+        Horas Extras
+    </a>
+
+    <a href="/relatorio-mensal/">
+        Relatório Mensal
+    </a>
+
+    <a href="/historico-mensal/">
+        Histórico Mensal
+    </a>
+
+</div>
+
+    <!-- CONTEÚDO -->
+
+    <div class="content">
+
+        <div class="topo">
+
+            <h1>Horas Extras</h1>
+
+            <p>
+                Pesquise o funcionário para adicionar horas extras.
+            </p>
+
+        </div>
+
+        <!-- BUSCA -->
+
+        <div class="busca-box">
+
+            <form method="GET" class="busca-form">
+
+                <input
+                    type="text"
+                    name="busca"
+                    placeholder="Pesquise por nome..."
+                >
+
+                <button type="submit">
+                    Pesquisar
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- RESULTADOS -->
+
+        <div class="resultados">
+
+            {% if funcionarios %}
+
+                {% for funcionario in funcionarios %}
+
+                    <div class="funcionario-card">
+
+                        <div class="funcionario-info">
+
+                            <h2>
+                                {{ funcionario.nome }}
+                            </h2>
+
+                            <p>
+                                {{ funcionario.cargo }} •
+                                {{ funcionario.carga_horaria }}h
+                            </p>
+
+                        </div>
+
+                        <a
+                            href="/horas-extras/adicionar/{{ funcionario.id }}/"
+                            class="btn-add"
+                        >
+                            Adicionar Hora Extra
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="sem-resultados">
+
+                    Pesquise um funcionário pelo nome.
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Folha Mensal</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:Arial;
+            padding:30px;
+        }
+
+        h1{
+            margin-bottom:10px;
+        }
+
+        .sub{
+            color:#94a3b8;
+            margin-bottom:25px;
+        }
+
+        form{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-bottom:25px;
+            align-items:center;
+        }
+
+        select,
+        input{
+            background:#0f172a;
+            border:1px solid #1e293b;
+            color:white;
+            padding:12px;
+            border-radius:10px;
+        }
+
+        button{
+            background:#0ea5e9;
+            border:none;
+            color:white;
+            padding:12px 20px;
+            border-radius:10px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#0284c7;
+        }
+
+        .box{
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:18px;
+            padding:15px;
+            overflow-x:auto;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th{
+            background:#020617;
+            color:#94a3b8;
+            padding:14px;
+            text-align:left;
+            font-size:13px;
+            text-transform:uppercase;
+        }
+
+        td{
+            padding:14px;
+            border-bottom:1px solid #1e293b;
+        }
+
+        tr:hover{
+            background:#111827;
+        }
+
+        .input-tabela{
+            width:100px;
+            background:#020617;
+            border:1px solid #1e293b;
+            color:white;
+            padding:10px;
+            border-radius:8px;
+        }
+
+        .observacao{
+            width:220px;
+        }
+
+        .btn-salvar{
+            margin-top:20px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <h1>Folha Mensal</h1>
+
+    <p class="sub">
+        Lançamento mensal de horas extras por funcionário.
+    </p>
+
+    <!-- FILTRO -->
+
+    <form method="GET">
+
+        <select name="mes" required>
+
+            <option value="">Mês</option>
+
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+
+        </select>
+
+        <input
+            type="number"
+            name="ano"
+            placeholder="Ano"
+            value="{{ ano }}"
+            required
+        >
+
+        <button type="submit">
+            Carregar Folha
+        </button>
+
+    </form>
+
+    {% if funcionarios %}
+
+    <!-- FORM SALVAR -->
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input type="hidden" name="mes" value="{{ mes }}">
+        <input type="hidden" name="ano" value="{{ ano }}">
+
+        <div class="box">
+
+            <table>
+
+                <tr>
+
+                    <th>Funcionário</th>
+                    <th>Cargo</th>
+                    <th>Status</th>
+                    <th>Horas</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                    <th>Observação</th>
+
+                </tr>
+
+                {% for funcionario in funcionarios %}
+
+                <tr>
+
+                    <td>
+
+                        {{ funcionario.nome }}
+
+                        <input
+                            type="hidden"
+                            name="funcionario_id"
+                            value="{{ funcionario.id }}"
+                        >
+
+                    </td>
+
+                    <td>
+                        {{ funcionario.cargo }}
+                    </td>
+
+                    <td>
+                        {{ funcionario.status }}
+                    </td>
+
+                    <td>
+
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="horas_{{ funcionario.id }}"
+                            class="input-tabela"
+                            value="0"
+                        >
+
+                    </td>
+
+                    <td>
+
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="valor_{{ funcionario.id }}"
+                            class="input-tabela"
+                            value="0"
+                        >
+
+                    </td>
+
+                    <td>
+
+                        <select
+                            name="tipo_{{ funcionario.id }}"
+                            class="input-tabela"
+                        >
+
+                            <option value="normal">
+                                Normal
+                            </option>
+
+                            <option value="f1">
+                                F1
+                            </option>
+
+                            <option value="f2">
+                                F2
+                            </option>
+
+                        </select>
+
+                    </td>
+
+                    <td>
+
+                        <input
+                            type="text"
+                            name="observacao_{{ funcionario.id }}"
+                            class="input-tabela observacao"
+                            placeholder="Observação"
+                        >
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        <button
+            type="submit"
+            class="btn-salvar"
+        >
+            Salvar Folha Mensal
+        </button>
+
+    </form>
+
+    {% endif %}
+
+</body>
+</html>

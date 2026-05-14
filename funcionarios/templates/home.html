@@ -1,0 +1,517 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Escolar</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            min-height:100vh;
+            font-family:'Segoe UI', Arial, sans-serif;
+            background:#020617;
+            color:#f8fafc;
+            display:flex;
+        }
+
+        .sidebar{
+            width:260px;
+            height:100vh;
+            background:#0f172a;
+            padding:25px;
+            position:fixed;
+            border-right:1px solid #1e293b;
+        }
+
+        .logo-box{
+            text-align:center;
+            margin-bottom:25px;
+        }
+
+        .logo-box img{
+            width:150px;
+            height:150px;
+            object-fit:contain;
+            margin-bottom:20px;
+            border-radius:80px;
+        }
+
+        .logo-box h2{
+            font-size:24px;
+            font-weight:800;
+            color:#f8fafc;
+        }
+
+        .logo-box span{
+            color:#38bdf8;
+        }
+
+        .sidebar a{
+            display:block;
+            text-decoration:none;
+            color:#94a3b8;
+            padding:14px 16px;
+            border-radius:12px;
+            margin-bottom:10px;
+            font-size:15px;
+            font-weight:600;
+            transition:0.2s;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+            color:#38bdf8;
+        }
+
+        .content{
+            margin-left:260px;
+            width:100%;
+            padding:32px;
+        }
+
+        .topo{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+        }
+
+        .topo h1{
+            font-size:32px;
+            font-weight:800;
+        }
+
+        .topo p{
+            color:#94a3b8;
+            margin-top:6px;
+            font-size:14px;
+        }
+
+        .usuario{
+            background:#0f172a;
+            padding:12px 20px;
+            border-radius:12px;
+            border:1px solid #1e293b;
+            color:#cbd5e1;
+            font-weight:700;
+        }
+
+        .mes-atual{
+            display:inline-block;
+            margin-top:12px;
+            padding:10px 16px;
+            background:#082f49;
+            color:#7dd3fc;
+            border:1px solid #0ea5e9;
+            border-radius:999px;
+            font-size:14px;
+            font-weight:700;
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+            gap:20px;
+            margin-bottom:30px;
+        }
+
+        .card{
+            background:#0f172a;
+            padding:24px;
+            border-radius:18px;
+            border:1px solid #1e293b;
+            transition:0.2s;
+        }
+
+        .card:hover{
+            border-color:#38bdf8;
+            transform:translateY(-3px);
+        }
+
+        .card h3{
+            color:#94a3b8;
+            font-size:14px;
+            margin-bottom:12px;
+        }
+
+        .card p{
+            font-size:36px;
+            font-weight:800;
+            color:#f8fafc;
+        }
+
+        .dashboard-grid{
+            display:grid;
+            grid-template-columns:1.4fr 1fr;
+            gap:22px;
+            margin-bottom:30px;
+        }
+
+        .grafico-box,
+        .info-box,
+        .box{
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:20px;
+            padding:25px;
+        }
+
+        .grafico-box h2,
+        .info-box h2,
+        .box h2{
+            font-size:22px;
+            margin-bottom:22px;
+        }
+
+        .grafico{
+            display:flex;
+            flex-direction:column;
+            gap:18px;
+        }
+
+        .linha-grafico{
+            display:grid;
+            grid-template-columns:120px 1fr 55px;
+            align-items:center;
+            gap:14px;
+        }
+
+        .nome-grafico{
+            color:#cbd5e1;
+            font-weight:700;
+            font-size:14px;
+        }
+
+        .barra-area{
+            height:16px;
+            background:#020617;
+            border-radius:999px;
+            overflow:hidden;
+            border:1px solid #1e293b;
+        }
+
+        .barra{
+            height:100%;
+            border-radius:999px;
+            background:linear-gradient(90deg,#38bdf8,#22c55e);
+            box-shadow:0 0 18px rgba(56,189,248,0.35);
+        }
+
+        .valor-grafico{
+            font-weight:800;
+            color:#f8fafc;
+            text-align:right;
+        }
+
+        .total{ width:90%; }
+        .ativos{ width:70%; }
+
+        .demitidos{
+            width:35%;
+            background:linear-gradient(90deg,#fb7185,#ef4444);
+        }
+
+        .horas{
+            width:55%;
+            background:linear-gradient(90deg,#facc15,#f59e0b);
+        }
+
+        .status-list{
+            display:flex;
+            flex-direction:column;
+            gap:14px;
+        }
+
+        .status-item{
+            background:#020617;
+            border:1px solid #1e293b;
+            border-radius:14px;
+            padding:15px;
+        }
+
+        .status-item strong{
+            display:block;
+            margin-bottom:6px;
+            font-size:15px;
+        }
+
+        .status-item span{
+            color:#94a3b8;
+            font-size:14px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th{
+            text-align:left;
+            padding:15px;
+            color:#94a3b8;
+            border-bottom:1px solid #1e293b;
+            background:#020617;
+            font-size:13px;
+            text-transform:uppercase;
+        }
+
+        td{
+            padding:15px;
+            border-bottom:1px solid #1e293b;
+            color:#e5e7eb;
+        }
+
+        tr:hover{
+            background:#111827;
+        }
+
+        .ativo{
+            color:#22c55e;
+            font-weight:800;
+        }
+
+        .inativo{
+            color:#f59e0b;
+            font-weight:800;
+        }
+
+        .demitido{
+            color:#ef4444;
+            font-weight:800;
+        }
+
+        @media(max-width:1000px){
+            .dashboard-grid{
+                grid-template-columns:1fr;
+            }
+        }
+
+        @media(max-width:850px){
+            body{
+                flex-direction:column;
+            }
+
+            .sidebar{
+                width:100%;
+                height:auto;
+                position:relative;
+            }
+
+            .content{
+                margin-left:0;
+                padding:22px;
+            }
+
+            .topo{
+                flex-direction:column;
+                align-items:flex-start;
+                gap:15px;
+            }
+
+            .linha-grafico{
+                grid-template-columns:1fr;
+                gap:8px;
+            }
+
+            .valor-grafico{
+                text-align:left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+
+        <div class="logo-box">
+            <img src="{% static 'img/mulungu.png' %}" alt="Logo">
+
+            <h2>Sistema <span>Escolar</span></h2>
+        </div>
+
+        <a href="/">Dashboard</a>
+        <a href="/funcionarios/cadastrar/">Cadastrar Funcionário</a>
+        <a href="/funcionarios/">Funcionários</a>
+        <a href="/horas-extras/">Horas Extras</a>
+        <a href="/historico-mensal/">Histórico Mensal</a>
+        <a href="/folha-mensal/">Folha Mensal</a>
+        <a href="/relatorio-mensal/">Relatório Mensal</a>
+        <a href="">Exportar Excel</a>
+
+    </div>
+
+    <div class="content">
+
+        <div class="topo">
+
+            <div>
+                <h1>Painel Administrativo</h1>
+                <p>Controle geral de funcionários, horas extras e sistema escolar</p>
+
+                <span class="mes-atual">
+                    Mês Atual: {{ mes_atual }}/{{ ano_atual }}
+                </span>
+            </div>
+
+            <div class="usuario">
+                Administrador
+            </div>
+
+        </div>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Total Funcionários</h3>
+                <p>{{ total_funcionarios }}</p>
+            </div>
+
+            <div class="card">
+                <h3>Funcionários Ativos</h3>
+                <p>{{ ativos }}</p>
+            </div>
+
+            <div class="card">
+                <h3>Demitidos</h3>
+                <p>{{ demitidos }}</p>
+            </div>
+
+            <div class="card">
+                <h3>Horas Extras do Mês</h3>
+                <p>{{ horas_extras }}</p>
+            </div>
+
+        </div>
+
+        <div class="dashboard-grid">
+
+            <div class="grafico-box">
+
+                <h2>Resumo Mensal do Sistema</h2>
+
+                <div class="grafico">
+
+                    <div class="linha-grafico">
+                        <div class="nome-grafico">Total</div>
+                        <div class="barra-area">
+                            <div class="barra total"></div>
+                        </div>
+                        <div class="valor-grafico">{{ total_funcionarios }}</div>
+                    </div>
+
+                    <div class="linha-grafico">
+                        <div class="nome-grafico">Ativos</div>
+                        <div class="barra-area">
+                            <div class="barra ativos"></div>
+                        </div>
+                        <div class="valor-grafico">{{ ativos }}</div>
+                    </div>
+
+                    <div class="linha-grafico">
+                        <div class="nome-grafico">Demitidos</div>
+                        <div class="barra-area">
+                            <div class="barra demitidos"></div>
+                        </div>
+                        <div class="valor-grafico">{{ demitidos }}</div>
+                    </div>
+
+                    <div class="linha-grafico">
+                        <div class="nome-grafico">Horas Mês</div>
+                        <div class="barra-area">
+                            <div class="barra horas"></div>
+                        </div>
+                        <div class="valor-grafico">{{ horas_extras }}</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="info-box">
+
+                <h2>Indicadores</h2>
+
+                <div class="status-list">
+
+                    <div class="status-item">
+                        <strong>Funcionários Fixos</strong>
+                        <span>Cadastro permanente dos servidores no banco.</span>
+                    </div>
+
+                    <div class="status-item">
+                        <strong>Horas Extras Mensais</strong>
+                        <span>Lançamentos separados por mês e ano.</span>
+                    </div>
+
+                    <div class="status-item">
+                        <strong>Histórico</strong>
+                        <span>Meses anteriores permanecem salvos.</span>
+                    </div>
+
+                    <div class="status-item">
+                        <strong>Excel</strong>
+                        <span>Exportação futura por competência mensal.</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="box">
+
+            <h2>Funcionários Recentes</h2>
+
+            <table>
+
+                <tr>
+                    <th>Nome</th>
+                    <th>Cargo</th>
+                    <th>Status</th>
+                    <th>Admissão</th>
+                </tr>
+
+                {% for funcionario in funcionarios %}
+
+                <tr>
+                    <td>{{ funcionario.nome }}</td>
+                    <td>{{ funcionario.cargo }}</td>
+
+                    <td>
+                        {% if funcionario.status == 'ativo' %}
+                            <span class="ativo">Ativo</span>
+                        {% elif funcionario.status == 'inativo' %}
+                            <span class="inativo">Inativo</span>
+                        {% else %}
+                            <span class="demitido">Demitido</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ funcionario.data_admissao|date:"d/m/Y" }}</td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="4">Nenhum funcionário cadastrado.</td>
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

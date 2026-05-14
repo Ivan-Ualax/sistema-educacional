@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Funcionário</title>
+
+    <style>
+        body{
+            background:#0f172a;
+            font-family:Arial;
+            color:white;
+            display:flex;
+            margin:0;
+        }
+
+        .sidebar{
+            width:260px;
+            height:100vh;
+            background:#020617;
+            padding:25px;
+            position:fixed;
+        }
+
+        .logo{
+            font-size:24px;
+            font-weight:bold;
+            margin-bottom:40px;
+            color:#38bdf8;
+        }
+
+        .sidebar a{
+            display:block;
+            color:#cbd5e1;
+            text-decoration:none;
+            padding:15px;
+            border-radius:12px;
+            margin-bottom:10px;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+        }
+
+        .content{
+            margin-left:320px;
+            padding:40px;
+            width:calc(100% - 320px);
+        }
+
+        .form-box{
+            background:#1e293b;
+            border:1px solid #334155;
+            border-radius:18px;
+            padding:30px;
+            max-width:900px;
+        }
+
+        .campo{
+            display:flex;
+            flex-direction:column;
+            margin-bottom:18px;
+        }
+
+        label{
+            color:#cbd5e1;
+            margin-bottom:8px;
+        }
+
+        input{
+            background:#0f172a;
+            border:1px solid #334155;
+            color:white;
+            padding:14px;
+            border-radius:12px;
+            outline:none;
+            font-size:15px;
+        }
+
+        button{
+            background:#38bdf8;
+            color:#020617;
+            border:none;
+            padding:14px 25px;
+            border-radius:12px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .btn-voltar{
+            background:#334155;
+            color:white;
+            text-decoration:none;
+            padding:14px 25px;
+            border-radius:12px;
+            margin-left:10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+
+        <div class="logo">
+            Sistema Escolar
+        </div>
+
+        <a href="/">Dashboard</a>
+        <a href="/funcionarios/">Funcionários</a>
+        <a href="/horas-extras/">Horas Extras</a>
+
+    </div>
+
+    <div class="content">
+
+        <h1>Editar Funcionário</h1>
+
+        <div class="form-box">
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="campo">
+                    <label>Nome Completo</label>
+                    <input type="text" name="nome" value="{{ funcionario.nome }}" required>
+                </div>
+
+                <div class="campo">
+                    <label>CPF</label>
+                    <input type="text" name="cpf" value="{{ funcionario.cpf }}">
+                </div>
+
+                <div class="campo">
+                    <label>Profissão / Cargo</label>
+                    <input type="text" name="cargo" value="{{ funcionario.cargo }}">
+                </div>
+
+                <div class="campo">
+                    <label>Carga Horária</label>
+                    <input type="number" name="carga_horaria" value="{{ funcionario.carga_horaria }}">
+                </div>
+
+                <div class="campo">
+                    <label>Contato</label>
+                    <input type="text" name="numero" value="{{ funcionario.numero }}">
+                </div>
+
+                <div class="campo">
+                    <label>Localidade</label>
+                    <input type="text" name="localidade" value="{{ funcionario.localidade }}">
+                </div>
+
+                <div class="campo">
+                    <label>Data de Admissão</label>
+                    <input type="date" name="data_admissao" value="{{ funcionario.data_admissao|date:'Y-m-d' }}">
+                </div>
+
+                <button type="submit">
+                    Salvar Alterações
+                </button>
+
+                <a href="/funcionarios/" class="btn-voltar">
+                    Voltar
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
