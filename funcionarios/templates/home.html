@@ -4,8 +4,10 @@
 <html lang="pt-br">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Sistema Escolar</title>
 
     <style>
@@ -231,7 +233,6 @@
             height:100%;
             border-radius:999px;
             background:linear-gradient(90deg,#38bdf8,#22c55e);
-            box-shadow:0 0 18px rgba(56,189,248,0.35);
         }
 
         .valor-grafico{
@@ -366,6 +367,10 @@
             Relatório Mensal
         </a>
 
+        <a href="/exportar-excel/">
+            Exportar Excel
+        </a>
+
         <div class="usuario-menu">
 
             {% if user.is_authenticated %}
@@ -399,11 +404,11 @@
                 </h1>
 
                 <p>
-                    Controle geral de funcionários e folha mensal
+                    Controle geral de funcionários, horas extras e sistema escolar
                 </p>
 
                 <span class="mes-atual">
-                    {{ mes_atual }}/{{ ano_atual }}
+                    Mês Atual: {{ mes_atual }}/{{ ano_atual }}
                 </span>
 
             </div>
@@ -418,7 +423,7 @@
             </div>
 
             <div class="card">
-                <h3>Ativos</h3>
+                <h3>Funcionários Ativos</h3>
                 <p>{{ ativos }}</p>
             </div>
 
@@ -430,6 +435,118 @@
             <div class="card">
                 <h3>Horas Extras</h3>
                 <p>{{ horas_extras }}</p>
+            </div>
+
+        </div>
+
+        <div class="dashboard-grid">
+
+            <div class="grafico-box">
+
+                <h2>
+                    Resumo Mensal do Sistema
+                </h2>
+
+                <div class="grafico">
+
+                    <div class="linha-grafico">
+
+                        <div class="nome-grafico">
+                            Total
+                        </div>
+
+                        <div class="barra-area">
+                            <div class="barra total"></div>
+                        </div>
+
+                        <div class="valor-grafico">
+                            {{ total_funcionarios }}
+                        </div>
+
+                    </div>
+
+                    <div class="linha-grafico">
+
+                        <div class="nome-grafico">
+                            Ativos
+                        </div>
+
+                        <div class="barra-area">
+                            <div class="barra ativos"></div>
+                        </div>
+
+                        <div class="valor-grafico">
+                            {{ ativos }}
+                        </div>
+
+                    </div>
+
+                    <div class="linha-grafico">
+
+                        <div class="nome-grafico">
+                            Demitidos
+                        </div>
+
+                        <div class="barra-area">
+                            <div class="barra demitidos"></div>
+                        </div>
+
+                        <div class="valor-grafico">
+                            {{ demitidos }}
+                        </div>
+
+                    </div>
+
+                    <div class="linha-grafico">
+
+                        <div class="nome-grafico">
+                            Horas Mês
+                        </div>
+
+                        <div class="barra-area">
+                            <div class="barra horas"></div>
+                        </div>
+
+                        <div class="valor-grafico">
+                            {{ horas_extras }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="info-box">
+
+                <h2>
+                    Indicadores
+                </h2>
+
+                <div class="status-list">
+
+                    <div class="status-item">
+                        <strong>Funcionários Fixos</strong>
+                        <span>Cadastro permanente dos servidores.</span>
+                    </div>
+
+                    <div class="status-item">
+                        <strong>Horas Extras Mensais</strong>
+                        <span>Lançamentos separados por mês e ano.</span>
+                    </div>
+
+                    <div class="status-item">
+                        <strong>Histórico</strong>
+                        <span>Todos os meses permanecem salvos.</span>
+                    </div>
+
+                    <div class="status-item">
+                        <strong>Excel</strong>
+                        <span>Exportação de relatórios mensais.</span>
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
