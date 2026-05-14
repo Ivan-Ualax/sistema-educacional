@@ -118,9 +118,6 @@
         }
 
         .topo{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
             margin-bottom:30px;
         }
 
@@ -159,12 +156,6 @@
             padding:24px;
             border-radius:18px;
             border:1px solid #1e293b;
-            transition:0.2s;
-        }
-
-        .card:hover{
-            border-color:#38bdf8;
-            transform:translateY(-3px);
         }
 
         .card h3{
@@ -365,6 +356,10 @@
             Relatório Mensal
         </a>
 
+        <a href="/exportar-excel/">
+            Exportar Excel
+        </a>
+
         <div class="usuario-menu">
 
             {% if user.is_authenticated %}
@@ -391,21 +386,17 @@
 
         <div class="topo">
 
-            <div>
+            <h1>
+                Painel Administrativo
+            </h1>
 
-                <h1>
-                    Painel Administrativo
-                </h1>
+            <p>
+                Controle geral de funcionários, horas extras e sistema escolar
+            </p>
 
-                <p>
-                    Controle geral de funcionários, horas extras e sistema escolar
-                </p>
-
-                <span class="mes-atual">
-                    Mês Atual: {{ mes_atual }}/{{ ano_atual }}
-                </span>
-
-            </div>
+            <span class="mes-atual">
+                Mês Atual: {{ mes_atual }}/{{ ano_atual }}
+            </span>
 
         </div>
 
@@ -444,10 +435,7 @@
                 <div class="grafico">
 
                     <div class="linha-grafico">
-
-                        <div class="nome-grafico">
-                            Total
-                        </div>
+                        <div class="nome-grafico">Total</div>
 
                         <div class="barra-area">
                             <div class="barra total"></div>
@@ -456,14 +444,10 @@
                         <div class="valor-grafico">
                             {{ total_funcionarios }}
                         </div>
-
                     </div>
 
                     <div class="linha-grafico">
-
-                        <div class="nome-grafico">
-                            Ativos
-                        </div>
+                        <div class="nome-grafico">Ativos</div>
 
                         <div class="barra-area">
                             <div class="barra ativos"></div>
@@ -472,14 +456,10 @@
                         <div class="valor-grafico">
                             {{ ativos }}
                         </div>
-
                     </div>
 
                     <div class="linha-grafico">
-
-                        <div class="nome-grafico">
-                            Demitidos
-                        </div>
+                        <div class="nome-grafico">Demitidos</div>
 
                         <div class="barra-area">
                             <div class="barra demitidos"></div>
@@ -488,14 +468,10 @@
                         <div class="valor-grafico">
                             {{ demitidos }}
                         </div>
-
                     </div>
 
                     <div class="linha-grafico">
-
-                        <div class="nome-grafico">
-                            Horas Mês
-                        </div>
+                        <div class="nome-grafico">Horas Mês</div>
 
                         <div class="barra-area">
                             <div class="barra horas"></div>
@@ -504,7 +480,6 @@
                         <div class="valor-grafico">
                             {{ horas_extras }}
                         </div>
-
                     </div>
 
                 </div>
@@ -521,7 +496,7 @@
 
                     <div class="status-item">
                         <strong>Funcionários Fixos</strong>
-                        <span>Cadastro permanente dos servidores no banco.</span>
+                        <span>Cadastro permanente dos servidores.</span>
                     </div>
 
                     <div class="status-item">
@@ -531,12 +506,12 @@
 
                     <div class="status-item">
                         <strong>Histórico</strong>
-                        <span>Meses anteriores permanecem salvos.</span>
+                        <span>Todos os meses permanecem salvos.</span>
                     </div>
 
                     <div class="status-item">
                         <strong>Excel</strong>
-                        <span>Exportação futura por competência mensal.</span>
+                        <span>Exportação de relatórios mensais.</span>
                     </div>
 
                 </div>
@@ -554,12 +529,10 @@
             <table>
 
                 <tr>
-
                     <th>Nome</th>
                     <th>Cargo</th>
                     <th>Status</th>
                     <th>Admissão</th>
-
                 </tr>
 
                 {% for funcionario in funcionarios %}
