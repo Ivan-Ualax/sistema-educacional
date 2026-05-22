@@ -18,6 +18,10 @@ def home(request):
 
     agora = datetime.now()
 
+    perfil, criado = Perfil.objects.get_or_create(
+        usuario=request.user
+    )
+
     meses = [
         '',
         'Janeiro',
@@ -37,6 +41,7 @@ def home(request):
     funcionarios = Funcionario.objects.all().order_by('-id')[:10]
 
     context = {
+        'perfil': perfil,
         'funcionarios': funcionarios,
         'total_funcionarios': Funcionario.objects.count(),
         'ativos': Funcionario.objects.filter(status='ativo').count(),
@@ -48,40 +53,6 @@ def home(request):
     }
 
     return render(request, 'home.html', context)
-
-
-# CADASTRAR FUNCIONÁRIO
-
-@login_required(login_url='/login/')
-def cadastrar_funcionario(request):
-
-    if request.method == 'POST':
-
-        cargo_nome = request.POST.get('cargo')
-
-        cargo = None
-
-        if cargo_nome:
-
-            cargo, created = Cargo.objects.get_or_create(
-                nome=cargo_nome
-            )
-
-        Funcionario.objects.create(
-            nome=request.POST.get('nome'),
-            cpf=request.POST.get('cpf'),
-            escola=request.POST.get('escola'),
-            carga_horaria=request.POST.get('carga_horaria') or 0,
-            numero=request.POST.get('numero'),
-            localidade=request.POST.get('localidade'),
-            cargo=cargo,
-            data_admissao=request.POST.get('data_admissao') or None,
-            status='ativo',
-        )
-
-        return redirect('/funcionarios/')
-
-    return render(request, 'funcionario.html')
 
 
 # LISTAR FUNCIONÁRIOS

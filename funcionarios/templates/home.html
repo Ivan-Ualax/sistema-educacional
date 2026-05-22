@@ -520,73 +520,63 @@
                 Sistema <span>Educacional</span>
             </h2>
 
-        </div>
-
         <div class="perfil-sidebar">
 
-            <form
-                method="POST"
-                action="/alterar-foto/"
-                enctype="multipart/form-data"
-                class="form-perfil"
-            >
+    <form
+        method="POST"
+        action="/alterar-foto/"
+        enctype="multipart/form-data"
+        class="form-perfil"
+    >
 
-                {% csrf_token %}
+        {% csrf_token %}
 
-               <div class="avatar">
+        <div class="avatar">
 
-   {% if perfil.foto %}
+            {% if perfil.foto %}
 
-        <img
-    src="{{ perfil.foto.url }}"
-    alt="Foto"
->
+                <img
+                    src="{{ perfil.foto.url }}"
+                    alt="Foto"
+                >
 
-    {% else %}
+            {% else %}
 
-        {{ request.user.username|slice:":1"|upper }}
+                {{ request.user.username|slice:":1"|upper }}
 
-    {% endif %}
-
-</div>
-                        <img
-                            src="{{ request.user.perfil.foto.url }}"
-                            alt="Foto"
-                        >
-
-                    {% else %}
-
-                        {{ request.user.username|slice:":1"|upper }}
-
-                    {% endif %}
-
-                </div>
-
-                <div class="info-user">
-
-                    <h3>
-                        {{ request.user.username }}
-                    </h3>
-
-                    
-
-                    <label for="foto" class="btn-foto">
-                        Alterar Foto
-                    </label>
-
-                    <input
-                        type="file"
-                        id="foto"
-                        name="foto"
-                        class="input-foto"
-                        onchange="this.form.submit()"
-                    >
-
-                </div>
-
-            </form>
+            {% endif %}
 
         </div>
+
+        <div class="info-user">
+
+            <h3>
+                {{ request.user.username }}
+            </h3>
+
+            <label for="foto" class="btn-foto">
+                Alterar Foto
+            </label>
+
+            <input
+                type="file"
+                id="foto"
+                name="foto"
+                class="input-foto"
+                onchange="this.form.submit()"
+            >
+
+        </div>
+
+    </form>
+
+</div>
+
+        
+
+            
+
+        
 
         <a href="/">Página inicial</a>
 
