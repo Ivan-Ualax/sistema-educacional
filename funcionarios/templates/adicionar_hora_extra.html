@@ -6,134 +6,199 @@
     <title>Adicionar Hora Extra</title>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #0f172a;
+        font-family: Arial;
+        color: white;
+        display: flex;
+        margin: 0;
+    }
+
+    .sidebar {
+        width: 260px;
+        height: 100vh;
+        background: #020617;
+        padding: 25px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
+    }
+
+    .logo {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 40px;
+        color: #38bdf8;
+    }
+
+    .sidebar a {
+        display: block;
+        color: #cbd5e1;
+        text-decoration: none;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+        background: #1e293b;
+    }
+
+    .content {
+        margin-left: 320px;
+        padding: 40px;
+        width: calc(100% - 320px);
+    }
+
+    .topo {
+        margin-bottom: 25px;
+    }
+
+    .topo h1 {
+        margin-bottom: 10px;
+        font-size: 32px;
+    }
+
+    .topo p {
+        color: #94a3b8;
+    }
+
+    .form-box {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 18px;
+        padding: 30px;
+        max-width: 900px;
+        width: 100%;
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    label {
+        color: #cbd5e1;
+        margin-bottom: 8px;
+    }
+
+    input,
+    select,
+    textarea {
+        background: #0f172a;
+        border: 1px solid #334155;
+        color: white;
+        padding: 14px;
+        border-radius: 12px;
+        outline: none;
+        font-size: 15px;
+        width: 100%;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    button {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 14px 25px;
+        border-radius: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #16a34a;
+    }
+
+    .btn-voltar {
+        background: #334155;
+        color: white;
+        text-decoration: none;
+        padding: 14px 25px;
+        border-radius: 12px;
+        margin-left: 10px;
+        transition: 0.3s;
+    }
+
+    .btn-voltar:hover {
+        background: #475569;
+    }
+
+    /* RESPONSIVO */
+
+    @media (max-width: 768px) {
 
         body {
-            background: #0f172a;
-            font-family: Arial;
-            color: white;
-            display: flex;
-            margin: 0;
+            flex-direction: column;
         }
 
         .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: #020617;
-            padding: 25px;
-            position: fixed;
+            width: 100%;
+            height: auto;
+            position: relative;
+            padding: 20px;
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 40px;
-            color: #38bdf8;
-        }
-
-        .sidebar a {
-            display: block;
-            color: #cbd5e1;
-            text-decoration: none;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            transition: 0.3s;
-        }
-
-        .sidebar a:hover {
-            background: #1e293b;
-        }
-
-        .content {
-            margin-left: 320px;
-            padding: 40px;
-            width: calc(100% - 320px);
-        }
-
-        .topo {
+            text-align: center;
             margin-bottom: 25px;
         }
 
+        .sidebar a {
+            padding: 14px;
+            font-size: 15px;
+        }
+
+        .content {
+            margin-left: 0;
+            width: 100%;
+            padding: 20px;
+        }
+
         .topo h1 {
-            margin-bottom: 10px;
-            font-size: 32px;
+            font-size: 26px;
         }
 
         .topo p {
-            color: #94a3b8;
+            font-size: 14px;
         }
 
         .form-box {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 18px;
-            padding: 30px;
-            max-width: 900px;
-            width: 100%;
-        }
-
-        .campo {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 18px;
-        }
-
-        label {
-            color: #cbd5e1;
-            margin-bottom: 8px;
+            padding: 20px;
+            border-radius: 16px;
         }
 
         input,
         select,
         textarea {
-            background: #0f172a;
-            border: 1px solid #334155;
-            color: white;
-            padding: 14px;
-            border-radius: 12px;
-            outline: none;
-            font-size: 15px;
+            font-size: 14px;
+            padding: 13px;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        button {
-            background: #22c55e;
-            color: white;
-            border: none;
-            padding: 14px 25px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #16a34a;
-        }
-
+        button,
         .btn-voltar {
-            background: #334155;
-            color: white;
-            text-decoration: none;
-            padding: 14px 25px;
-            border-radius: 12px;
-            margin-left: 10px;
-            transition: 0.3s;
+            width: 100%;
+            margin: 0;
+            margin-top: 10px;
+            text-align: center;
+            display: block;
         }
-
-        .btn-voltar:hover {
-            background: #475569;
-        }
-    </style>
+    }
+</style>
 
 </head>
 
@@ -189,7 +254,7 @@
                         </option>
 
                         <option value="f1">
-                            Hora Extra F1
+                            Hora Aula F1
                         </option>
 
                         <option value="f2">
@@ -220,22 +285,57 @@
 
                         <label>Mês de Referência</label>
 
-                        <select name="mes_referencia" required>
+                        <select name="mes_referencia">
 
-                            <option value="1">Janeiro</option>
-                            <option value="2">Fevereiro</option>
-                            <option value="3">Março</option>
-                            <option value="4">Abril</option>
-                            <option value="5">Maio</option>
-                            <option value="6">Junho</option>
-                            <option value="7">Julho</option>
-                            <option value="8">Agosto</option>
-                            <option value="9">Setembro</option>
-                            <option value="10">Outubro</option>
-                            <option value="11">Novembro</option>
-                            <option value="12">Dezembro</option>
+    <option value="1" {% if mes_atual == 1 %}selected{% endif %}>
+        Janeiro
+    </option>
 
-                        </select>
+    <option value="2" {% if mes_atual == 2 %}selected{% endif %}>
+        Fevereiro
+    </option>
+
+    <option value="3" {% if mes_atual == 3 %}selected{% endif %}>
+        Março
+    </option>
+
+    <option value="4" {% if mes_atual == 4 %}selected{% endif %}>
+        Abril
+    </option>
+
+    <option value="5" {% if mes_atual == 5 %}selected{% endif %}>
+        Maio
+    </option>
+
+    <option value="6" {% if mes_atual == 6 %}selected{% endif %}>
+        Junho
+    </option>
+
+    <option value="7" {% if mes_atual == 7 %}selected{% endif %}>
+        Julho
+    </option>
+
+    <option value="8" {% if mes_atual == 8 %}selected{% endif %}>
+        Agosto
+    </option>
+
+    <option value="9" {% if mes_atual == 9 %}selected{% endif %}>
+        Setembro
+    </option>
+
+    <option value="10" {% if mes_atual == 10 %}selected{% endif %}>
+        Outubro
+    </option>
+
+    <option value="11" {% if mes_atual == 11 %}selected{% endif %}>
+        Novembro
+    </option>
+
+    <option value="12" {% if mes_atual == 12 %}selected{% endif %}>
+        Dezembro
+    </option>
+
+</select>
 
                     </div>
 
@@ -243,7 +343,7 @@
 
                         <label>Ano</label>
 
-                        <input type="number" name="ano" value="2026" required>
+                        <input type="number" name="ano" value="{{ ano_atual }}">
 
                     </div>
 

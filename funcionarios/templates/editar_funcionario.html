@@ -5,96 +5,172 @@
     <title>Editar Funcionário</title>
 
     <style>
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        background:#0f172a;
+        font-family:Arial;
+        color:white;
+        display:flex;
+        margin:0;
+    }
+
+    .sidebar{
+        width:260px;
+        height:100vh;
+        background:#020617;
+        padding:25px;
+        position:fixed;
+        left:0;
+        top:0;
+        overflow-y:auto;
+    }
+
+    .logo{
+        font-size:24px;
+        font-weight:bold;
+        margin-bottom:40px;
+        color:#38bdf8;
+    }
+
+    .sidebar a{
+        display:block;
+        color:#cbd5e1;
+        text-decoration:none;
+        padding:15px;
+        border-radius:12px;
+        margin-bottom:10px;
+        transition:0.3s;
+    }
+
+    .sidebar a:hover{
+        background:#1e293b;
+    }
+
+    .content{
+        margin-left:320px;
+        padding:40px;
+        width:calc(100% - 320px);
+    }
+
+    .form-box{
+        background:#1e293b;
+        border:1px solid #334155;
+        border-radius:18px;
+        padding:30px;
+        max-width:900px;
+        width:100%;
+    }
+
+    .campo{
+        display:flex;
+        flex-direction:column;
+        margin-bottom:18px;
+    }
+
+    label{
+        color:#cbd5e1;
+        margin-bottom:8px;
+    }
+
+    input{
+        background:#0f172a;
+        border:1px solid #334155;
+        color:white;
+        padding:14px;
+        border-radius:12px;
+        outline:none;
+        font-size:15px;
+        width:100%;
+    }
+
+    button{
+        background:#38bdf8;
+        color:#020617;
+        border:none;
+        padding:14px 25px;
+        border-radius:12px;
+        font-weight:bold;
+        cursor:pointer;
+        transition:0.3s;
+    }
+
+    button:hover{
+        opacity:0.9;
+    }
+
+    .btn-voltar{
+        background:#334155;
+        color:white;
+        text-decoration:none;
+        padding:14px 25px;
+        border-radius:12px;
+        margin-left:10px;
+        display:inline-block;
+        transition:0.3s;
+    }
+
+    .btn-voltar:hover{
+        background:#475569;
+    }
+
+    /* RESPONSIVO */
+
+    @media (max-width:768px){
+
         body{
-            background:#0f172a;
-            font-family:Arial;
-            color:white;
-            display:flex;
-            margin:0;
+            flex-direction:column;
         }
 
         .sidebar{
-            width:260px;
-            height:100vh;
-            background:#020617;
-            padding:25px;
-            position:fixed;
+            width:100%;
+            height:auto;
+            position:relative;
+            padding:20px;
         }
 
         .logo{
-            font-size:24px;
-            font-weight:bold;
-            margin-bottom:40px;
-            color:#38bdf8;
+            text-align:center;
+            margin-bottom:25px;
+            font-size:22px;
         }
 
         .sidebar a{
-            display:block;
-            color:#cbd5e1;
-            text-decoration:none;
-            padding:15px;
-            border-radius:12px;
-            margin-bottom:10px;
-        }
-
-        .sidebar a:hover{
-            background:#1e293b;
-        }
-
-        .content{
-            margin-left:320px;
-            padding:40px;
-            width:calc(100% - 320px);
-        }
-
-        .form-box{
-            background:#1e293b;
-            border:1px solid #334155;
-            border-radius:18px;
-            padding:30px;
-            max-width:900px;
-        }
-
-        .campo{
-            display:flex;
-            flex-direction:column;
-            margin-bottom:18px;
-        }
-
-        label{
-            color:#cbd5e1;
-            margin-bottom:8px;
-        }
-
-        input{
-            background:#0f172a;
-            border:1px solid #334155;
-            color:white;
             padding:14px;
-            border-radius:12px;
-            outline:none;
             font-size:15px;
         }
 
-        button{
-            background:#38bdf8;
-            color:#020617;
-            border:none;
-            padding:14px 25px;
-            border-radius:12px;
-            font-weight:bold;
-            cursor:pointer;
+        .content{
+            margin-left:0;
+            width:100%;
+            padding:20px;
         }
 
-        .btn-voltar{
-            background:#334155;
-            color:white;
-            text-decoration:none;
-            padding:14px 25px;
-            border-radius:12px;
-            margin-left:10px;
+        .form-box{
+            padding:20px;
+            border-radius:16px;
         }
-    </style>
+
+        input{
+            padding:13px;
+            font-size:14px;
+        }
+
+        button,
+        .btn-voltar{
+            width:100%;
+            margin:0;
+            margin-top:10px;
+            text-align:center;
+        }
+    }
+
+</style>
 </head>
 <body>
 

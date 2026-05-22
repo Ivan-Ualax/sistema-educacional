@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Editar Hora Extra
+    </title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:Arial;
+            padding:40px;
+        }
+
+        .box{
+            max-width:650px;
+            margin:auto;
+            background:#0f172a;
+            padding:35px;
+            border-radius:20px;
+            border:1px solid #1e293b;
+        }
+
+        h1{
+            margin-bottom:30px;
+            color:#38bdf8;
+            font-size:42px;
+        }
+
+        label{
+            display:block;
+            margin-top:18px;
+            margin-bottom:8px;
+            color:#cbd5e1;
+            font-size:15px;
+        }
+
+        input,
+        select,
+        textarea{
+            width:100%;
+            padding:14px;
+            border-radius:12px;
+            border:1px solid #334155;
+            background:#020617;
+            color:white;
+            outline:none;
+            font-size:15px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus{
+            border-color:#38bdf8;
+        }
+
+        textarea{
+            min-height:120px;
+            resize:vertical;
+        }
+
+        .acoes{
+            display:flex;
+            gap:14px;
+            margin-top:30px;
+            flex-wrap:wrap;
+        }
+
+        button,
+        .btn-voltar,
+        .btn-excluir{
+            padding:14px 22px;
+            border-radius:12px;
+            text-decoration:none;
+            font-weight:bold;
+            font-size:14px;
+            border:none;
+            cursor:pointer;
+        }
+
+        button{
+            background:#22c55e;
+            color:white;
+            transition:0.3s;
+        }
+
+        button:hover{
+            background:#16a34a;
+        }
+
+        .btn-voltar{
+            background:#334155;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .btn-voltar:hover{
+            background:#475569;
+        }
+
+        .btn-excluir{
+            background:#991b1b;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .btn-excluir:hover{
+            background:#7f1d1d;
+        }
+
+        /* MODAL */
+
+        .modal-fundo{
+            display:none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(2,6,23,0.85);
+            align-items:center;
+            justify-content:center;
+            z-index:9999;
+        }
+
+        .modal-box{
+            width:420px;
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:18px;
+            padding:28px;
+        }
+
+        .modal-box h2{
+            color:white;
+            margin-bottom:14px;
+        }
+
+        .modal-box p{
+            color:#cbd5e1;
+            margin-bottom:24px;
+            line-height:1.5;
+        }
+
+        .modal-acoes{
+            display:flex;
+            justify-content:flex-end;
+            gap:12px;
+        }
+
+        .btn-cancelar{
+            background:#334155;
+            color:white;
+            border:none;
+            padding:12px 18px;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:bold;
+        }
+
+        .btn-confirmar{
+            background:#dc2626;
+            color:white;
+            text-decoration:none;
+            padding:12px 18px;
+            border-radius:10px;
+            font-weight:bold;
+        }
+
+        /* RESPONSIVO */
+
+        @media (max-width: 768px){
+
+            body{
+                padding:20px;
+            }
+
+            .box{
+                max-width:100%;
+                padding:24px;
+                border-radius:16px;
+            }
+
+            h1{
+                font-size:30px;
+                margin-bottom:24px;
+            }
+
+            label{
+                font-size:14px;
+            }
+
+            input,
+            select,
+            textarea{
+                padding:13px;
+                font-size:14px;
+            }
+
+            .acoes{
+                flex-direction:column;
+            }
+
+            button,
+            .btn-voltar,
+            .btn-excluir{
+                width:100%;
+                text-align:center;
+                justify-content:center;
+            }
+
+        }
+
+        @media (max-width: 480px){
+
+            body{
+                padding:12px;
+            }
+
+            .box{
+                padding:18px;
+            }
+
+            h1{
+                font-size:26px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="box">
+
+        <h1>
+            Editar Hora Extra
+        </h1>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <label>
+                Tipo
+            </label>
+
+            <select name="tipo">
+
+                <option value="normal" {% if lancamento.tipo == 'normal' %}selected{% endif %}>
+                    Hora Extra Normal
+                </option>
+
+                <option value="f1" {% if lancamento.tipo == 'f1' %}selected{% endif %}>
+                    Hora Extra F1
+                </option>
+
+                <option value="f2" {% if lancamento.tipo == 'f2' %}selected{% endif %}>
+                    Hora Extra F2
+                </option>
+
+            </select>
+
+            <label>
+                Quantidade de horas
+            </label>
+
+            <input
+                type="text"
+                name="quantidade_horas"
+                value="{{ lancamento.quantidade_horas }}"
+            >
+
+            <label>
+                Valor
+            </label>
+
+            <input
+                type="text"
+                name="valor"
+                value="{{ lancamento.valor }}"
+            >
+
+            <label>
+                Mês
+            </label>
+
+            <select name="mes_referencia">
+
+                <option value="1" {% if lancamento.mes_referencia == 1 %}selected{% endif %}>Janeiro</option>
+                <option value="2" {% if lancamento.mes_referencia == 2 %}selected{% endif %}>Fevereiro</option>
+                <option value="3" {% if lancamento.mes_referencia == 3 %}selected{% endif %}>Março</option>
+                <option value="4" {% if lancamento.mes_referencia == 4 %}selected{% endif %}>Abril</option>
+                <option value="5" {% if lancamento.mes_referencia == 5 %}selected{% endif %}>Maio</option>
+                <option value="6" {% if lancamento.mes_referencia == 6 %}selected{% endif %}>Junho</option>
+                <option value="7" {% if lancamento.mes_referencia == 7 %}selected{% endif %}>Julho</option>
+                <option value="8" {% if lancamento.mes_referencia == 8 %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if lancamento.mes_referencia == 9 %}selected{% endif %}>Setembro</option>
+                <option value="10" {% if lancamento.mes_referencia == 10 %}selected{% endif %}>Outubro</option>
+                <option value="11" {% if lancamento.mes_referencia == 11 %}selected{% endif %}>Novembro</option>
+                <option value="12" {% if lancamento.mes_referencia == 12 %}selected{% endif %}>Dezembro</option>
+
+            </select>
+
+            <label>
+                Ano
+            </label>
+
+            <input
+                type="number"
+                name="ano"
+                value="{{ lancamento.ano }}"
+            >
+
+            <label>
+                Observação
+            </label>
+
+            <textarea name="observacao">{{ lancamento.observacao }}</textarea>
+
+            <div class="acoes">
+
+                <button type="submit">
+                    Salvar Alterações
+                </button>
+
+                <button
+                        type="button"
+                        class="btn-excluir"
+                        onclick="document.getElementById('modalExcluir').style.display='flex'"
+                    >
+                Excluir
+            </button>
+
+                <a
+                    href="{% url 'lancamentos_mes' %}"
+                    class="btn-voltar"
+                >
+                    Voltar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- MODAL -->
+
+    <div id="modalExcluir" class="modal-fundo">
+
+        <div class="modal-box">
+
+            <h2>
+                Confirmar exclusão
+            </h2>
+
+            <p>
+                Deseja realmente excluir este lançamento?
+            </p>
+
+            <div class="modal-acoes">
+
+                <button
+                    type="button"
+                    class="btn-cancelar"
+                    onclick="fecharModalExcluir()"
+                >
+                    Cancelar
+                </button>
+
+                <a
+                    id="btnConfirmarExcluir"
+                    href="#"
+                    class="btn-confirmar"
+                >
+                    Excluir
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function abrirModalExcluir(id){
+
+            document.getElementById(
+                'btnConfirmarExcluir'
+            ).href = '/horas-extras/excluir/' + id + '/';
+
+            document.getElementById(
+                'modalExcluir'
+            ).style.display = 'flex';
+        }
+
+        function fecharModalExcluir(){
+
+            document.getElementById(
+                'modalExcluir'
+            ).style.display = 'none';
+        }
+
+    </script>
+
+</body>
+
+</html>

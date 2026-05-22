@@ -1,3 +1,7 @@
+# funcionarios/models.py
+
+from django.db import models
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -6,7 +10,11 @@ from django.db import models
 # =========================
 
 class Cargo(models.Model):
-    nome = models.CharField(max_length=100, unique=True)
+
+    nome = models.CharField(
+        max_length=100,
+        unique=True
+    )
 
     def __str__(self):
         return self.nome
@@ -18,26 +26,18 @@ class Cargo(models.Model):
 
 class Funcionario(models.Model):
 
-    # Tipos de vínculo
-    TIPO_VINCULO = (
-        ('contratado', 'Contratado'),
-        ('concursado', 'Concursado'),
+    STATUS = (
+        ('ativo', 'Ativo'),
+        ('inativo', 'Inativo'),
+        ('demitido', 'Demitido'),
     )
 
-  # Status do funcionário
-    STATUS = (
-    ('ativo', 'Ativo'),
-    ('inativo', 'Inativo'),
-    ('demitido', 'Demitido'),
-)
-
-    # Dados pessoais
-    nome = models.CharField(max_length=150)
+    nome = models.CharField(
+        max_length=150
+    )
 
     cpf = models.CharField(
-        max_length=14,
-        blank=True,
-        null=True
+        max_length=14
     )
 
     numero = models.CharField(
@@ -52,7 +52,10 @@ class Funcionario(models.Model):
         null=True
     )
 
-    # Dados profissionais
+    escola = models.CharField(
+        max_length=150
+    )
+
     cargo = models.ForeignKey(
         Cargo,
         on_delete=models.SET_NULL,
@@ -64,28 +67,16 @@ class Funcionario(models.Model):
         default=0
     )
 
-    tipo_vinculo = models.CharField(
-        max_length=20,
-        choices=TIPO_VINCULO,
-        default='contratado'
-    )
-
     status = models.CharField(
         max_length=20,
         choices=STATUS,
         default='ativo'
     )
 
-    # Datas
     data_admissao = models.DateField(
-        blank=True,
-        null=True
-    )
-
-    data_demissao = models.DateField(
-        blank=True,
-        null=True
-    )
+    blank=True,
+    null=True
+)
 
     criado_em = models.DateTimeField(
         auto_now_add=True
@@ -94,18 +85,6 @@ class Funcionario(models.Model):
     def __str__(self):
         return self.nome
 
-
-# =========================
-# HORAS EXTRAS
-# =========================
-
-# =========================
-# HORAS EXTRAS
-# =========================
-
-# =========================
-# HORAS EXTRAS
-# =========================
 
 # =========================
 # HORAS EXTRAS
@@ -176,4 +155,21 @@ class HoraExtra(models.Model):
     )
 
     def __str__(self):
-        return f'{self.funcionario.nome} - {self.mes_referencia}/{self.ano}'
+        return f'{self.funcionario.nome} - {self.get_mes_referencia_display()}/{self.ano}'
+    
+
+class Perfil(models.Model):
+
+    usuario = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    foto = models.ImageField(
+        upload_to='perfil/',
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return self.usuario.username

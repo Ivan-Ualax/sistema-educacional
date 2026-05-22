@@ -7,167 +7,250 @@
 
     <style>
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        background:#0f172a;
+        font-family:Arial;
+        color:white;
+        display:flex;
+        min-height:100vh;
+    }
+
+    /* MENU */
+
+    .sidebar{
+        width:260px;
+        height:100vh;
+        background:#020617;
+        padding:25px;
+        position:fixed;
+        border-right:1px solid #1e293b;
+        left:0;
+        top:0;
+        overflow-y:auto;
+    }
+
+    .logo{
+        font-size:24px;
+        font-weight:bold;
+        margin-bottom:40px;
+        color:#38bdf8;
+    }
+
+    .sidebar a{
+        display:block;
+        text-decoration:none;
+        color:#cbd5e1;
+        padding:15px;
+        border-radius:12px;
+        margin-bottom:10px;
+        transition:0.3s;
+    }
+
+    .sidebar a:hover{
+        background:#1e293b;
+    }
+
+    /* CONTEÚDO */
+
+    .content{
+        margin-left:260px;
+        width:100%;
+        padding:30px;
+    }
+
+    .topo{
+        margin-bottom:30px;
+    }
+
+    .topo h1{
+        font-size:32px;
+        margin-bottom:10px;
+    }
+
+    .topo p{
+        color:#94a3b8;
+        font-size:15px;
+    }
+
+    /* BUSCA */
+
+    .busca-box{
+        background:#1e293b;
+        border:1px solid #334155;
+        padding:25px;
+        border-radius:18px;
+        margin-bottom:30px;
+    }
+
+    .busca-form{
+        display:flex;
+        gap:15px;
+    }
+
+    .busca-form input{
+        flex:1;
+        background:#0f172a;
+        border:1px solid #334155;
+        color:white;
+        padding:14px;
+        border-radius:12px;
+        outline:none;
+        font-size:15px;
+        transition:0.3s;
+    }
+
+    .busca-form input:focus{
+        border-color:#38bdf8;
+    }
+
+    .busca-form button{
+        background:#38bdf8;
+        color:#020617;
+        border:none;
+        padding:14px 25px;
+        border-radius:12px;
+        font-weight:bold;
+        cursor:pointer;
+        transition:0.3s;
+    }
+
+    .busca-form button:hover{
+        background:#0ea5e9;
+    }
+
+    /* RESULTADOS */
+
+    .resultados{
+        display:grid;
+        gap:20px;
+    }
+
+    .funcionario-card{
+        background:#1e293b;
+        border:1px solid #334155;
+        border-radius:18px;
+        padding:25px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:20px;
+        transition:0.3s;
+    }
+
+    .funcionario-card:hover{
+        border-color:#38bdf8;
+    }
+
+    .funcionario-info h2{
+        margin-bottom:8px;
+        font-size:22px;
+    }
+
+    .funcionario-info p{
+        color:#94a3b8;
+        line-height:1.5;
+    }
+
+    .btn-add{
+        background:#22c55e;
+        color:white;
+        text-decoration:none;
+        padding:14px 20px;
+        border-radius:12px;
+        font-weight:bold;
+        transition:0.3s;
+        white-space:nowrap;
+    }
+
+    .btn-add:hover{
+        background:#16a34a;
+    }
+
+    .sem-resultados{
+        background:#1e293b;
+        border:1px solid #334155;
+        border-radius:18px;
+        padding:30px;
+        text-align:center;
+        color:#94a3b8;
+    }
+
+    /* RESPONSIVO */
+
+    @media(max-width:768px){
 
         body{
-            background:#0f172a;
-            font-family:Arial;
-            color:white;
-            display:flex;
+            flex-direction:column;
         }
 
-        /* MENU */
-
         .sidebar{
-            width:260px;
-            height:100vh;
-            background:#020617;
-            padding:25px;
-            position:fixed;
-            border-right:1px solid #1e293b;
+            width:100%;
+            height:auto;
+            position:relative;
+            padding:20px;
         }
 
         .logo{
-            font-size:24px;
-            font-weight:bold;
-            margin-bottom:40px;
-            color:#38bdf8;
-        }
-
-        .sidebar a{
-            display:block;
-            text-decoration:none;
-            color:#cbd5e1;
-            padding:15px;
-            border-radius:12px;
-            margin-bottom:10px;
-            transition:0.3s;
-        }
-
-        .sidebar a:hover{
-            background:#1e293b;
-        }
-
-        /* CONTEÚDO */
-
-        .content{
-            margin-left:260px;
-            width:100%;
-            padding:30px;
-        }
-
-        .topo{
-            margin-bottom:30px;
-        }
-
-        .topo h1{
-            font-size:32px;
-            margin-bottom:10px;
-        }
-
-        .topo p{
-            color:#94a3b8;
-        }
-
-        /* BUSCA */
-
-        .busca-box{
-            background:#1e293b;
-            border:1px solid #334155;
-            padding:25px;
-            border-radius:18px;
-            margin-bottom:30px;
-        }
-
-        .busca-form{
-            display:flex;
-            gap:15px;
-        }
-
-        .busca-form input{
-            flex:1;
-            background:#0f172a;
-            border:1px solid #334155;
-            color:white;
-            padding:14px;
-            border-radius:12px;
-            outline:none;
-            font-size:15px;
-        }
-
-        .busca-form input:focus{
-            border-color:#38bdf8;
-        }
-
-        .busca-form button{
-            background:#38bdf8;
-            color:#020617;
-            border:none;
-            padding:14px 25px;
-            border-radius:12px;
-            font-weight:bold;
-            cursor:pointer;
-            transition:0.3s;
-        }
-
-        .busca-form button:hover{
-            background:#0ea5e9;
-        }
-
-        /* RESULTADOS */
-
-        .resultados{
-            display:grid;
-            gap:20px;
-        }
-
-        .funcionario-card{
-            background:#1e293b;
-            border:1px solid #334155;
-            border-radius:18px;
-            padding:25px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        }
-
-        .funcionario-info h2{
-            margin-bottom:8px;
+            text-align:center;
+            margin-bottom:25px;
             font-size:22px;
         }
 
-        .funcionario-info p{
-            color:#94a3b8;
+        .sidebar a{
+            padding:14px;
+            font-size:15px;
+        }
+
+        .content{
+            margin-left:0;
+            width:100%;
+            padding:20px;
+        }
+
+        .topo h1{
+            font-size:26px;
+        }
+
+        .topo p{
+            font-size:14px;
+        }
+
+        .busca-box{
+            padding:20px;
+        }
+
+        .busca-form{
+            flex-direction:column;
+        }
+
+        .busca-form input,
+        .busca-form button{
+            width:100%;
+        }
+
+        .funcionario-card{
+            flex-direction:column;
+            align-items:flex-start;
+            padding:20px;
+        }
+
+        .funcionario-info h2{
+            font-size:20px;
         }
 
         .btn-add{
-            background:#22c55e;
-            color:white;
-            text-decoration:none;
-            padding:14px 20px;
-            border-radius:12px;
-            font-weight:bold;
-            transition:0.3s;
-        }
-
-        .btn-add:hover{
-            background:#16a34a;
-        }
-
-        .sem-resultados{
-            background:#1e293b;
-            border:1px solid #334155;
-            border-radius:18px;
-            padding:30px;
+            width:100%;
             text-align:center;
-            color:#94a3b8;
         }
+    }
 
-    </style>
+</style>
 
 </head>
 <body>
@@ -181,28 +264,27 @@
     </div>
 
     <a href="/">
-        Dashboard
+        Página inicial
     </a>
-
+    
+    <a href="/funcionarios/">
+        Funcionários
+    </a>
+    
+    
     <a href="/funcionarios/cadastrar/">
         Cadastrar Funcionário
     </a>
 
-    <a href="/funcionarios/">
-        Funcionários
-    </a>
+    
 
     <a href="/horas-extras/">
         Horas Extras
     </a>
 
-    <a href="/relatorio-mensal/">
-        Relatório Mensal
-    </a>
+    
 
-    <a href="/historico-mensal/">
-        Histórico Mensal
-    </a>
+    
 
 </div>
 

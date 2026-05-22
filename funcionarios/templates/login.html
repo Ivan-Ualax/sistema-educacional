@@ -1,11 +1,14 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
 
-    {% load static %}
+    <title>Login - Sistema Escolar</title>
 
     <style>
 
@@ -16,117 +19,121 @@
         }
 
         body{
-            background:#020617;
-            font-family:Arial;
+            min-height:100vh;
             display:flex;
             justify-content:center;
             align-items:center;
-            height:100vh;
+            background:#020617;
+            font-family:'Segoe UI', sans-serif;
             color:white;
         }
 
         .login-box{
-            width:420px;
+            width:400px;
             background:#0f172a;
             border:1px solid #1e293b;
-            border-radius:24px;
+            border-radius:20px;
             padding:40px;
-            text-align:center;
-            box-shadow:0 0 40px rgba(0,0,0,0.4);
+            box-shadow:0 15px 40px rgba(0,0,0,0.4);
         }
 
         .logo{
-            width:120px;
-            margin-bottom:25px;
-        }
-
-        h1{
-            margin-bottom:10px;
-            font-size:30px;
-        }
-
-        p{
-            color:#94a3b8;
+            text-align:center;
             margin-bottom:30px;
         }
 
-        .campo{
-            margin-bottom:20px;
-            text-align:left;
+        .logo img{
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            margin-bottom:15px;
         }
 
-        label{
+        .logo h1{
+            font-size:30px;
+            font-weight:800;
+        }
+
+        .logo span{
+            color:#38bdf8;
+        }
+
+        .input-group{
+            margin-bottom:20px;
+        }
+
+        .input-group label{
             display:block;
             margin-bottom:8px;
-            color:#cbd5e1;
+            color:#94a3b8;
+            font-size:14px;
         }
 
-        input{
+        .input-group input{
             width:100%;
-            background:#020617;
-            border:1px solid #334155;
-            padding:15px;
-            border-radius:14px;
-            color:white;
+            padding:14px;
+            border:none;
             outline:none;
+            border-radius:12px;
+            background:#020617;
+            border:1px solid #1e293b;
+            color:white;
             font-size:15px;
         }
 
-        input:focus{
-            border-color:#38bdf8;
+        .input-group input:focus{
+            border:1px solid #38bdf8;
         }
 
-        button{
+        .btn-login{
             width:100%;
-            background:#38bdf8;
+            padding:14px;
             border:none;
-            padding:15px;
-            border-radius:14px;
-            color:#020617;
-            font-weight:bold;
+            border-radius:12px;
+            background:linear-gradient(135deg,#2563eb,#1d4ed8);
+            color:white;
             font-size:16px;
+            font-weight:bold;
             cursor:pointer;
             transition:0.3s;
         }
 
-        button:hover{
-            background:#0ea5e9;
+        .btn-login:hover{
+            transform:translateY(-2px);
         }
 
         .erro{
             background:#7f1d1d;
             color:#fecaca;
             padding:12px;
-            border-radius:12px;
+            border-radius:10px;
             margin-bottom:20px;
+            font-size:14px;
+            text-align:center;
         }
 
     </style>
 
 </head>
+
 <body>
 
     <div class="login-box">
 
-        <!-- LOGO -->
+        <div class="logo">
 
-        <img
-            src="{% static 'logo.png' %}"
-            class="logo"
-        >
+            <img src="{% static 'img/mulungu.png' %}" alt="Logo">
 
-        <h1>
-            Sistema Escolar
-        </h1>
+            <h1>
+                Sistema <span>Educacional</span>
+            </h1>
 
-        <p>
-            Faça login para acessar o sistema
-        </p>
+        </div>
 
         {% if form.errors %}
 
             <div class="erro">
-                Usuário ou senha inválidos
+                Usuário ou senha inválidos.
             </div>
 
         {% endif %}
@@ -135,7 +142,7 @@
 
             {% csrf_token %}
 
-            <div class="campo">
+            <div class="input-group">
 
                 <label>
                     Usuário
@@ -144,12 +151,13 @@
                 <input
                     type="text"
                     name="username"
+                    placeholder="Digite seu usuário"
                     required
                 >
 
             </div>
 
-            <div class="campo">
+            <div class="input-group">
 
                 <label>
                     Senha
@@ -158,13 +166,14 @@
                 <input
                     type="password"
                     name="password"
+                    placeholder="Digite sua senha"
                     required
                 >
 
             </div>
 
-            <button type="submit">
-                Entrar
+            <button type="submit" class="btn-login">
+                Entrar no Sistema
             </button>
 
         </form>
@@ -172,4 +181,5 @@
     </div>
 
 </body>
+
 </html>

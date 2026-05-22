@@ -7,11 +7,12 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-qd04#7o#7na#l1&u$5mmw_d&m^4qi+2y+o%j$vw7fi$os_6q=m'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
@@ -113,3 +114,10 @@ LOGOUT_REDIRECT_URL = '/login/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

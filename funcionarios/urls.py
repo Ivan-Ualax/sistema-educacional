@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
 
     # =========================
@@ -10,7 +9,8 @@ urlpatterns = [
 
     path(
         '',
-        views.home
+        views.home,
+        name='home'
     ),
 
     # =========================
@@ -19,7 +19,8 @@ urlpatterns = [
 
     path(
         'funcionarios/cadastrar/',
-        views.cadastrar_funcionario
+        views.cadastrar_funcionario,
+        name='cadastrar_funcionario'
     ),
 
     # =========================
@@ -28,7 +29,8 @@ urlpatterns = [
 
     path(
         'funcionarios/',
-        views.funcionarios
+        views.funcionarios,
+        name='funcionarios'
     ),
 
     # =========================
@@ -37,7 +39,8 @@ urlpatterns = [
 
     path(
         'funcionarios/status/<int:id>/',
-        views.alterar_status
+        views.alterar_status,
+        name='alterar_status'
     ),
 
     # =========================
@@ -46,7 +49,8 @@ urlpatterns = [
 
     path(
         'funcionarios/editar/<int:id>/',
-        views.editar_funcionario
+        views.editar_funcionario,
+        name='editar_funcionario'
     ),
 
     # =========================
@@ -55,39 +59,80 @@ urlpatterns = [
 
     path(
         'funcionarios/excluir/<int:id>/',
-        views.excluir_funcionario
+        views.excluir_funcionario,
+        name='excluir_funcionario'
+    ),
+
+    # =========================
+    # HORAS EXTRAS
+    # =========================
+
+    path(
+        'horas-extras/',
+        views.horas_extras,
+        name='horas_extras'
     ),
 
     path(
-    'horas-extras/',
-    views.horas_extras
+        'horas-extras/adicionar/<int:id>/',
+        views.adicionar_hora_extra,
+        name='adicionar_hora_extra'
     ),
 
     path(
-    'horas-extras/adicionar/<int:id>/',
-    views.adicionar_hora_extra
+        'funcionario/<int:id>/horas/',
+        views.horas_funcionario,
+        name='horas_funcionario'
     ),
 
-    path(
-    'relatorio-mensal/',
-    views.relatorio_mensal
-),
-    path(
-    'funcionario/<int:id>/horas/',
-    views.horas_funcionario
-),
-    path(
-    'historico-mensal/',
-    views.historico_mensal
-),
+    # =========================
+    # LANÇAMENTOS DO MÊS
+    # =========================
 
     path(
-    'exportar-excel/',
-    views.exportar_excel_mensal
-),
+        'lancamentos-mes/',
+        views.lancamentos_mes,
+        name='lancamentos_mes'
+    ),
+
+    # =========================
+    # EDITAR HORA EXTRA
+    # =========================
+
     path(
-    'folha-mensal/',
-    views.folha_mensal
-),
+        'horas-extras/editar/<int:id>/',
+        views.editar_hora_extra,
+        name='editar_hora_extra'
+    ),
+
+    # =========================
+    # EXCLUIR HORA EXTRA
+    # =========================
+
+    path(
+        'horas-extras/excluir/<int:id>/',
+        views.excluir_hora_extra,
+        name='excluir_hora_extra'
+    ),
+
+    # =========================
+    # EXPORTAR EXCEL
+    # =========================
+
+    path(
+        'exportar-lancamentos-excel/',
+        views.exportar_lancamentos_excel,
+        name='exportar_lancamentos_excel'
+    ),
+
+    # =========================
+    # FOTO PERFIL
+    # =========================
+
+    path(
+        'alterar-foto/',
+        views.alterar_foto,
+        name='alterar_foto'
+    ),
 
 ]

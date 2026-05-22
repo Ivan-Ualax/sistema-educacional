@@ -1,175 +1,259 @@
+<!-- templates/funcionario.html -->
+
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Cadastrar Funcionário</title>
 
     <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        background:#020617;
+        color:white;
+        font-family:'Segoe UI';
+        display:flex;
+        min-height:100vh;
+    }
+
+    .sidebar{
+        width:260px;
+        background:#020617;
+        padding:30px;
+        border-right:1px solid #1e293b;
+        position:fixed;
+        left:0;
+        top:0;
+        height:100vh;
+        overflow-y:auto;
+    }
+
+    .sidebar h1{
+        color:#38bdf8;
+        margin-bottom:50px;
+        font-size:26px;
+    }
+
+    .sidebar a{
+        display:block;
+        color:#cbd5e1;
+        text-decoration:none;
+        margin-bottom:30px;
+        font-size:16px;
+        transition:0.3s;
+    }
+
+    .sidebar a:hover{
+        color:#38bdf8;
+    }
+
+    .content{
+        flex:1;
+        padding:35px;
+        margin-left:260px;
+    }
+
+    .topo h1{
+        font-size:48px;
+        margin-bottom:10px;
+    }
+
+    .topo p{
+        color:#94a3b8;
+        margin-bottom:35px;
+        font-size:20px;
+    }
+
+    .form-box{
+        background:#1e293b;
+        padding:35px;
+        border-radius:20px;
+        max-width:1100px;
+        width:100%;
+    }
+
+    .secao-titulo{
+        margin-bottom:20px;
+        margin-top:10px;
+        font-size:22px;
+        color:#38bdf8;
+    }
+
+    .secao-titulo.opcional{
+        margin-top:40px;
+        color:#94a3b8;
+    }
+
+    .grid{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:20px;
+    }
+
+    .input-box{
+        display:flex;
+        flex-direction:column;
+    }
+
+    .input-box label{
+        margin-bottom:10px;
+        font-size:15px;
+    }
+
+    .input-box input{
+        background:#0f172a;
+        border:1px solid #334155;
+        border-radius:14px;
+        padding:16px;
+        color:white;
+        font-size:15px;
+        width:100%;
+    }
+
+    .input-box input:focus{
+        outline:none;
+        border:1px solid #38bdf8;
+    }
+
+    .acoes{
+        margin-top:40px;
+        display:flex;
+        gap:15px;
+        flex-wrap:wrap;
+    }
+
+    button{
+        background:#38bdf8;
+        color:#020617;
+        border:none;
+        padding:16px 26px;
+        border-radius:14px;
+        font-size:16px;
+        font-weight:bold;
+        cursor:pointer;
+        transition:0.3s;
+    }
+
+    button:hover{
+        opacity:0.9;
+    }
+
+    .voltar{
+        background:#334155;
+        color:white;
+        text-decoration:none;
+        padding:16px 26px;
+        border-radius:14px;
+        font-weight:bold;
+        transition:0.3s;
+    }
+
+    .voltar:hover{
+        background:#475569;
+    }
+
+    /* RESPONSIVO */
+
+    @media (max-width: 1000px){
+
+        .grid{
+            grid-template-columns:repeat(2,1fr);
         }
+    }
+
+    @media (max-width: 768px){
 
         body{
-            background:#0f172a;
-            font-family:Arial;
-            color:white;
-            display:flex;
-        }
-
-        .sidebar{
-            width:260px;
-            height:100vh;
-            background:#020617;
-            padding:25px;
-            position:fixed;
-            left:0;
-            top:0;
-            border-right:1px solid #1e293b;
-        }
-
-        .logo{
-            font-size:24px;
-            font-weight:bold;
-            margin-bottom:40px;
-            color:#38bdf8;
-        }
-
-        .sidebar a{
-            display:block;
-            text-decoration:none;
-            color:#cbd5e1;
-            padding:15px;
-            border-radius:12px;
-            margin-bottom:10px;
-            transition:0.3s;
-        }
-
-        .sidebar a:hover{
-            background:#1e293b;
-            color:white;
-        }
-
-        .content{
-            margin-left:260px;
-            width:100%;
-            padding:30px;
-        }
-
-        .topo{
-            margin-bottom:30px;
-        }
-
-        .topo h1{
-            font-size:32px;
-            margin-bottom:10px;
-        }
-
-        .topo p{
-            color:#94a3b8;
-        }
-
-        .form-box{
-            background:#1e293b;
-            border:1px solid #334155;
-            border-radius:18px;
-            padding:30px;
-            max-width:1000px;
-        }
-
-        .form-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
-            gap:20px;
-        }
-
-        .campo{
-            display:flex;
             flex-direction:column;
         }
 
-        .campo label{
-            margin-bottom:8px;
-            color:#cbd5e1;
-            font-size:14px;
+        .sidebar{
+            width:100%;
+            height:auto;
+            position:relative;
+            border-right:none;
+            border-bottom:1px solid #1e293b;
+            padding:20px;
         }
 
-        .campo input{
-            background:#0f172a;
-            border:1px solid #334155;
-            color:white;
-            padding:14px;
-            border-radius:12px;
-            outline:none;
+        .sidebar h1{
+            margin-bottom:30px;
+            text-align:center;
+            font-size:24px;
+        }
+
+        .sidebar a{
+            margin-bottom:18px;
             font-size:15px;
         }
 
-        .campo input:focus{
-            border-color:#38bdf8;
+        .content{
+            margin-left:0;
+            padding:20px;
         }
 
-        .botoes{
-            margin-top:30px;
-            display:flex;
-            gap:15px;
+        .topo h1{
+            font-size:30px;
         }
 
-        button{
-            background:#38bdf8;
-            color:#020617;
-            border:none;
-            padding:14px 25px;
-            border-radius:12px;
-            font-weight:bold;
-            cursor:pointer;
-            transition:0.3s;
+        .topo p{
+            font-size:15px;
+            margin-bottom:25px;
         }
 
-        button:hover{
-            background:#0ea5e9;
+        .form-box{
+            padding:22px;
+            border-radius:18px;
         }
 
-        .btn-voltar{
-            background:#334155;
-            color:white;
-            padding:14px 25px;
-            border-radius:12px;
-            text-decoration:none;
-            transition:0.3s;
+        .grid{
+            grid-template-columns:1fr;
         }
 
-        .btn-voltar:hover{
-            background:#475569;
+        .input-box input{
+            padding:14px;
+            font-size:14px;
         }
 
-        @media(max-width:900px){
-            body{
-                flex-direction:column;
-            }
-
-            .sidebar{
-                width:100%;
-                height:auto;
-                position:relative;
-            }
-
-            .content{
-                margin-left:0;
-            }
+        .acoes{
+            flex-direction:column;
         }
-    </style>
+
+        button,
+        .voltar{
+            width:100%;
+            text-align:center;
+        }
+    }
+
+</style>
+
 </head>
+
 <body>
 
     <div class="sidebar">
 
-        <div class="logo">
+        <h1>
             Sistema Escolar
-        </div>
+        </h1>
 
-        <a href="/">Dashboard</a>
+        <a href="/">
+            Página inicial
+        </a>
 
         <a href="/funcionarios/cadastrar/">
             Cadastrar Funcionário
@@ -179,10 +263,8 @@
             Funcionários
         </a>
 
-        <a href="/horas-extras/">Horas Extras</a>
-
-        <a href="">
-            Exportar Excel
+        <a href="/horas-extras/">
+            Horas Extras
         </a>
 
     </div>
@@ -190,72 +272,139 @@
     <div class="content">
 
         <div class="topo">
-            <h1>Cadastrar Funcionário</h1>
-            <p>Preencha os dados básicos do funcionário.</p>
+
+            <h1>
+                Cadastrar Funcionário
+            </h1>
+
+            <p>
+                Preencha os dados do trabalhador.
+            </p>
+
         </div>
 
-        <div class="form-box">
+        <form method="POST">
 
-            <form method="POST">
+            {% csrf_token %}
 
-                {% csrf_token %}
+            <div class="form-box">
 
-                <div class="form-grid">
+                <h2 class="secao-titulo">
+                    Dados Obrigatórios
+                </h2>
 
-                    <div class="campo">
-                        <label>Nome Completo</label>
-                        <input type="text" name="nome" required>
+                <div class="grid">
+
+                    <div class="input-box">
+                        <label>Nome Completo *</label>
+
+                        <input
+                            type="text"
+                            name="nome"
+                            required
+                        >
                     </div>
 
-                    <div class="campo">
-                        <label>CPF</label>
-                        <input type="text" name="cpf" required>
+                    <div class="input-box">
+                        <label>Profissão / Cargo *</label>
+
+                        <input
+                            type="text"
+                            name="cargo"
+                            placeholder="Ex: Professor"
+                            required
+                        >
                     </div>
 
-                    <div class="campo">
-                        <label>Profissão / Cargo</label>
-                        <input type="text" name="cargo" placeholder="Ex: Professor" required>
+                    <div class="input-box">
+                        <label>Escola *</label>
+
+                        <input
+                            type="text"
+                            name="escola"
+                            placeholder="Nome da escola"
+                            required
+                        >
                     </div>
 
-                    <div class="campo">
-                        <label>Carga Horária</label>
-                        <input type="number" name="carga_horaria" placeholder="Ex: 40" required>
-                    </div>
+                    <div class="input-box">
+                        <label>Carga Horária *</label>
 
-                    <div class="campo">
-                        <label>Contato</label>
-                        <input type="text" name="numero" placeholder="Opcional">
-                    </div>
-
-                    <div class="campo">
-                        <label>Localidade</label>
-                        <input type="text" name="localidade" placeholder="Opcional">
-                    </div>
-
-                    <div class="campo">
-                        <label>Data de Admissão</label>
-                        <input type="date" name="data_admissao">
+                        <input
+                            type="number"
+                            name="carga_horaria"
+                            placeholder="Ex: 40"
+                            required
+                        >
                     </div>
 
                 </div>
 
-                <div class="botoes">
+                <h2 class="secao-titulo opcional">
+                    Informações Opcionais
+                </h2>
+
+                <div class="grid">
+
+                    <div class="input-box">
+                        <label>CPF</label>
+
+                        <input
+                            type="text"
+                            name="cpf"
+                            placeholder="Opcional"
+                        >
+                    </div>
+
+                    <div class="input-box">
+                        <label>Data de Admissão</label>
+
+                        <input
+                            type="date"
+                            name="data_admissao"
+                        >
+                    </div>
+
+                    <div class="input-box">
+                        <label>Contato</label>
+
+                        <input
+                            type="text"
+                            name="numero"
+                            placeholder="Opcional"
+                        >
+                    </div>
+
+                    <div class="input-box">
+                        <label>Localidade</label>
+
+                        <input
+                            type="text"
+                            name="localidade"
+                            placeholder="Opcional"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="acoes">
 
                     <button type="submit">
                         Salvar Funcionário
                     </button>
 
-                    <a href="/" class="btn-voltar">
+                    <a href="/" class="voltar">
                         Voltar
                     </a>
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+        </form>
 
     </div>
 
 </body>
+
 </html>

@@ -1,218 +1,383 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Funcionários</title>
 
     <style>
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        background:#0f172a;
+        font-family:Arial;
+        color:white;
+        display:flex;
+        min-height:100vh;
+    }
+
+    .sidebar{
+        width:260px;
+        height:100vh;
+        background:#020617;
+        padding:25px;
+        position:fixed;
+        border-right:1px solid #1e293b;
+        left:0;
+        top:0;
+        overflow-y:auto;
+    }
+
+    .logo{
+        font-size:24px;
+        font-weight:bold;
+        margin-bottom:40px;
+        color:#38bdf8;
+    }
+
+    .sidebar a{
+        display:block;
+        text-decoration:none;
+        color:#cbd5e1;
+        padding:15px;
+        border-radius:12px;
+        margin-bottom:10px;
+        transition:0.3s;
+    }
+
+    .sidebar a:hover{
+        background:#1e293b;
+    }
+
+    .content{
+        margin-left:260px;
+        width:100%;
+        padding:30px;
+    }
+
+    .topo{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:30px;
+        gap:15px;
+    }
+
+    .topo h1{
+        font-size:34px;
+    }
+
+    .topo a{
+        background:#38bdf8;
+        color:#020617;
+        text-decoration:none;
+        padding:14px 20px;
+        border-radius:12px;
+        font-weight:bold;
+        transition:0.3s;
+    }
+
+    .topo a:hover{
+        opacity:0.9;
+    }
+
+    .filtros{
+    display:flex;
+    gap:14px;
+    margin-bottom:20px;
+    align-items:center;
+}
+
+.filtros input{
+    flex:1;
+    background:#020617;
+    border:1px solid #1e293b;
+    color:white;
+    padding:12px 16px;
+    border-radius:12px;
+    outline:none;
+    font-size:14px;
+}
+
+.filtros select{
+    width:220px;
+    background:#020617;
+    border:1px solid #1e293b;
+    color:white;
+    padding:12px 16px;
+    border-radius:12px;
+    outline:none;
+    font-size:14px;
+}
+
+.filtros button{
+    background:#38bdf8;
+    color:#020617;
+    border:none;
+    padding:12px 22px;
+    border-radius:12px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.filtros button:hover{
+    background:#0ea5e9;
+}
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        min-width:1200px;
+    }
+
+    th{
+        text-align:left;
+        padding:15px;
+        color:#94a3b8;
+        border-bottom:1px solid #334155;
+        font-size:15px;
+    }
+
+    td{
+        padding:15px;
+        border-bottom:1px solid #334155;
+        font-size:14px;
+    }
+
+    .ativo,
+    .inativo,
+    .demitido{
+        padding:8px 16px;
+        border-radius:30px;
+        font-weight:600;
+        font-size:14px;
+        display:inline-block;
+        text-align:center;
+        min-width:110px;
+        border:1px solid transparent;
+    }
+
+    .ativo{
+        background:rgba(34,197,94,0.15);
+        color:#4ade80;
+        border-color:rgba(34,197,94,0.4);
+    }
+
+    .inativo{
+        background:rgba(245,158,11,0.15);
+        color:#fbbf24;
+        border-color:rgba(245,158,11,0.4);
+    }
+
+    .demitido{
+        background:rgba(239,68,68,0.15);
+        color:#f87171;
+        border-color:rgba(239,68,68,0.4);
+    }
+
+    .acoes{
+        display:flex;
+        gap:10px;
+        align-items:center;
+        flex-wrap:nowrap;
+    }
+
+    .status-select{
+        background:#0f172a;
+        border:1px solid #334155;
+        color:white;
+        padding:9px 12px;
+        border-radius:10px;
+        outline:none;
+        font-size:13px;
+        cursor:pointer;
+    }
+
+    .btn-editar{
+        background:#3b82f6;
+        color:white;
+        padding:9px 12px;
+        border-radius:10px;
+        text-decoration:none;
+        font-size:13px;
+        font-weight:600;
+        transition:0.3s;
+    }
+
+    .btn-excluir{
+        background:#991b1b;
+        color:white;
+        padding:9px 12px;
+        border-radius:10px;
+        text-decoration:none;
+        font-size:13px;
+        font-weight:600;
+        transition:0.3s;
+    }
+
+    .btn-editar:hover,
+    .btn-excluir:hover{
+        opacity:0.9;
+    }
+
+    .modal-fundo{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(2,6,23,0.85);
+        align-items:center;
+        justify-content:center;
+        z-index:9999;
+    }
+
+    .modal-box{
+        background:#0f172a;
+        border:1px solid #334155;
+        border-radius:18px;
+        padding:28px;
+        width:420px;
+    }
+
+    .modal-box h2{
+        margin-bottom:14px;
+    }
+
+    .modal-box p{
+        color:#cbd5e1;
+        margin-bottom:25px;
+        line-height:1.5;
+    }
+
+    .modal-acoes{
+        display:flex;
+        justify-content:flex-end;
+        gap:12px;
+    }
+
+    .btn-cancelar{
+        background:#334155;
+        color:white;
+        border:none;
+        padding:12px 18px;
+        border-radius:10px;
+        cursor:pointer;
+        font-weight:bold;
+    }
+
+    .btn-confirmar{
+        background:#dc2626;
+        color:white;
+        text-decoration:none;
+        padding:12px 18px;
+        border-radius:10px;
+        font-weight:bold;
+    }
+
+    /* RESPONSIVO */
+
+    @media (max-width: 900px){
 
         body{
-            background:#0f172a;
-            font-family:Arial;
-            color:white;
-            display:flex;
+            flex-direction:column;
         }
 
         .sidebar{
-            width:260px;
-            height:100vh;
-            background:#020617;
-            padding:25px;
-            position:fixed;
-            border-right:1px solid #1e293b;
+            width:100%;
+            height:auto;
+            position:relative;
+            padding:20px;
         }
 
         .logo{
-            font-size:24px;
-            font-weight:bold;
-            margin-bottom:40px;
-            color:#38bdf8;
-        }
-
-        .sidebar a{
-            display:block;
-            text-decoration:none;
-            color:#cbd5e1;
-            padding:15px;
-            border-radius:12px;
-            margin-bottom:10px;
-            transition:0.3s;
-        }
-
-        .sidebar a:hover{
-            background:#1e293b;
-        }
-
-        .content{
-            margin-left:260px;
-            width:100%;
-            padding:30px;
-        }
-
-        .topo{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:30px;
-        }
-
-        .topo a{
-            background:#38bdf8;
-            color:#020617;
-            text-decoration:none;
-            padding:14px 20px;
-            border-radius:12px;
-            font-weight:bold;
-        }
-
-        /* FILTROS */
-
-        .filtros{
-            display:flex;
-            gap:15px;
+            text-align:center;
             margin-bottom:25px;
         }
 
-        .filtros input,
-        .filtros select{
-            background:#0f172a;
-            border:1px solid #334155;
-            color:white;
+        .sidebar a{
             padding:14px;
-            border-radius:12px;
-            outline:none;
+            font-size:15px;
         }
 
-        .filtros input{
-            flex:1;
+        .content{
+            margin-left:0;
+            padding:20px;
         }
 
+        .topo{
+            flex-direction:column;
+            align-items:flex-start;
+        }
+
+        .topo h1{
+            font-size:28px;
+        }
+
+        .topo a{
+            width:100%;
+            text-align:center;
+        }
+
+        .filtros{
+            flex-direction:column;
+        }
+
+        .filtros input,
+        .filtros select,
         .filtros button{
-            background:#38bdf8;
-            color:#020617;
-            border:none;
-            padding:14px 22px;
-            border-radius:12px;
-            font-weight:bold;
-            cursor:pointer;
+            width:100%;
         }
-
-        /* BOX */
 
         .box{
-            background:#1e293b;
-            border-radius:18px;
-            padding:25px;
-            border:1px solid #334155;
+            padding:15px;
             overflow-x:auto;
         }
 
         table{
-            width:100%;
-            border-collapse:collapse;
-            min-width:1200px;
+            min-width:1000px;
         }
-
-        th{
-            text-align:left;
-            padding:15px;
-            color:#94a3b8;
-            border-bottom:1px solid #334155;
-        }
-
-        td{
-            padding:15px;
-            border-bottom:1px solid #334155;
-        }
-
-        /* STATUS */
-
-        .ativo,
-        .inativo,
-        .demitido{
-            padding:8px 16px;
-            border-radius:30px;
-            font-weight:600;
-            font-size:14px;
-            display:inline-block;
-            text-align:center;
-            min-width:110px;
-            border:1px solid transparent;
-        }
-
-        .ativo{
-            background:rgba(34,197,94,0.15);
-            color:#4ade80;
-            border-color:rgba(34,197,94,0.4);
-        }
-
-        .inativo{
-            background:rgba(245,158,11,0.15);
-            color:#fbbf24;
-            border-color:rgba(245,158,11,0.4);
-        }
-
-        .demitido{
-            background:rgba(239,68,68,0.15);
-            color:#f87171;
-            border-color:rgba(239,68,68,0.4);
-        }
-
-        /* AÇÕES */
 
         .acoes{
-            display:flex;
-            gap:10px;
-            align-items:center;
-            flex-wrap:nowrap;
+            flex-wrap:wrap;
         }
 
-        .status-select{
-            background:#0f172a;
-            border:1px solid #334155;
-            color:white;
-            padding:9px 12px;
-            border-radius:10px;
-            outline:none;
-            font-size:13px;
-            cursor:pointer;
-        }
-
-        .btn-editar{
-            background:#3b82f6;
-            color:white;
-            padding:9px 12px;
-            border-radius:10px;
-            text-decoration:none;
-            font-size:13px;
-            font-weight:600;
-        }
-
+        .status-select,
+        .btn-editar,
         .btn-excluir{
-            background:#991b1b;
-            color:white;
-            padding:9px 12px;
-            border-radius:10px;
-            text-decoration:none;
-            font-size:13px;
-            font-weight:600;
+            width:100%;
+            text-align:center;
         }
 
-    </style>
+        .modal-box{
+            width:95%;
+            padding:20px;
+        }
+
+        .modal-acoes{
+            flex-direction:column;
+        }
+
+        .btn-cancelar,
+        .btn-confirmar{
+            width:100%;
+            text-align:center;
+        }
+    }
+
+</style>
 
 </head>
 
 <body>
-
-    <!-- MENU -->
 
     <div class="sidebar">
 
@@ -221,7 +386,7 @@
         </div>
 
         <a href="/">
-            Dashboard
+            Página inicial
         </a>
 
         <a href="/funcionarios/cadastrar/">
@@ -238,23 +403,19 @@
 
     </div>
 
-    <!-- CONTEÚDO -->
-
     <div class="content">
-
-        <!-- TOPO -->
 
         <div class="topo">
 
-            <h1>Funcionários</h1>
+            <h1>
+                Funcionários
+            </h1>
 
             <a href="/funcionarios/cadastrar/">
                 Novo Funcionário
             </a>
 
         </div>
-
-        <!-- FILTROS -->
 
         <form method="GET" class="filtros">
 
@@ -289,8 +450,6 @@
 
         </form>
 
-        <!-- TABELA -->
-
         <div class="box">
 
             <table>
@@ -298,21 +457,13 @@
                 <tr>
 
                     <th>Nome</th>
-
                     <th>CPF</th>
-
                     <th>Número</th>
-
                     <th>Profissão</th>
-
                     <th>Carga Horária</th>
-
                     <th>Localidade</th>
-
                     <th>Status</th>
-
                     <th>Admissão</th>
-
                     <th>Ações</th>
 
                 </tr>
@@ -321,17 +472,11 @@
 
                 <tr>
 
-                    <td>
-                        {{ funcionario.nome }}
-                    </td>
+                    <td>{{ funcionario.nome }}</td>
 
-                    <td>
-                        {{ funcionario.cpf }}
-                    </td>
+                    <td>{{ funcionario.cpf }}</td>
 
-                    <td>
-                        {{ funcionario.numero }}
-                    </td>
+                    <td>{{ funcionario.numero }}</td>
 
                     <td>
 
@@ -443,8 +588,9 @@
                             </a>
 
                             <a
-                                href="/funcionarios/excluir/{{ funcionario.id }}/"
+                                href="#"
                                 class="btn-excluir"
+                                onclick="abrirModalExcluir('{{ funcionario.id }}', '{{ funcionario.nome }}')"
                             >
                                 Excluir
                             </a>
@@ -462,6 +608,69 @@
         </div>
 
     </div>
+
+    <div id="modalExcluir" class="modal-fundo">
+
+        <div class="modal-box">
+
+            <h2>
+                Confirmar exclusão
+            </h2>
+
+            <p>
+                Deseja realmente excluir o funcionário
+                <strong id="nomeFuncionario"></strong>?
+            </p>
+
+            <div class="modal-acoes">
+
+                <button
+                    type="button"
+                    class="btn-cancelar"
+                    onclick="fecharModalExcluir()"
+                >
+                    Cancelar
+                </button>
+
+                <a
+                    id="btnConfirmarExcluir"
+                    href="#"
+                    class="btn-confirmar"
+                >
+                    Excluir
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function abrirModalExcluir(id, nome){
+
+            document.getElementById(
+                'nomeFuncionario'
+            ).innerText = nome;
+
+            document.getElementById(
+                'btnConfirmarExcluir'
+            ).href = '/funcionarios/excluir/' + id + '/';
+
+            document.getElementById(
+                'modalExcluir'
+            ).style.display = 'flex';
+        }
+
+        function fecharModalExcluir(){
+
+            document.getElementById(
+                'modalExcluir'
+            ).style.display = 'none';
+        }
+
+    </script>
 
 </body>
 

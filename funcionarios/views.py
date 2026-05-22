@@ -1,17 +1,19 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Sum
-from datetime import datetime
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+
+from datetime import datetime
+from decimal import Decimal
+
 from openpyxl import Workbook # type: ignore
+from openpyxl.styles import Font, PatternFill, Alignment # type: ignore
 
-from .models import Funcionario, Cargo, HoraExtra
+from .models import Funcionario, Cargo, HoraExtra, Perfil
 
 
-# =========================
 # HOME
-# =========================
 
+@login_required(login_url='/login/')
 def home(request):
 
     agora = datetime.now()
@@ -32,81 +34,30 @@ def home(request):
         'Dezembro'
     ]
 
-    mes_atual = meses[agora.month]
-
-    ano_atual = agora.year
-
     funcionarios = Funcionario.objects.all().order_by('-id')[:10]
 
-    total_funcionarios = Funcionario.objects.count()
-
-    ativos = Funcionario.objects.filter(
-        status='ativo'
-    ).count()
-
-    inativos = Funcionario.objects.filter(
-        status='inativo'
-    ).count()
-
-    demitidos = Funcionario.objects.filter(
-        status='demitido'
-    ).count()
-
-    horas_extras = HoraExtra.objects.count()
-
     context = {
-
         'funcionarios': funcionarios,
-
-        'total_funcionarios': total_funcionarios,
-
-        'ativos': ativos,
-
-        'inativos': inativos,
-
-        'demitidos': demitidos,
-
-        'horas_extras': horas_extras,
-
-        'mes_atual': mes_atual,
-        'ano_atual': ano_atual,
-
+        'total_funcionarios': Funcionario.objects.count(),
+        'ativos': Funcionario.objects.filter(status='ativo').count(),
+        'inativos': Funcionario.objects.filter(status='inativo').count(),
+        'demitidos': Funcionario.objects.filter(status='demitido').count(),
+        'horas_extras': HoraExtra.objects.count(),
+        'mes_atual': meses[agora.month],
+        'ano_atual': agora.year,
     }
 
-    return render(
-        request,
-        'home.html',
-        context
-    )
+    return render(request, 'home.html', context)
 
 
-# =========================
 # CADASTRAR FUNCIONÁRIO
-# =========================
 
+@login_required(login_url='/login/')
 def cadastrar_funcionario(request):
 
     if request.method == 'POST':
 
-        nome = request.POST.get('nome')
-
-        cpf = request.POST.get('cpf')
-
-        carga_horaria = request.POST.get(
-            'carga_horaria'
-        )
-
-        numero = request.POST.get('numero')
-
-        localidade = request.POST.get(
-            'localidade'
-        )
-
         cargo_nome = request.POST.get('cargo')
-
-        data_admissao = request.POST.get(
-            'data_admissao'
-        )
 
         cargo = None
 
@@ -117,37 +68,25 @@ def cadastrar_funcionario(request):
             )
 
         Funcionario.objects.create(
-
-            nome=nome,
-
-            cpf=cpf,
-
-            carga_horaria=carga_horaria or 0,
-
-            numero=numero,
-
-            localidade=localidade,
-
+            nome=request.POST.get('nome'),
+            cpf=request.POST.get('cpf'),
+            escola=request.POST.get('escola'),
+            carga_horaria=request.POST.get('carga_horaria') or 0,
+            numero=request.POST.get('numero'),
+            localidade=request.POST.get('localidade'),
             cargo=cargo,
-
-            data_admissao=data_admissao or None,
-
+            data_admissao=request.POST.get('data_admissao') or None,
             status='ativo',
-
         )
 
         return redirect('/funcionarios/')
 
-    return render(
-        request,
-        'funcionario.html'
-    )
+    return render(request, 'funcionario.html')
 
 
-# =========================
 # LISTAR FUNCIONÁRIOS
-# =========================
 
+@login_required(login_url='/login/')
 def funcionarios(request):
 
     busca = request.GET.get('busca')
@@ -156,32 +95,33 @@ def funcionarios(request):
     funcionarios = Funcionario.objects.all()
 
     if busca:
+
         funcionarios = funcionarios.filter(
             nome__icontains=busca
         )
 
     if ordem == 'antigo':
-        funcionarios = funcionarios.order_by('id')
-    else:
-        funcionarios = funcionarios.order_by('-id')
 
-    context = {
-        'funcionarios': funcionarios,
-        'busca': busca,
-        'ordem': ordem,
-    }
+        funcionarios = funcionarios.order_by('id')
+
+    else:
+
+        funcionarios = funcionarios.order_by('-id')
 
     return render(
         request,
         'funcionarios.html',
-        context
+        {
+            'funcionarios': funcionarios,
+            'busca': busca,
+            'ordem': ordem,
+        }
     )
 
 
-# =========================
 # ALTERAR STATUS
-# =========================
 
+@login_required(login_url='/login/')
 def alterar_status(request, id):
 
     funcionario = get_object_or_404(
@@ -200,16 +140,14 @@ def alterar_status(request, id):
         ]:
 
             funcionario.status = status
-
             funcionario.save()
 
     return redirect('/funcionarios/')
 
 
-# =========================
 # EDITAR FUNCIONÁRIO
-# =========================
 
+@login_required(login_url='/login/')
 def editar_funcionario(request, id):
 
     funcionario = get_object_or_404(
@@ -219,29 +157,16 @@ def editar_funcionario(request, id):
 
     if request.method == 'POST':
 
-        funcionario.nome = request.POST.get(
-            'nome'
-        )
+        funcionario.nome = request.POST.get('nome')
+        funcionario.cpf = request.POST.get('cpf')
+        funcionario.escola = request.POST.get('escola')
+        funcionario.carga_horaria = request.POST.get('carga_horaria') or 0
+        funcionario.numero = request.POST.get('numero')
+        funcionario.localidade = request.POST.get('localidade')
 
-        funcionario.cpf = request.POST.get(
-            'cpf'
-        )
+        data_admissao = request.POST.get('data_admissao')
 
-        funcionario.carga_horaria = request.POST.get(
-            'carga_horaria'
-        ) or 0
-
-        funcionario.numero = request.POST.get(
-            'numero'
-        )
-
-        funcionario.localidade = request.POST.get(
-            'localidade'
-        )
-
-        funcionario.data_admissao = request.POST.get(
-            'data_admissao'
-        ) or None
+        funcionario.data_admissao = data_admissao or None
 
         cargo_nome = request.POST.get('cargo')
 
@@ -257,23 +182,18 @@ def editar_funcionario(request, id):
 
         return redirect('/funcionarios/')
 
-    context = {
-
-        'funcionario': funcionario
-
-    }
-
     return render(
         request,
         'editar_funcionario.html',
-        context
+        {
+            'funcionario': funcionario
+        }
     )
 
 
-# =========================
 # EXCLUIR FUNCIONÁRIO
-# =========================
 
+@login_required(login_url='/login/')
 def excluir_funcionario(request, id):
 
     funcionario = get_object_or_404(
@@ -286,10 +206,9 @@ def excluir_funcionario(request, id):
     return redirect('/funcionarios/')
 
 
-# =========================
 # HORAS EXTRAS
-# =========================
 
+@login_required(login_url='/login/')
 def horas_extras(request):
 
     busca = request.GET.get('busca')
@@ -302,22 +221,19 @@ def horas_extras(request):
             nome__icontains=busca
         ).order_by('nome')
 
-    context = {
-        'busca': busca,
-        'funcionarios': funcionarios,
-    }
-
     return render(
         request,
         'horas_extras.html',
-        context
+        {
+            'busca': busca,
+            'funcionarios': funcionarios,
+        }
     )
 
 
-# =========================
 # ADICIONAR HORA EXTRA
-# =========================
 
+@login_required(login_url='/login/')
 def adicionar_hora_extra(request, id):
 
     funcionario = get_object_or_404(
@@ -325,116 +241,52 @@ def adicionar_hora_extra(request, id):
         id=id
     )
 
-    if request.method == 'POST':
+    agora = datetime.now()
 
-        tipo = request.POST.get('tipo')
+    mes_atual = agora.month
+    ano_atual = agora.year
+
+    if request.method == 'POST':
 
         quantidade_horas = request.POST.get(
             'quantidade_horas'
-        )
+        ) or '0'
 
-        valor = request.POST.get('valor')
+        valor = request.POST.get(
+            'valor'
+        ) or '0'
 
-        mes_referencia = request.POST.get(
-            'mes_referencia'
-        ) or 1
-
-        ano = request.POST.get(
-            'ano'
-        ) or 2026
-
-        observacao = request.POST.get(
-            'observacao'
-        )
+        quantidade_horas = quantidade_horas.replace(',', '.')
+        valor = valor.replace(',', '.')
 
         HoraExtra.objects.create(
-
             funcionario=funcionario,
-
-            tipo=tipo,
-
-            quantidade_horas=quantidade_horas or 0,
-
-            valor=valor or 0,
-
-            mes_referencia=mes_referencia,
-
-            ano=ano,
-
-            observacao=observacao,
-
+            tipo=request.POST.get('tipo'),
+            quantidade_horas=Decimal(quantidade_horas),
+            valor=Decimal(valor),
+            mes_referencia=request.POST.get('mes_referencia') or mes_atual,
+            ano=request.POST.get('ano') or ano_atual,
+            observacao=request.POST.get('observacao'),
         )
 
         return redirect(
             f'/funcionario/{funcionario.id}/horas/'
         )
 
-    context = {
-        'funcionario': funcionario
-    }
-
     return render(
         request,
         'adicionar_hora_extra.html',
-        context
+        {
+            'funcionario': funcionario,
+            'mes_atual': mes_atual,
+            'ano_atual': ano_atual,
+        }
     )
 
 
-# =========================
-# RELATÓRIO MENSAL
-# =========================
-
-def relatorio_mensal(request):
-
-    mes = request.GET.get('mes')
-    ano = request.GET.get('ano')
-
-    relatorio = []
-
-    total_horas = 0
-    total_valor = 0
-
-    if mes and ano:
-
-        relatorio = HoraExtra.objects.filter(
-            mes_referencia=mes,
-            ano=ano
-        ).select_related(
-            'funcionario',
-            'funcionario__cargo'
-        )
-
-        total_horas = relatorio.aggregate(
-            total=Sum('quantidade_horas')
-        )['total'] or 0
-
-        total_valor = relatorio.aggregate(
-            total=Sum('valor')
-        )['total'] or 0
-
-    context = {
-
-        'relatorio': relatorio,
-
-        'mes': mes,
-        'ano': ano,
-
-        'total_horas': total_horas,
-        'total_valor': total_valor,
-
-    }
-
-    return render(
-        request,
-        'relatorio_mensal.html',
-        context
-    )
-
-
-# =========================
 # HORAS DO FUNCIONÁRIO
-# =========================
 
+@login_required(login_url='/login/')
 def horas_funcionario(request, id):
 
     funcionario = get_object_or_404(
@@ -450,77 +302,175 @@ def horas_funcionario(request, id):
         '-id'
     )
 
-    context = {
-        'funcionario': funcionario,
-        'lancamentos': lancamentos,
-    }
-
     return render(
         request,
         'horas_funcionario.html',
-        context
+        {
+            'funcionario': funcionario,
+            'lancamentos': lancamentos,
+        }
     )
 
 
-# =========================
-# HISTÓRICO MENSAL
-# =========================
+# LANÇAMENTOS DO MÊS
 
-def historico_mensal(request):
+@login_required(login_url='/login/')
+def lancamentos_mes(request):
 
+    agora = datetime.now()
+
+    mes = request.GET.get('mes') or agora.month
+    ano = request.GET.get('ano') or agora.year
     busca = request.GET.get('busca')
-    mes = request.GET.get('mes')
 
-    lancamentos = HoraExtra.objects.all().select_related(
-        'funcionario',
-        'funcionario__cargo'
+    lancamentos = HoraExtra.objects.filter(
+        mes_referencia=mes,
+        ano=ano
     )
 
     if busca:
-
         lancamentos = lancamentos.filter(
-            funcionario__nome__icontains=busca
+            funcionario__nome__istartswith=busca
         )
 
-    if mes:
-
-        lancamentos = lancamentos.filter(
-            mes_referencia=mes
-        )
-
-    lancamentos = lancamentos.order_by(
-        '-ano',
-        '-mes_referencia',
-        '-id'
+    lancamentos = lancamentos.select_related(
+        'funcionario',
+        'funcionario__cargo'
+    ).order_by(
+        'funcionario__nome'
     )
 
-    context = {
+    total_horas = Decimal('0')
+    total_valor = Decimal('0')
 
-        'lancamentos': lancamentos,
+    controle = {}
+    funcionarios_repetidos = []
 
-        'busca': busca,
-        'mes': mes,
+    for item in lancamentos:
 
-    }
+        total_horas += item.quantidade_horas
+        total_valor += item.valor
+
+        funcionario_id = item.funcionario.id
+
+        if funcionario_id in controle:
+            controle[funcionario_id] += 1
+        else:
+            controle[funcionario_id] = 1
+
+    for item in lancamentos:
+
+        if controle[item.funcionario.id] > 1:
+            funcionarios_repetidos.append(
+                item.funcionario.nome
+            )
+
+    funcionarios_repetidos = list(set(funcionarios_repetidos))
 
     return render(
         request,
-        'historico_mensal.html',
-        context
+        'lancamentos_mes.html',
+        {
+            'lancamentos': lancamentos,
+            'mes': int(mes),
+            'ano': int(ano),
+            'busca': busca,
+            'total_horas': total_horas,
+            'total_valor': total_valor,
+            'funcionarios_repetidos': funcionarios_repetidos,
+        }
     )
 
-from django.http import HttpResponse
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
-from openpyxl.utils import get_column_letter
 
-def exportar_excel_mensal(request):
+# EXCLUIR HORA EXTRA
+
+@login_required(login_url='/login/')
+def excluir_hora_extra(request, id):
+
+    lancamento = get_object_or_404(
+        HoraExtra,
+        id=id
+    )
+
+    mes = lancamento.mes_referencia
+    ano = lancamento.ano
+
+    lancamento.delete()
+
+    return redirect(
+        f'/lancamentos-mes/?mes={mes}&ano={ano}'
+    )
+
+
+# EDITAR HORA EXTRA
+
+@login_required(login_url='/login/')
+def editar_hora_extra(request, id):
+
+    lancamento = get_object_or_404(
+        HoraExtra,
+        id=id
+    )
+
+    if request.method == 'POST':
+
+        quantidade_horas = request.POST.get(
+            'quantidade_horas'
+        ) or '0'
+
+        valor = request.POST.get(
+            'valor'
+        ) or '0'
+
+        quantidade_horas = quantidade_horas.replace(',', '.')
+        valor = valor.replace(',', '.')
+
+        lancamento.tipo = request.POST.get('tipo')
+
+        lancamento.quantidade_horas = Decimal(
+            quantidade_horas
+        )
+
+        lancamento.valor = Decimal(
+            valor
+        )
+
+        lancamento.mes_referencia = request.POST.get(
+            'mes_referencia'
+        )
+
+        lancamento.ano = request.POST.get('ano')
+
+        lancamento.observacao = request.POST.get(
+            'observacao'
+        )
+
+        lancamento.save()
+
+        return redirect(
+            f'/funcionario/{lancamento.funcionario.id}/horas/'
+        )
+
+    return render(
+        request,
+        'editar_hora_extra.html',
+        {
+            'lancamento': lancamento
+        }
+    )
+
+
+# EXPORTAR EXCEL
+
+@login_required(login_url='/login/')
+def exportar_lancamentos_excel(request):
 
     mes = request.GET.get('mes')
     ano = request.GET.get('ano')
 
     if not mes or not ano:
-        return redirect('/relatorio-mensal/')
+
+        return redirect('/lancamentos-mes/')
 
     lancamentos = HoraExtra.objects.filter(
         mes_referencia=mes,
@@ -528,16 +478,24 @@ def exportar_excel_mensal(request):
     ).select_related(
         'funcionario',
         'funcionario__cargo'
+    ).order_by(
+        'funcionario__nome'
     )
 
     wb = Workbook()
-    ws = wb.active
-    ws.title = 'Relatório Mensal'
 
-    cabecalho = [
-        'Nome',
+    ws = wb.active
+
+    ws.title = 'Horas Extras'
+
+    ws.append([
+        'Funcionário',
         'CPF',
+        'Escola',
         'Cargo',
+        'Carga Horária',
+        'Contato',
+        'Localidade',
         'Status',
         'Tipo',
         'Horas',
@@ -545,122 +503,114 @@ def exportar_excel_mensal(request):
         'Mês',
         'Ano',
         'Observação'
-    ]
+    ])
 
-    ws.append(cabecalho)
+    # CABEÇALHO
 
     for cell in ws[1]:
-        cell.font = Font(bold=True, color='FFFFFF')
-        cell.fill = PatternFill('solid', fgColor='1F4E78')
-        cell.alignment = Alignment(horizontal='center')
 
-    total_horas = 0
-    total_valor = 0
+        cell.font = Font(
+            bold=True,
+            color='FFFFFF',
+            size=12
+        )
+
+        cell.fill = PatternFill(
+            'solid',
+            fgColor='1F4E78'
+        )
+
+        cell.alignment = Alignment(
+            horizontal='center',
+            vertical='center'
+        )
+
+    # DADOS
 
     for item in lancamentos:
 
-        total_horas += item.quantidade_horas
-        total_valor += item.valor
-
         ws.append([
             item.funcionario.nome,
-            item.funcionario.cpf,
+            item.funcionario.cpf or '',
+            item.funcionario.escola or '',
             item.funcionario.cargo.nome if item.funcionario.cargo else '',
+            item.funcionario.carga_horaria,
+            item.funcionario.numero or '',
+            item.funcionario.localidade or '',
             item.funcionario.status,
             item.get_tipo_display(),
-            float(item.quantidade_horas),
-            float(item.valor),
+            f'{float(item.quantidade_horas):,.0f}h',
+            f'R$ {float(item.valor):,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.'),
             item.get_mes_referencia_display(),
             item.ano,
             item.observacao or ''
         ])
 
-    
-
-    for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
-        row[5].number_format = '0"h"'
-        row[6].number_format = 'R$ #,##0.00'
+    # AJUSTAR LARGURA DAS COLUNAS
 
     larguras = {
-        'A': 25,
-        'B': 18,
-        'C': 22,
-        'D': 14,
-        'E': 22,
-        'F': 12,
+        'A': 20,
+        'B': 15,
+        'C': 10,
+        'D': 10,
+        'E': 10,
+        'F': 10,
         'G': 15,
-        'H': 15,
+        'H': 10,
         'I': 10,
-        'J': 35,
+        'J': 10,
+        'K': 15,
+        'L': 10,
+        'M': 12,
+        'N': 20,
     }
 
     for coluna, largura in larguras.items():
+
         ws.column_dimensions[coluna].width = largura
+
+    # ALINHAMENTO E TEXTO
+
+    for row in ws.iter_rows():
+
+        for cell in row:
+
+            cell.alignment = Alignment(
+                vertical='center',
+                wrap_text=True
+            )
+
+    # ALTURA DAS LINHAS
+
+    for row in ws.iter_rows(min_row=2):
+
+        ws.row_dimensions[row[0].row].height = 28
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
-    response['Content-Disposition'] = f'attachment; filename=relatorio_{mes}_{ano}.xlsx'
+    response['Content-Disposition'] = (
+        f'attachment; filename=horas_extras_{mes}_{ano}.xlsx'
+    )
 
     wb.save(response)
 
     return response
 
-
-def folha_mensal(request):
-
-    mes = request.GET.get('mes') or request.POST.get('mes')
-    ano = request.GET.get('ano') or request.POST.get('ano')
-
-    funcionarios = []
+@login_required(login_url='/login/')
+def alterar_foto(request):
 
     if request.method == 'POST':
 
-        funcionarios_ids = request.POST.getlist('funcionario_id')
+        foto = request.FILES.get('foto')
 
-        for funcionario_id in funcionarios_ids:
+        if foto:
+            perfil, criado = Perfil.objects.get_or_create(
+                usuario=request.user
+            )
 
-            horas = request.POST.get(f'horas_{funcionario_id}') or 0
-            valor = request.POST.get(f'valor_{funcionario_id}') or 0
-            tipo = request.POST.get(f'tipo_{funcionario_id}') or 'normal'
-            observacao = request.POST.get(f'observacao_{funcionario_id}')
+            perfil.foto = foto
+            perfil.save()
 
-            if float(horas) > 0 or float(valor) > 0:
-
-                funcionario = get_object_or_404(
-                    Funcionario,
-                    id=funcionario_id
-                )
-
-                HoraExtra.objects.create(
-                    funcionario=funcionario,
-                    tipo=tipo,
-                    quantidade_horas=horas,
-                    valor=valor,
-                    mes_referencia=mes,
-                    ano=ano,
-                    observacao=observacao,
-                )
-
-        return redirect(
-            f'/folha-mensal/?mes={mes}&ano={ano}'
-        )
-
-    if mes and ano:
-
-        funcionarios = Funcionario.objects.filter(
-            status='ativo'
-        ).select_related('cargo')
-
-    context = {
-        'funcionarios': funcionarios,
-        'mes': mes,
-        'ano': ano,
-    }
-
-    return render(
-        request,
-        'folha_mensal.html',
-        context
-    )
+    return redirect('/')

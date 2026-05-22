@@ -1,0 +1,596 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Lançamentos do Mês
+    </title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:'Segoe UI', Arial;
+            display:flex;
+            min-height:100vh;
+        }
+
+        .sidebar{
+            width:220px;
+            height:100vh;
+            background:#0f172a;
+            padding:20px;
+            position:fixed;
+            border-right:1px solid #1e293b;
+            left:0;
+            top:0;
+            overflow-y:auto;
+        }
+
+        .sidebar h1{
+            color:#38bdf8;
+            margin-bottom:30px;
+            font-size:22px;
+        }
+
+        .sidebar a{
+            display:block;
+            color:#94a3b8;
+            text-decoration:none;
+            padding:10px;
+            border-radius:10px;
+            margin-bottom:6px;
+            font-size:15px;
+            transition:0.3s;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+            color:#38bdf8;
+        }
+
+        .content{
+            margin-left:240px;
+            padding:20px;
+            width:calc(100% - 240px);
+        }
+
+        h1{
+            font-size:28px;
+            margin-bottom:8px;
+        }
+
+        p{
+            color:#94a3b8;
+            margin-bottom:20px;
+            font-size:15px;
+        }
+
+        .filtros{
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:16px;
+            padding:18px;
+            display:flex;
+            gap:12px;
+            align-items:end;
+            margin-bottom:20px;
+            flex-wrap:wrap;
+        }
+
+        label{
+            margin-bottom:6px;
+            color:#cbd5e1;
+            font-size:13px;
+        }
+
+        select,
+        input{
+            background:#020617;
+            color:white;
+            border:1px solid #334155;
+            padding:10px;
+            border-radius:10px;
+            font-size:14px;
+            outline:none;
+            width:100%;
+        }
+
+        button{
+            background:#38bdf8;
+            color:#020617;
+            border:none;
+            padding:10px 16px;
+            border-radius:10px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:15px;
+            margin-bottom:20px;
+        }
+
+        .card{
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:16px;
+            padding:18px;
+        }
+
+        .card span{
+            color:#94a3b8;
+            font-size:13px;
+        }
+
+        .card strong{
+            display:block;
+            font-size:24px;
+            margin-top:6px;
+        }
+
+        .aviso{
+            background:#78350f;
+            border:1px solid #f59e0b;
+            color:#fde68a;
+            padding:16px;
+            border-radius:14px;
+            margin-bottom:20px;
+            font-size:15px;
+            font-weight:600;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:#0f172a;
+        }
+
+        th{
+            background:#020617;
+            color:#94a3b8;
+            text-align:left;
+            padding:12px;
+            font-size:12px;
+            text-transform:uppercase;
+        }
+
+        td{
+            padding:12px;
+            border-top:1px solid #1e293b;
+            font-size:14px;
+        }
+
+        tr:hover{
+            background:#111827;
+        }
+
+        .acoes{
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .btn-editar{
+            background:#2563eb;
+            color:white;
+            padding:8px 14px;
+            border-radius:10px;
+            text-decoration:none;
+            font-size:13px;
+            font-weight:bold;
+        }
+
+        .btn-excluir{
+            background:#dc2626;
+            color:white;
+            padding:8px 14px;
+            border-radius:10px;
+            border:none;
+            font-size:13px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .btn-excel{
+            background:#22c55e;
+            color:#020617;
+            padding:10px 16px;
+            border-radius:10px;
+            font-weight:bold;
+            text-decoration:none;
+        }
+
+        /* MODAL */
+
+        .modal-fundo{
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(2,6,23,0.78);
+            backdrop-filter:blur(4px);
+            justify-content:center;
+            align-items:center;
+            z-index:9999;
+        }
+
+        .modal-box{
+            width:460px;
+            background:linear-gradient(145deg,#111827,#1e293b);
+            border:1px solid #334155;
+            border-radius:18px;
+            padding:35px;
+            text-align:center;
+            box-shadow:0 25px 80px rgba(0,0,0,0.55);
+        }
+
+        .modal-icon{
+            width:70px;
+            height:70px;
+            border:3px solid #f59e0b;
+            color:#f59e0b;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:42px;
+            margin:0 auto 22px auto;
+        }
+
+        .modal-box h2{
+            font-size:30px;
+            margin-bottom:12px;
+            color:white;
+        }
+
+        .modal-box p{
+            color:#cbd5e1;
+            margin-bottom:8px;
+        }
+
+        .texto-menor{
+            color:white;
+            margin-bottom:28px !important;
+        }
+
+        .modal-acoes{
+            display:flex;
+            justify-content:center;
+            gap:14px;
+        }
+
+        .btn-cancelar{
+            background:#475569;
+            color:white;
+            border:none;
+            padding:14px 28px;
+            border-radius:10px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .btn-confirmar{
+            background:#ef4444;
+            color:white;
+            text-decoration:none;
+            padding:14px 28px;
+            border-radius:10px;
+            font-weight:bold;
+        }
+        .subtitulo{
+    font-size:17px;
+    line-height:1.8;
+    color:#cbd5e1;
+    margin-bottom:28px;
+    max-width:850px;
+    font-weight:500;
+    letter-spacing:0.3px;
+    padding:18px 22px;
+    border-left:4px solid #38bdf8;
+    background:linear-gradient(
+        90deg,
+        rgba(56,189,248,0.10),
+        rgba(15,23,42,0.2)
+    );
+    border-radius:14px;
+    box-shadow:0 0 25px rgba(56,189,248,0.08);
+}
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <h1>
+            Sistema Escolar
+        </h1>
+
+        <a href="/">
+            Página inicial
+        </a>
+
+        <a href="/funcionarios/cadastrar/">
+            Cadastrar Funcionário
+        </a>
+
+        <a href="/funcionarios/">
+            Funcionários
+        </a>
+
+        <a href="/horas-extras/">
+            Horas Extras
+        </a>
+
+        <a href="/lancamentos-mes/">
+            Lançamentos do Mês
+        </a>
+
+    </div>
+
+    <div class="content">
+
+        <h1>
+            Lançamentos do Mês
+        </h1>
+
+   <p class="subtitulo">
+    Busque funcionários, acompanhe horas extras e controle todos os lançamentos do período.
+</p>
+
+        <form method="GET" class="filtros">
+
+    <div>
+
+        <label>
+            Mês
+        </label>
+
+        <select name="mes">
+
+            <option value="1" {% if mes == 1 %}selected{% endif %}>Janeiro</option>
+            <option value="2" {% if mes == 2 %}selected{% endif %}>Fevereiro</option>
+            <option value="3" {% if mes == 3 %}selected{% endif %}>Março</option>
+            <option value="4" {% if mes == 4 %}selected{% endif %}>Abril</option>
+            <option value="5" {% if mes == 5 %}selected{% endif %}>Maio</option>
+            <option value="6" {% if mes == 6 %}selected{% endif %}>Junho</option>
+            <option value="7" {% if mes == 7 %}selected{% endif %}>Julho</option>
+            <option value="8" {% if mes == 8 %}selected{% endif %}>Agosto</option>
+            <option value="9" {% if mes == 9 %}selected{% endif %}>Setembro</option>
+            <option value="10" {% if mes == 10 %}selected{% endif %}>Outubro</option>
+            <option value="11" {% if mes == 11 %}selected{% endif %}>Novembro</option>
+            <option value="12" {% if mes == 12 %}selected{% endif %}>Dezembro</option>
+
+        </select>
+
+    </div>
+
+    <div>
+
+        <label>
+            Ano
+        </label>
+
+        <input type="number" name="ano" value="{{ ano }}">
+
+    </div>
+
+    <div>
+
+        <label>
+            Funcionário
+        </label>
+
+        <input
+            type="text"
+            name="busca"
+            placeholder="Pesquisar nome..."
+            value="{{ busca|default:'' }}"
+        >
+
+    </div>
+
+    <button type="submit">
+        Filtrar
+    </button>
+
+    <a
+        class="btn-excel"
+        href="/exportar-lancamentos-excel/?mes={{ mes }}&ano={{ ano }}"
+    >
+        Exportar Excel
+    </a>
+
+</form>
+
+        <div class="cards">
+
+            <div class="card">
+                <span>Total de Lançamentos</span>
+                <strong>{{ lancamentos|length }}</strong>
+            </div>
+
+            <div class="card">
+                <span>Total de Horas</span>
+                <strong>{{ total_horas|floatformat:0 }}h</strong>
+            </div>
+
+            <div class="card">
+                <span>Valor Total</span>
+                <strong>R$ {{ total_valor }}</strong>
+            </div>
+
+        </div>
+
+        {% if funcionarios_repetidos %}
+
+        <div class="aviso">
+
+            Atenção: existem funcionários com mais de um lançamento neste mês.
+
+            <br><br>
+
+            <strong>
+                {{ funcionarios_repetidos|join:", " }}
+            </strong>
+
+        </div>
+
+        {% endif %}
+
+        <table>
+
+            <tr>
+
+                <th>Funcionário</th>
+                <th>Escola</th>
+                <th>Cargo</th>
+                <th>Tipo</th>
+                <th>Horas</th>
+                <th>Valor</th>
+                <th>Observação</th>
+                <th>Ações</th>
+
+            </tr>
+
+            {% for item in lancamentos %}
+
+            <tr>
+
+                <td>{{ item.funcionario.nome }}</td>
+                <td>{{ item.funcionario.escola }}</td>
+                <td>{{ item.funcionario.cargo }}</td>
+                <td>{{ item.get_tipo_display }}</td>
+                <td>{{ item.quantidade_horas|floatformat:0 }}h</td>
+                <td>R$ {{ item.valor }}</td>
+                <td>{{ item.observacao }}</td>
+
+                <td>
+
+                    <div class="acoes">
+
+                        <a
+                            href="{% url 'editar_hora_extra' item.id %}"
+                            class="btn-editar"
+                        >
+                            Editar
+                        </a>
+
+                        <button
+                            type="button"
+                            class="btn-excluir"
+                            onclick="abrirModal('{{ item.id }}')"
+                        >
+                            Excluir
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="8">
+                    Nenhum lançamento encontrado.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    <!-- MODAL -->
+
+    <div id="modalExcluir" class="modal-fundo">
+
+        <div class="modal-box">
+
+            <div class="modal-icon">
+                !
+            </div>
+
+            <h2>
+                Tem certeza?
+            </h2>
+
+            <p>
+                Esta ação não pode ser desfeita.
+            </p>
+
+            <p class="texto-menor">
+                Deseja realmente excluir este lançamento?
+            </p>
+
+            <div class="modal-acoes">
+
+                <button
+                    type="button"
+                    class="btn-cancelar"
+                    onclick="fecharModal()"
+                >
+                    Cancelar
+                </button>
+
+                <a
+                    id="btnConfirmarExcluir"
+                    href="#"
+                    class="btn-confirmar"
+                >
+                    Sim, excluir
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function abrirModal(id){
+
+            document.getElementById(
+                'modalExcluir'
+            ).style.display = 'flex';
+
+            document.getElementById(
+                'btnConfirmarExcluir'
+            ).href = '/horas-extras/excluir/' + id + '/';
+        }
+
+        function fecharModal(){
+
+            document.getElementById(
+                'modalExcluir'
+            ).style.display = 'none';
+        }
+
+    </script>
+
+</body>
+
+</html>
