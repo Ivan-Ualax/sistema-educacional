@@ -155,7 +155,7 @@
             transform:translateX(4px);
         }
 
-        /* USUARIO LOGADO */
+        /* USUARIO */
 
         .usuario-logado{
             background:#020617;
@@ -433,8 +433,6 @@
 
             </div>
 
-            <!-- PERFIL -->
-
             <div class="perfil-sidebar">
 
                 <form
@@ -494,13 +492,9 @@
 
             </div>
 
-            <!-- MENU -->
-
             <div class="menu">
 
-                <a href="/">
-                    Página inicial
-                </a>
+                <a href="/">Página inicial</a>
 
                 <a href="/funcionarios/">
                     Funcionários
@@ -524,8 +518,6 @@
 
         <div>
 
-            <!-- USUARIO LOGADO -->
-
             <div class="usuario-logado">
 
                 <strong>
@@ -537,8 +529,6 @@
                 </span>
 
             </div>
-
-            <!-- BOTÃO SAIR -->
 
             <form
                 method="POST"
@@ -555,6 +545,227 @@
                 </button>
 
             </form>
+
+        </div>
+
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+        <div class="topo">
+
+            <div>
+
+                <h1>
+                    Painel Administrativo
+                </h1>
+
+                <p>
+                    Controle geral de funcionários e horas extras
+                </p>
+
+                <div class="mes">
+                    Mês Atual: {{ mes_atual }}/{{ ano_atual }}
+                </div>
+
+            </div>
+
+            <div class="marca">
+
+                <strong>
+                    IvanTech
+                </strong>
+
+                <p>
+                    IvanTech Sistema Empresarial
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- CARDS -->
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Total Funcionários</h3>
+                <strong>{{ total_funcionarios }}</strong>
+            </div>
+
+            <div class="card">
+                <h3>Funcionários Ativos</h3>
+                <strong>{{ ativos }}</strong>
+            </div>
+
+            <div class="card">
+                <h3>Demitidos</h3>
+                <strong>{{ demitidos }}</strong>
+            </div>
+
+            <div class="card">
+                <h3>Horas Extras</h3>
+                <strong>{{ horas_extras }}</strong>
+            </div>
+
+        </div>
+
+        <!-- GRID -->
+
+        <div class="grid">
+
+            <div class="box">
+
+                <h2>
+                    Resumo do Sistema
+                </h2>
+
+                <div class="barra-item">
+
+                    <div class="barra-topo">
+                        <span>Total</span>
+                        <span>{{ total_funcionarios }}</span>
+                    </div>
+
+                    <div class="barra">
+                        <div class="progresso azul"></div>
+                    </div>
+
+                </div>
+
+                <div class="barra-item">
+
+                    <div class="barra-topo">
+                        <span>Ativos</span>
+                        <span>{{ ativos }}</span>
+                    </div>
+
+                    <div class="barra">
+                        <div class="progresso verde"></div>
+                    </div>
+
+                </div>
+
+                <div class="barra-item">
+
+                    <div class="barra-topo">
+                        <span>Demitidos</span>
+                        <span>{{ demitidos }}</span>
+                    </div>
+
+                    <div class="barra">
+                        <div class="progresso vermelho"></div>
+                    </div>
+
+                </div>
+
+                <div class="barra-item">
+
+                    <div class="barra-topo">
+                        <span>Horas</span>
+                        <span>{{ horas_extras }}</span>
+                    </div>
+
+                    <div class="barra">
+                        <div class="progresso amarelo"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="box">
+
+                <h2>
+                    Indicadores
+                </h2>
+
+                <div class="indicador">
+
+                    <h3>
+                        Funcionários
+                    </h3>
+
+                    <p>
+                        Controle completo dos servidores.
+                    </p>
+
+                </div>
+
+                <div class="indicador">
+
+                    <h3>
+                        Horas Extras
+                    </h3>
+
+                    <p>
+                        Lançamentos individuais por funcionário.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TABELA -->
+
+        <div class="tabela-box">
+
+            <h2>
+                Funcionários Recentes
+            </h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>NOME</th>
+                        <th>CARGO</th>
+                        <th>STATUS</th>
+                        <th>ADMISSÃO</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for funcionario in funcionarios %}
+
+                    <tr>
+
+                        <td>
+                            {{ funcionario.nome }}
+                        </td>
+
+                        <td>
+                            {% if funcionario.cargo %}
+                                {{ funcionario.cargo.nome }}
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            <span class="{{ funcionario.status }}">
+                                {{ funcionario.status|title }}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            {{ funcionario.data_admissao }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
 
         </div>
 
