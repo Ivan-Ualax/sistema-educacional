@@ -11,7 +11,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://sistema-educacional-xsfm.onrender.com'
+]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
