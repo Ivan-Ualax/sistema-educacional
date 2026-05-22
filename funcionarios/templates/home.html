@@ -535,7 +535,7 @@
 
                 <div class="avatar">
 
-                    {% if request.user.perfil.foto %}
+                    {% if request.user.perfil and request.user.perfil.foto %}
 
                         <img
                             src="{{ request.user.perfil.foto.url }}"
