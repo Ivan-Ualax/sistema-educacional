@@ -54,6 +54,36 @@ def home(request):
 
     return render(request, 'home.html', context)
 
+@login_required(login_url='/login/')
+def cadastrar_funcionario(request):
+
+    if request.method == 'POST':
+
+        cargo_nome = request.POST.get('cargo')
+
+        cargo = None
+
+        if cargo_nome:
+            cargo, created = Cargo.objects.get_or_create(
+                nome=cargo_nome
+            )
+
+        Funcionario.objects.create(
+            nome=request.POST.get('nome'),
+            cpf=request.POST.get('cpf'),
+            escola=request.POST.get('escola'),
+            carga_horaria=request.POST.get('carga_horaria') or 0,
+            numero=request.POST.get('numero'),
+            localidade=request.POST.get('localidade'),
+            cargo=cargo,
+            data_admissao=request.POST.get('data_admissao') or None,
+            status='ativo',
+        )
+
+        return redirect('/funcionarios/')
+
+    return render(request, 'funcionario.html')
+
 
 # LISTAR FUNCIONÁRIOS
 
