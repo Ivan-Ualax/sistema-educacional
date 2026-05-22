@@ -533,10 +533,22 @@
 
                 {% csrf_token %}
 
-                <div class="avatar">
+               <div class="avatar">
 
-                    {% if request.user.perfil and request.user.perfil.foto %}
+    {% if request.user.perfil.foto %}
 
+        <img
+            src="{{ request.user.perfil.foto.url }}"
+            alt="Foto"
+        >
+
+    {% else %}
+
+        {{ request.user.username|slice:":1"|upper }}
+
+    {% endif %}
+
+</div>
                         <img
                             src="{{ request.user.perfil.foto.url }}"
                             alt="Foto"

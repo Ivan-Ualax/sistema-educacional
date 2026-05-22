@@ -162,7 +162,8 @@ class Perfil(models.Model):
 
     usuario = models.OneToOneField(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='perfil'
     )
 
     foto = models.ImageField(
