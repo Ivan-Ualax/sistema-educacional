@@ -1,3 +1,4 @@
+```html
 {% load static %}
 
 <!DOCTYPE html>
@@ -155,22 +156,25 @@
             transform:translateX(4px);
         }
 
-        /* LOGIN BUTTON */
+        /* BOTÃO */
 
         .btn-login{
             margin-top:30px;
-            background:#2563eb;
+            background:#dc2626;
             color:white;
             text-align:center;
             padding:15px;
             border-radius:14px;
-            text-decoration:none;
+            border:none;
+            width:100%;
+            font-size:16px;
             font-weight:bold;
+            cursor:pointer;
             transition:0.3s;
         }
 
         .btn-login:hover{
-            background:#1d4ed8;
+            background:#b91c1c;
         }
 
         /* CONTENT */
@@ -497,12 +501,23 @@
 
         </div>
 
-        <a
-            href="/logout/"
-            class="btn-login"
+        <!-- BOTÃO SAIR -->
+
+        <form
+            method="POST"
+            action="/logout/"
         >
-            Login
-        </a>
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="btn-login"
+            >
+                Sair
+            </button>
+
+        </form>
 
     </div>
 
@@ -731,3 +746,4 @@
 
 </body>
 </html>
+```
