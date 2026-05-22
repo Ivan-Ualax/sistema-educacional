@@ -1,9 +1,10 @@
 from django.db.models.signals import post_save
-from django.contrib.auth.models import User
 from django.dispatch import receiver
-from .models import Perfil
+from django.conf import settings
+from django.apps import apps
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_perfil(sender, instance, created, **kwargs):
     if created:
-        Perfil.objects.create(usuario=instance)
+        Perfil = apps.get_model('funcionarios', 'Perfil')
+        Perfil.objects.get_or_create(usuario=instance)

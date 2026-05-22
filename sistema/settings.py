@@ -25,16 +25,13 @@ CSRF_TRUSTED_ORIGINS = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'funcionarios',
-]
+INSTALLED_APPS = [ 'django.contrib.admin', 
+                  'django.contrib.auth', 
+                  'django.contrib.contenttypes', 
+                  'django.contrib.sessions', 
+                  'django.contrib.messages', 
+                  'django.contrib.staticfiles', 
+                  'funcionarios', ]
 
 
 MIDDLEWARE = [
