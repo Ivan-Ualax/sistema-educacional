@@ -608,7 +608,7 @@ def alterar_foto(request):
         if foto:
             perfil, criado = Perfil.objects.get_or_create(
                 usuario=request.user
-            )
+        )
 
             perfil.foto = foto
             perfil.save()

@@ -535,12 +535,12 @@
 
                <div class="avatar">
 
-    {% if request.user.perfil.foto %}
+   {% if perfil.foto %}
 
         <img
-            src="{{ request.user.perfil.foto.url }}"
-            alt="Foto"
-        >
+    src="{{ perfil.foto.url }}"
+    alt="Foto"
+>
 
     {% else %}
 
