@@ -442,23 +442,8 @@
                     class="form-perfil"
                 >
 
-                    {% csrf_token %}
-
-                    <div class="avatar">
-
-                        {% if perfil and perfil.foto %}
-
-                            <img
-                                src="{{ perfil.foto.url }}"
-                                alt="Foto"
-                            >
-
-                        {% else %}
-
-                            {{ request.user.username|slice:":1"|upper }}
-
-                        {% endif %}
-
+                   <div class="avatar">
+                        {{ request.user.username|slice:":1"|upper }}
                     </div>
 
                     <div class="info-user">

@@ -8,7 +8,7 @@ from decimal import Decimal
 from openpyxl import Workbook # type: ignore
 from openpyxl.styles import Font, PatternFill, Alignment # type: ignore
 
-from .models import Funcionario, Cargo, HoraExtra, Perfil
+from .models import Funcionario, Cargo, HoraExtra
 
 
 # HOME
@@ -599,19 +599,3 @@ def exportar_lancamentos_excel(request):
 
     return response
 
-@login_required(login_url='/login/')
-def alterar_foto(request):
-
-    if request.method == 'POST':
-
-        foto = request.FILES.get('foto')
-
-        if foto:
-            perfil, criado = Perfil.objects.get_or_create(
-                usuario=request.user
-        )
-
-            perfil.foto = foto
-            perfil.save()
-
-    return redirect('/')

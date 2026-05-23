@@ -125,14 +125,6 @@ urlpatterns = [
         name='exportar_lancamentos_excel'
     ),
 
-    # =========================
-    # FOTO PERFIL
-    # =========================
-
-    path(
-        'alterar-foto/',
-        views.alterar_foto,
-        name='alterar_foto'
-    ),
+    
 
 ]
