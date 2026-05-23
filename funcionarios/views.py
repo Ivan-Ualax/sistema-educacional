@@ -138,7 +138,7 @@ def editar_funcionario(request, id):
 
         funcionario.nome = request.POST.get('nome')
         funcionario.cpf = request.POST.get('cpf')
-        funcionario.escola = request.POST.get('escola')
+        funcionario.escola = request.POST.get('escola') or funcionario.escola
         funcionario.carga_horaria = request.POST.get('carga_horaria') or 0
         funcionario.numero = request.POST.get('numero')
         funcionario.localidade = request.POST.get('localidade')
