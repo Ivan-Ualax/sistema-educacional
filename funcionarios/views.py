@@ -13,14 +13,12 @@ from .models import Funcionario, Cargo, HoraExtra
 
 # HOME
 
+# HOME
+
 @login_required(login_url='/login/')
 def home(request):
 
     agora = datetime.now()
-
-    perfil, criado = Perfil.objects.get_or_create(
-        usuario=request.user
-    )
 
     meses = [
         '',
@@ -41,7 +39,6 @@ def home(request):
     funcionarios = Funcionario.objects.all().order_by('-id')[:10]
 
     context = {
-        'perfil': perfil,
         'funcionarios': funcionarios,
         'total_funcionarios': Funcionario.objects.count(),
         'ativos': Funcionario.objects.filter(status='ativo').count(),
