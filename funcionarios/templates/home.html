@@ -442,7 +442,7 @@
                     class="form-perfil"
                 >
 
-                   <div class="avatar">
+                  <div class="avatar">
                         {{ request.user.username|slice:":1"|upper }}
                     </div>
 
@@ -455,21 +455,6 @@
                         <p>
                             Administrador
                         </p>
-
-                        <label
-                            for="foto"
-                            class="btn-foto"
-                        >
-                            Alterar Foto
-                        </label>
-
-                        <input
-                            type="file"
-                            id="foto"
-                            name="foto"
-                            class="input-foto"
-                            onchange="this.form.submit()"
-                        >
 
                     </div>
 
