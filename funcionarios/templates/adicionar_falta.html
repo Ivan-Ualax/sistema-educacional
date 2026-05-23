@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Adicionar Falta</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            min-height:100vh;
+            display:flex;
+        }
+
+        .sidebar{
+            width:240px;
+            background:#0f172a;
+            padding:20px;
+            border-right:1px solid #1e293b;
+            height:100vh;
+            position:fixed;
+        }
+
+        .sidebar h1{
+            color:#38bdf8;
+            margin-bottom:30px;
+        }
+
+        .sidebar a{
+            display:block;
+            color:#cbd5e1;
+            text-decoration:none;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:10px;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
+        }
+
+        .content{
+            margin-left:240px;
+            width:100%;
+            padding:30px;
+        }
+
+        h1{
+            font-size:38px;
+            margin-bottom:10px;
+        }
+
+        .subtitulo{
+            color:#94a3b8;
+            margin-bottom:25px;
+        }
+
+        .card{
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:20px;
+            padding:25px;
+            margin-bottom:22px;
+        }
+
+        .grupo{
+            margin-bottom:22px;
+        }
+
+        label{
+            display:block;
+            margin-bottom:8px;
+            font-weight:bold;
+        }
+
+        input,
+        textarea,
+        select{
+            background:#020617;
+            border:1px solid #334155;
+            color:white;
+            padding:13px;
+            border-radius:12px;
+            outline:none;
+        }
+
+        .busca-form{
+            display:flex;
+            gap:10px;
+            align-items:center;
+        }
+
+        .busca-form input{
+            width:420px;
+        }
+
+        .datas{
+            display:flex;
+            gap:10px;
+        }
+
+        .datas input{
+            width:110px;
+        }
+
+        textarea{
+            width:100%;
+            height:120px;
+            resize:none;
+        }
+
+        select{
+            width:260px;
+        }
+
+        .lista{
+            max-height:300px;
+            overflow-y:auto;
+            border:1px solid #334155;
+            border-radius:14px;
+            padding:15px;
+            background:#020617;
+        }
+
+        .funcionario{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:10px;
+            border-bottom:1px solid #1e293b;
+        }
+
+        .funcionario:last-child{
+            border-bottom:none;
+        }
+
+        .funcionario input{
+            width:auto;
+        }
+
+        .btn{
+            background:#38bdf8;
+            color:#020617;
+            border:none;
+            padding:13px 22px;
+            border-radius:12px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .btn:hover{
+            opacity:0.9;
+        }
+
+        .btn-salvar{
+            margin-top:10px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="sidebar">
+
+        <h1>Sistema Escolar</h1>
+
+        <a href="/">Página inicial</a>
+        <a href="/funcionarios/">Funcionários</a>
+        <a href="/horas-extras/">Horas Extras</a>
+        <a href="/faltas/adicionar/">Faltas</a>
+        <a href="/lancamentos-mes/">Lançamentos do Mês</a>
+
+    </div>
+
+    <div class="content">
+
+        <h1>Adicionar Falta</h1>
+
+        <p class="subtitulo">
+            Busque o funcionário, selecione e registre a falta.
+        </p>
+
+        <div class="card">
+
+            <form method="GET" class="busca-form">
+
+                <input
+                    type="text"
+                    name="busca"
+                    placeholder="Buscar funcionário..."
+                    value="{{ busca|default:'' }}"
+                >
+
+                <button type="submit" class="btn">
+                    Buscar
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="grupo">
+
+                    <label>Data da Falta</label>
+
+                    <div class="datas">
+
+                        <input
+                            type="number"
+                            name="dia"
+                            min="1"
+                            max="31"
+                            placeholder="Dia"
+                            required
+                        >
+
+                        <input
+                            type="number"
+                            name="mes"
+                            min="1"
+                            max="12"
+                            value="{{ mes_atual }}"
+                            placeholder="Mês"
+                            required
+                        >
+
+                        <input
+                            type="number"
+                            name="ano"
+                            value="{{ ano_atual }}"
+                            placeholder="Ano"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="grupo">
+
+                    <label>Funcionários encontrados</label>
+
+                    <div class="lista">
+
+                        {% if funcionarios %}
+
+                            {% for funcionario in funcionarios %}
+
+                                <div class="funcionario">
+
+                                    <input
+                                        type="checkbox"
+                                        name="funcionarios"
+                                        value="{{ funcionario.id }}"
+                                    >
+
+                                    <span>{{ funcionario.nome }}</span>
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <p style="color:#94a3b8;">
+                                Pesquise um funcionário para selecionar.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="grupo">
+
+                    <label>Cor da Observação</label>
+
+                    <select name="cor_texto">
+
+                        <option value="normal">Normal</option>
+                        <option value="vermelho">Vermelho</option>
+                        <option value="verde">Verde</option>
+
+                    </select>
+
+                </div>
+
+                <div class="grupo">
+
+                    <label>Justificativa</label>
+
+                    <textarea
+                        name="justificativa"
+                        placeholder="Digite a justificativa..."
+                    ></textarea>
+
+                </div>
+
+                <button type="submit" class="btn btn-salvar">
+                    Salvar Falta
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -292,6 +292,20 @@
             border-radius:10px;
             font-weight:bold;
         }
+
+         .texto-normal{
+            color:white;
+        }
+
+        .texto-vermelho{
+            color:#ef4444;
+            font-weight:bold;
+        }
+
+        .texto-verde{
+            color:#22c55e;
+            font-weight:bold;
+        }
         .subtitulo{
     font-size:17px;
     line-height:1.8;
@@ -337,6 +351,10 @@
 
         <a href="/horas-extras/">
             Horas Extras
+        </a>
+
+        <a href="/faltas/adicionar/">
+            Faltas
         </a>
 
         <a href="/lancamentos-mes/">
@@ -474,15 +492,29 @@
 
             <tr>
 
-                <td>{{ item.funcionario.nome }}</td>
-                <td>{{ item.funcionario.escola }}</td>
-                <td>{{ item.funcionario.cargo }}</td>
-                <td>{{ item.get_tipo_display }}</td>
-                <td>{{ item.quantidade_horas|floatformat:0 }}h</td>
-                <td>R$ {{ item.valor }}</td>
-                <td>{{ item.observacao }}</td>
+            <td>{{ item.funcionario.nome }}</td>
 
-                <td>
+            <td>{{ item.funcionario.escola }}</td>
+
+            <td>{{ item.funcionario.cargo }}</td>
+
+            <td>{{ item.get_tipo_display }}</td>
+
+            <td>{{ item.quantidade_horas|floatformat:0 }}h</td>
+
+            <td>R$ {{ item.valor }}</td>
+
+            <td>
+
+                <span class="texto-{{ item.cor_texto }}">
+
+                    {{ item.observacao }}
+
+                </span>
+
+            </td>
+
+            <td>
 
                     <div class="acoes">
 

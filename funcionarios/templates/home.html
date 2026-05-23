@@ -435,32 +435,27 @@
 
             <div class="perfil-sidebar">
 
-                <form
-                    method="POST"
-                    action="/alterar-foto/"
-                    enctype="multipart/form-data"
-                    class="form-perfil"
-                >
+    <div class="form-perfil">
 
-                  <div class="avatar">
-                        {{ request.user.username|slice:":1"|upper }}
-                    </div>
+        <div class="avatar">
+            {{ request.user.username|slice:":1"|upper }}
+        </div>
 
-                    <div class="info-user">
+        <div class="info-user">
 
-                        <h3>
-                            {{ request.user.username }}
-                        </h3>
+            <h3>
+                {{ request.user.username }}
+            </h3>
 
-                        <p>
-                            Administrador
-                        </p>
+            <p>
+                Administrador
+            </p>
 
-                    </div>
+        </div>
 
-                </form>
+    </div>
 
-            </div>
+</div>
 
             <div class="menu">
 
@@ -476,6 +471,10 @@
 
                 <a href="/horas-extras/">
                     Horas Extras
+                </a>
+
+                <a href="/faltas/adicionar/">
+                    Faltas
                 </a>
 
                 <a href="/lancamentos-mes/">

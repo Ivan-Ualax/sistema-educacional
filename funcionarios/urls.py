@@ -115,6 +115,14 @@ urlpatterns = [
         name='excluir_hora_extra'
     ),
 
+    # ADICIONAR FALTA
+
+    path(
+        'faltas/adicionar/',
+        views.adicionar_falta,
+        name='adicionar_falta'
+    ),
+
     # =========================
     # EXPORTAR EXCEL
     # =========================

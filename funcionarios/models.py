@@ -111,6 +111,7 @@ class HoraExtra(models.Model):
         ('normal', 'Hora Extra Normal'),
         ('f1', 'Hora Extra F1'),
         ('f2', 'Hora Extra F2'),
+         ('falta', 'Falta'),
     )
 
     funcionario = models.ForeignKey(
@@ -152,6 +153,17 @@ class HoraExtra(models.Model):
 
     criado_em = models.DateTimeField(
         auto_now_add=True
+    )
+    COR_TEXTO = (
+    ('normal', 'Normal'),
+    ('vermelho', 'Vermelho'),
+    ('verde', 'Verde'),
+)
+
+    cor_texto = models.CharField(
+        max_length=20,
+        choices=COR_TEXTO,
+        default='normal'
     )
 
     def __str__(self):
