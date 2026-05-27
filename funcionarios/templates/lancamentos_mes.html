@@ -216,8 +216,6 @@
             text-decoration:none;
         }
 
-        /* MODAL */
-
         .modal-fundo{
             display:none;
             position:fixed;
@@ -293,7 +291,7 @@
             font-weight:bold;
         }
 
-         .texto-normal{
+        .texto-normal{
             color:white;
         }
 
@@ -306,24 +304,25 @@
             color:#22c55e;
             font-weight:bold;
         }
+
         .subtitulo{
-    font-size:17px;
-    line-height:1.8;
-    color:#cbd5e1;
-    margin-bottom:28px;
-    max-width:850px;
-    font-weight:500;
-    letter-spacing:0.3px;
-    padding:18px 22px;
-    border-left:4px solid #38bdf8;
-    background:linear-gradient(
-        90deg,
-        rgba(56,189,248,0.10),
-        rgba(15,23,42,0.2)
-    );
-    border-radius:14px;
-    box-shadow:0 0 25px rgba(56,189,248,0.08);
-}
+            font-size:17px;
+            line-height:1.8;
+            color:#cbd5e1;
+            margin-bottom:28px;
+            max-width:850px;
+            font-weight:500;
+            letter-spacing:0.3px;
+            padding:18px 22px;
+            border-left:4px solid #38bdf8;
+            background:linear-gradient(
+                90deg,
+                rgba(56,189,248,0.10),
+                rgba(15,23,42,0.2)
+            );
+            border-radius:14px;
+            box-shadow:0 0 25px rgba(56,189,248,0.08);
+        }
 
     </style>
 
@@ -353,10 +352,6 @@
             Horas Extras
         </a>
 
-        <a href="/faltas/adicionar/">
-            Faltas
-        </a>
-
         <a href="/lancamentos-mes/">
             Lançamentos do Mês
         </a>
@@ -369,74 +364,74 @@
             Lançamentos do Mês
         </h1>
 
-   <p class="subtitulo">
-    Busque funcionários, acompanhe horas extras e controle todos os lançamentos do período.
-</p>
+        <p class="subtitulo">
+            Busque funcionários, acompanhe horas extras e controle todos os lançamentos do período.
+        </p>
 
         <form method="GET" class="filtros">
 
-    <div>
+            <div>
 
-        <label>
-            Mês
-        </label>
+                <label>
+                    Mês
+                </label>
 
-        <select name="mes">
+                <select name="mes">
 
-            <option value="1" {% if mes == 1 %}selected{% endif %}>Janeiro</option>
-            <option value="2" {% if mes == 2 %}selected{% endif %}>Fevereiro</option>
-            <option value="3" {% if mes == 3 %}selected{% endif %}>Março</option>
-            <option value="4" {% if mes == 4 %}selected{% endif %}>Abril</option>
-            <option value="5" {% if mes == 5 %}selected{% endif %}>Maio</option>
-            <option value="6" {% if mes == 6 %}selected{% endif %}>Junho</option>
-            <option value="7" {% if mes == 7 %}selected{% endif %}>Julho</option>
-            <option value="8" {% if mes == 8 %}selected{% endif %}>Agosto</option>
-            <option value="9" {% if mes == 9 %}selected{% endif %}>Setembro</option>
-            <option value="10" {% if mes == 10 %}selected{% endif %}>Outubro</option>
-            <option value="11" {% if mes == 11 %}selected{% endif %}>Novembro</option>
-            <option value="12" {% if mes == 12 %}selected{% endif %}>Dezembro</option>
+                    <option value="1" {% if mes == 1 %}selected{% endif %}>Janeiro</option>
+                    <option value="2" {% if mes == 2 %}selected{% endif %}>Fevereiro</option>
+                    <option value="3" {% if mes == 3 %}selected{% endif %}>Março</option>
+                    <option value="4" {% if mes == 4 %}selected{% endif %}>Abril</option>
+                    <option value="5" {% if mes == 5 %}selected{% endif %}>Maio</option>
+                    <option value="6" {% if mes == 6 %}selected{% endif %}>Junho</option>
+                    <option value="7" {% if mes == 7 %}selected{% endif %}>Julho</option>
+                    <option value="8" {% if mes == 8 %}selected{% endif %}>Agosto</option>
+                    <option value="9" {% if mes == 9 %}selected{% endif %}>Setembro</option>
+                    <option value="10" {% if mes == 10 %}selected{% endif %}>Outubro</option>
+                    <option value="11" {% if mes == 11 %}selected{% endif %}>Novembro</option>
+                    <option value="12" {% if mes == 12 %}selected{% endif %}>Dezembro</option>
 
-        </select>
+                </select>
 
-    </div>
+            </div>
 
-    <div>
+            <div>
 
-        <label>
-            Ano
-        </label>
+                <label>
+                    Ano
+                </label>
 
-        <input type="number" name="ano" value="{{ ano }}">
+                <input type="number" name="ano" value="{{ ano }}">
 
-    </div>
+            </div>
 
-    <div>
+            <div>
 
-        <label>
-            Funcionário
-        </label>
+                <label>
+                    Funcionário
+                </label>
 
-        <input
-            type="text"
-            name="busca"
-            placeholder="Pesquisar nome..."
-            value="{{ busca|default:'' }}"
-        >
+                <input
+                    type="text"
+                    name="busca"
+                    placeholder="Pesquisar nome..."
+                    value="{{ busca|default:'' }}"
+                >
 
-    </div>
+            </div>
 
-    <button type="submit">
-        Filtrar
-    </button>
+            <button type="submit">
+                Filtrar
+            </button>
 
-    <a
-        class="btn-excel"
-        href="/exportar-lancamentos-excel/?mes={{ mes }}&ano={{ ano }}"
-    >
-        Exportar Excel
-    </a>
+            <a
+                class="btn-excel"
+                href="/exportar-lancamentos-excel/?mes={{ mes }}&ano={{ ano }}"
+            >
+                Exportar Excel
+            </a>
 
-</form>
+        </form>
 
         <div class="cards">
 
@@ -483,7 +478,10 @@
                 <th>Tipo</th>
                 <th>Horas</th>
                 <th>Valor</th>
-                <th>Observação</th>
+                <th>Obs. Hora Extra</th>
+                <th>Nº Faltas</th>
+                <th>Data Falta</th>
+                <th>Obs. Falta</th>
                 <th>Ações</th>
 
             </tr>
@@ -492,29 +490,55 @@
 
             <tr>
 
-            <td>{{ item.funcionario.nome }}</td>
+                <td>{{ item.funcionario.nome }}</td>
 
-            <td>{{ item.funcionario.escola }}</td>
+                <td>{{ item.funcionario.escola }}</td>
 
-            <td>{{ item.funcionario.cargo }}</td>
+                <td>{{ item.funcionario.cargo }}</td>
 
-            <td>{{ item.get_tipo_display }}</td>
+                <td>{{ item.get_tipo_display }}</td>
 
-            <td>{{ item.quantidade_horas|floatformat:0 }}h</td>
+                <td>{{ item.quantidade_horas|floatformat:0 }}h</td>
 
-            <td>R$ {{ item.valor }}</td>
+                <td>R$ {{ item.valor }}</td>
 
-            <td>
+                <td>
 
-                <span class="texto-{{ item.cor_texto }}">
+                    {{ item.observacao_hora_extra|default:"" }}
 
-                    {{ item.observacao }}
+                </td>
 
-                </span>
+                <td>
 
-            </td>
+                    {{ item.numero_faltas }}
 
-            <td>
+                </td>
+
+                <td>
+
+                    {% if item.data_falta %}
+
+                        {{ item.data_falta|date:"d/m/Y" }}
+
+                    {% else %}
+
+                        —
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <span class="texto-{{ item.cor_texto }}">
+
+                        {{ item.observacao_falta|default:"" }}
+
+                    </span>
+
+                </td>
+
+                <td>
 
                     <div class="acoes">
 
@@ -543,7 +567,7 @@
 
             <tr>
 
-                <td colspan="8">
+                <td colspan="11">
                     Nenhum lançamento encontrado.
                 </td>
 
@@ -554,8 +578,6 @@
         </table>
 
     </div>
-
-    <!-- MODAL -->
 
     <div id="modalExcluir" class="modal-fundo">
 

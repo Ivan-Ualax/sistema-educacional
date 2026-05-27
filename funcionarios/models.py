@@ -1,13 +1,7 @@
 # funcionarios/models.py
 
 from django.db import models
-from django.contrib.auth.models import User
-from django.db import models
 
-
-# =========================
-# CARGOS
-# =========================
 
 class Cargo(models.Model):
 
@@ -20,10 +14,6 @@ class Cargo(models.Model):
         return self.nome
 
 
-# =========================
-# FUNCIONÁRIOS
-# =========================
-
 class Funcionario(models.Model):
 
     STATUS = (
@@ -32,13 +22,9 @@ class Funcionario(models.Model):
         ('demitido', 'Demitido'),
     )
 
-    nome = models.CharField(
-        max_length=150
-    )
+    nome = models.CharField(max_length=150)
 
-    cpf = models.CharField(
-        max_length=14
-    )
+    cpf = models.CharField(max_length=14)
 
     numero = models.CharField(
         max_length=20,
@@ -52,9 +38,7 @@ class Funcionario(models.Model):
         null=True
     )
 
-    escola = models.CharField(
-        max_length=150
-    )
+    escola = models.CharField(max_length=150)
 
     cargo = models.ForeignKey(
         Cargo,
@@ -63,9 +47,7 @@ class Funcionario(models.Model):
         blank=True
     )
 
-    carga_horaria = models.IntegerField(
-        default=0
-    )
+    carga_horaria = models.IntegerField(default=0)
 
     status = models.CharField(
         max_length=20,
@@ -74,21 +56,15 @@ class Funcionario(models.Model):
     )
 
     data_admissao = models.DateField(
-    blank=True,
-    null=True
-)
-
-    criado_em = models.DateTimeField(
-        auto_now_add=True
+        blank=True,
+        null=True
     )
+
+    criado_em = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.nome
 
-
-# =========================
-# HORAS EXTRAS
-# =========================
 
 class HoraExtra(models.Model):
 
@@ -111,7 +87,12 @@ class HoraExtra(models.Model):
         ('normal', 'Hora Extra Normal'),
         ('f1', 'Hora Extra F1'),
         ('f2', 'Hora Extra F2'),
-         ('falta', 'Falta'),
+    )
+
+    COR_TEXTO = (
+        ('normal', 'Normal'),
+        ('vermelho', 'Vermelho'),
+        ('verde', 'Verde'),
     )
 
     funcionario = models.ForeignKey(
@@ -142,23 +123,24 @@ class HoraExtra(models.Model):
         default=1
     )
 
-    ano = models.IntegerField(
-        default=2026
-    )
+    ano = models.IntegerField(default=2026)
 
-    observacao = models.TextField(
+    observacao_hora_extra = models.TextField(
         blank=True,
         null=True
     )
 
-    criado_em = models.DateTimeField(
-        auto_now_add=True
+    numero_faltas = models.IntegerField(default=0)
+
+    data_falta = models.DateField(
+        blank=True,
+        null=True
     )
-    COR_TEXTO = (
-    ('normal', 'Normal'),
-    ('vermelho', 'Vermelho'),
-    ('verde', 'Verde'),
-)
+
+    observacao_falta = models.TextField(
+        blank=True,
+        null=True
+    )
 
     cor_texto = models.CharField(
         max_length=20,
@@ -166,23 +148,7 @@ class HoraExtra(models.Model):
         default='normal'
     )
 
+    criado_em = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f'{self.funcionario.nome} - {self.get_mes_referencia_display()}/{self.ano}'
-    
-
-class Perfil(models.Model):
-
-    usuario = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='perfil'
-    )
-
-    foto = models.ImageField(
-        upload_to='perfil/',
-        blank=True,
-        null=True
-    )
-
-    def __str__(self):
-        return self.usuario.username
