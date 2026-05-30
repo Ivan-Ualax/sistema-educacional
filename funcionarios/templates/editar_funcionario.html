@@ -5,168 +5,117 @@
     <title>Editar Funcionário</title>
 
     <style>
-
-    *{
-        margin:0;
-        padding:0;
-        box-sizing:border-box;
-    }
-
-    body{
-        background:#0f172a;
-        font-family:Arial;
-        color:white;
-        display:flex;
-        margin:0;
-    }
-
-    .sidebar{
-        width:260px;
-        height:100vh;
-        background:#020617;
-        padding:25px;
-        position:fixed;
-        left:0;
-        top:0;
-        overflow-y:auto;
-    }
-
-    .logo{
-        font-size:24px;
-        font-weight:bold;
-        margin-bottom:40px;
-        color:#38bdf8;
-    }
-
-    .sidebar a{
-        display:block;
-        color:#cbd5e1;
-        text-decoration:none;
-        padding:15px;
-        border-radius:12px;
-        margin-bottom:10px;
-        transition:0.3s;
-    }
-
-    .sidebar a:hover{
-        background:#1e293b;
-    }
-
-    .content{
-        margin-left:320px;
-        padding:40px;
-        width:calc(100% - 320px);
-    }
-
-    .form-box{
-        background:#1e293b;
-        border:1px solid #334155;
-        border-radius:18px;
-        padding:30px;
-        max-width:900px;
-        width:100%;
-    }
-
-    .campo{
-        display:flex;
-        flex-direction:column;
-        margin-bottom:18px;
-    }
-
-    label{
-        color:#cbd5e1;
-        margin-bottom:8px;
-    }
-
-    input{
-        background:#0f172a;
-        border:1px solid #334155;
-        color:white;
-        padding:14px;
-        border-radius:12px;
-        outline:none;
-        font-size:15px;
-        width:100%;
-    }
-
-    button{
-        background:#38bdf8;
-        color:#020617;
-        border:none;
-        padding:14px 25px;
-        border-radius:12px;
-        font-weight:bold;
-        cursor:pointer;
-        transition:0.3s;
-    }
-
-    button:hover{
-        opacity:0.9;
-    }
-
-    .btn-voltar{
-        background:#334155;
-        color:white;
-        text-decoration:none;
-        padding:14px 25px;
-        border-radius:12px;
-        margin-left:10px;
-        display:inline-block;
-        transition:0.3s;
-    }
-
-    .btn-voltar:hover{
-        background:#475569;
-    }
-
-    /* RESPONSIVO */
-
-    @media (max-width:768px){
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
 
         body{
-            flex-direction:column;
+            background:#0f172a;
+            font-family:Arial;
+            color:white;
+            display:flex;
+            margin:0;
         }
 
         .sidebar{
-            width:100%;
-            height:auto;
-            position:relative;
-            padding:20px;
+            width:260px;
+            height:100vh;
+            background:#020617;
+            padding:25px;
+            position:fixed;
+            left:0;
+            top:0;
+            overflow-y:auto;
         }
 
         .logo{
-            text-align:center;
-            margin-bottom:25px;
-            font-size:22px;
+            font-size:24px;
+            font-weight:bold;
+            margin-bottom:40px;
+            color:#38bdf8;
         }
 
         .sidebar a{
-            padding:14px;
-            font-size:15px;
+            display:block;
+            color:#cbd5e1;
+            text-decoration:none;
+            padding:15px;
+            border-radius:12px;
+            margin-bottom:10px;
+            transition:0.3s;
+        }
+
+        .sidebar a:hover{
+            background:#1e293b;
         }
 
         .content{
-            margin-left:0;
-            width:100%;
-            padding:20px;
+            margin-left:320px;
+            padding:40px;
+            width:calc(100% - 320px);
         }
 
         .form-box{
-            padding:20px;
-            border-radius:16px;
+            background:#1e293b;
+            border:1px solid #334155;
+            border-radius:18px;
+            padding:30px;
+            max-width:900px;
+            width:100%;
+        }
+
+        .campo{
+            display:flex;
+            flex-direction:column;
+            margin-bottom:18px;
+        }
+
+        label{
+            color:#cbd5e1;
+            margin-bottom:8px;
         }
 
         input{
-            padding:13px;
-            font-size:14px;
+            background:#0f172a;
+            border:1px solid #334155;
+            color:white;
+            padding:14px;
+            border-radius:12px;
+            outline:none;
+            font-size:15px;
+            width:100%;
         }
 
-        button,
+        button{
+            background:#38bdf8;
+            color:#020617;
+            border:none;
+            padding:14px 25px;
+            border-radius:12px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        button:hover{
+            opacity:0.9;
+        }
+
         .btn-voltar{
-            width:100%;
-            margin:0;
-            margin-top:10px;
-            text-align:center;
+            background:#334155;
+            color:white;
+            text-decoration:none;
+            padding:14px 25px;
+            border-radius:12px;
+            margin-left:10px;
+            display:inline-block;
+            transition:0.3s;
+        }
+
+        .btn-voltar:hover{
+            background:#475569;
         }
 
         .alerta-duplicado{
@@ -177,15 +126,61 @@
             border-radius:12px;
             margin-bottom:20px;
             font-weight:bold;
-    }
-    }
+        }
 
-</style>
+        @media (max-width:768px){
+            body{
+                flex-direction:column;
+            }
+
+            .sidebar{
+                width:100%;
+                height:auto;
+                position:relative;
+                padding:20px;
+            }
+
+            .logo{
+                text-align:center;
+                margin-bottom:25px;
+                font-size:22px;
+            }
+
+            .sidebar a{
+                padding:14px;
+                font-size:15px;
+            }
+
+            .content{
+                margin-left:0;
+                width:100%;
+                padding:20px;
+            }
+
+            .form-box{
+                padding:20px;
+                border-radius:16px;
+            }
+
+            input{
+                padding:13px;
+                font-size:14px;
+            }
+
+            button,
+            .btn-voltar{
+                width:100%;
+                margin:0;
+                margin-top:10px;
+                text-align:center;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
     <div class="sidebar">
-
         <div class="logo">
             Sistema Escolar
         </div>
@@ -193,7 +188,6 @@
         <a href="/">Dashboard</a>
         <a href="/funcionarios/">Funcionários</a>
         <a href="/horas-extras/">Horas Extras</a>
-
     </div>
 
     <div class="content">
@@ -202,12 +196,12 @@
 
         <div class="form-box">
 
-                    {% if erro_nome_duplicado %}
-        <div class="alerta-duplicado">
-            ⚠ Já existe outro funcionário cadastrado com este nome:
-            <strong>{{ nome_duplicado }}</strong>
-        </div>
-        {% endif %}
+            {% if erro_nome_duplicado %}
+            <div class="alerta-duplicado">
+                ⚠ Já existe outro funcionário cadastrado com este nome:
+                <strong>{{ nome_duplicado }}</strong>
+            </div>
+            {% endif %}
 
             <form method="POST">
 
@@ -224,8 +218,18 @@
                 </div>
 
                 <div class="campo">
+                    <label>Situação Contratual</label>
+                    <input type="text" name="situacao_contratual" value="{{ funcionario.situacao_contratual }}">
+                </div>
+
+                <div class="campo">
+                    <label>Escola</label>
+                    <input type="text" name="escola" value="{{ funcionario.escola }}">
+                </div>
+
+                <div class="campo">
                     <label>Profissão / Cargo</label>
-                    <input type="text" name="cargo" value="{{ funcionario.cargo }}">
+                    <input type="text" name="cargo" value="{% if funcionario.cargo %}{{ funcionario.cargo.nome }}{% endif %}">
                 </div>
 
                 <div class="campo">
