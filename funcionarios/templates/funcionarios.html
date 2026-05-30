@@ -497,6 +497,7 @@
 
                     <th>Nome</th>
                     <th>CPF</th>
+                    <th>Situação Contratual</th>
                     <th>Número</th>
                     <th>Profissão</th>
                     <th>Carga Horária</th>
@@ -514,6 +515,9 @@
                     <td>{{ funcionario.nome }}</td>
 
                     <td>{{ funcionario.cpf }}</td>
+                    <td>
+                        {{ funcionario.situacao_contratual|default:"Não informado" }}
+                    </td>
 
                     <td>{{ funcionario.numero }}</td>
 
