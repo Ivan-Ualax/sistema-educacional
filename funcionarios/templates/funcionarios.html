@@ -282,6 +282,16 @@
         border-radius:10px;
         font-weight:bold;
     }
+    .aviso-duplicado{
+            background:#78350f;
+            border:1px solid #f59e0b;
+            color:#fde68a;
+            padding:16px;
+            border-radius:14px;
+            margin-bottom:20px;
+            font-size:15px;
+            font-weight:600;
+}
 
     /* RESPONSIVO */
 
@@ -371,6 +381,8 @@
             width:100%;
             text-align:center;
         }
+
+
     }
 
 </style>
@@ -451,7 +463,33 @@
 
         </form>
 
-        <div class="box">
+            {% if nomes_duplicados %}
+
+            <div class="aviso-duplicado">
+
+                <strong>
+                    ⚠ Funcionários com nomes repetidos encontrados:
+                </strong>
+
+                <br><br>
+
+                {% for item in nomes_duplicados %}
+
+                    {{ item.nome_limpo }} ({{ item.total }} cadastros)
+
+                    <br>
+
+                {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+            <div class="box">
+
+
+
+
 
             <table>
 

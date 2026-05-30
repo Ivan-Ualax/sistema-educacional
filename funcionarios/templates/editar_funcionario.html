@@ -168,6 +168,16 @@
             margin-top:10px;
             text-align:center;
         }
+
+        .alerta-duplicado{
+            background:#7f1d1d;
+            border:1px solid #ef4444;
+            color:#fecaca;
+            padding:16px;
+            border-radius:12px;
+            margin-bottom:20px;
+            font-weight:bold;
+    }
     }
 
 </style>
@@ -191,6 +201,13 @@
         <h1>Editar Funcionário</h1>
 
         <div class="form-box">
+
+                    {% if erro_nome_duplicado %}
+        <div class="alerta-duplicado">
+            ⚠ Já existe outro funcionário cadastrado com este nome:
+            <strong>{{ nome_duplicado }}</strong>
+        </div>
+        {% endif %}
 
             <form method="POST">
 

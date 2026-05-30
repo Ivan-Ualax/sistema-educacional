@@ -473,6 +473,7 @@
             <tr>
 
                 <th>Funcionário</th>
+                <th>Situação Contratual</th>
                 <th>Escola</th>
                 <th>Cargo</th>
                 <th>Tipo</th>
@@ -488,21 +489,25 @@
 
             {% for item in lancamentos %}
 
-            <tr>
+                <tr>
 
-                <td>{{ item.funcionario.nome }}</td>
+                    <td>{{ item.funcionario.nome }}</td>
 
-                <td>{{ item.funcionario.escola }}</td>
+                    <td>
+                        {{ item.funcionario.situacao_contratual|default:"Não Informado" }}
+                    </td>
 
-                <td>{{ item.funcionario.cargo }}</td>
+                    <td>{{ item.funcionario.escola }}</td>
 
-                <td>{{ item.get_tipo_display }}</td>
+                    <td>{{ item.funcionario.cargo|default:"—" }}</td>
 
-                <td>{{ item.quantidade_horas|floatformat:0 }}h</td>
+                    <td>{{ item.get_tipo_display }}</td>
 
-                <td>R$ {{ item.valor }}</td>
+                    <td>{{ item.quantidade_horas|floatformat:0 }}h</td>
 
-                <td>
+                    <td>R$ {{ item.valor|floatformat:2 }}</td>
+
+                    <td>
 
                     {{ item.observacao_hora_extra|default:"" }}
 
@@ -525,6 +530,7 @@
                         —
 
                     {% endif %}
+                    
 
                 </td>
 
@@ -567,7 +573,7 @@
 
             <tr>
 
-                <td colspan="11">
+                <td colspan="12">
                     Nenhum lançamento encontrado.
                 </td>
 

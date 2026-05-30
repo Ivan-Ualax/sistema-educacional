@@ -24,6 +24,12 @@ class Funcionario(models.Model):
 
     nome = models.CharField(max_length=150)
 
+    situacao_contratual = models.CharField(
+    max_length=100,
+    blank=True,
+    null=True
+)
+
     cpf = models.CharField(max_length=14)
 
     numero = models.CharField(

@@ -7,26 +7,40 @@ from decimal import Decimal
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles import Border, Side
+from openpyxl.worksheet.page import PageMargins
+from django.db.models.functions import Lower, Trim
 
 from .models import Funcionario, Cargo, HoraExtra
 
 
 def tratar_data_falta(data_falta):
+
     if not data_falta:
         return None
 
     try:
+
         data_completa = f'{data_falta}/2026'
-        return datetime.strptime(data_completa, '%d/%m/%Y').date()
+
+        return datetime.strptime(
+            data_completa,
+            '%d/%m/%Y'
+        ).date()
+
     except:
+
         return None
 
 
 def limpar_observacao(texto):
+
     texto = texto or ''
+
     linhas_limpas = []
 
     for linha in texto.splitlines():
+
         linha = linha.strip()
 
         if linha.lower() == 'none':
@@ -62,17 +76,36 @@ def home(request):
     funcionarios = Funcionario.objects.all().order_by('-id')[:10]
 
     context = {
+
         'funcionarios': funcionarios,
+
         'total_funcionarios': Funcionario.objects.count(),
-        'ativos': Funcionario.objects.filter(status='ativo').count(),
-        'inativos': Funcionario.objects.filter(status='inativo').count(),
-        'demitidos': Funcionario.objects.filter(status='demitido').count(),
+
+        'ativos': Funcionario.objects.filter(
+            status='ativo'
+        ).count(),
+
+        'inativos': Funcionario.objects.filter(
+            status='inativo'
+        ).count(),
+
+        'demitidos': Funcionario.objects.filter(
+            status='demitido'
+        ).count(),
+
         'horas_extras': HoraExtra.objects.count(),
+
         'mes_atual': meses[agora.month],
+
         'ano_atual': agora.year,
+
     }
 
-    return render(request, 'home.html', context)
+    return render(
+        request,
+        'home.html',
+        context
+    )
 
 
 @login_required(login_url='/login/')
@@ -81,43 +114,85 @@ def cadastrar_funcionario(request):
     if request.method == 'POST':
 
         cargo_nome = request.POST.get('cargo')
+
         cargo = None
 
         if cargo_nome:
-            cargo, created = Cargo.objects.get_or_create(nome=cargo_nome)
+
+            cargo, created = Cargo.objects.get_or_create(
+                nome=cargo_nome
+            )
 
         Funcionario.objects.create(
+
             nome=request.POST.get('nome'),
+
+            situacao_contratual=request.POST.get(
+                'situacao_contratual'
+            ),
+
             cpf=request.POST.get('cpf'),
+
             escola=request.POST.get('escola'),
-            carga_horaria=request.POST.get('carga_horaria') or 0,
+
+            carga_horaria=request.POST.get(
+                'carga_horaria'
+            ) or 0,
+
             numero=request.POST.get('numero'),
+
             localidade=request.POST.get('localidade'),
+
             cargo=cargo,
-            data_admissao=request.POST.get('data_admissao') or None,
+
+            data_admissao=request.POST.get(
+                'data_admissao'
+            ) or None,
+
             status='ativo',
+
         )
 
         return redirect('/funcionarios/')
 
-    return render(request, 'funcionario.html')
+    return render(
+        request,
+        'funcionario.html'
+    )
 
+
+from django.db.models import Count
 
 @login_required(login_url='/login/')
 def funcionarios(request):
 
     busca = request.GET.get('busca')
+
     ordem = request.GET.get('ordem')
 
     funcionarios = Funcionario.objects.all()
 
     if busca:
-        funcionarios = funcionarios.filter(nome__icontains=busca)
+
+        funcionarios = funcionarios.filter(
+            nome__icontains=busca
+        )
 
     if ordem == 'antigo':
+
         funcionarios = funcionarios.order_by('id')
+
     else:
+
         funcionarios = funcionarios.order_by('-id')
+
+    nomes_duplicados = (
+    Funcionario.objects
+    .annotate(nome_limpo=Lower(Trim('nome')))
+    .values('nome_limpo')
+    .annotate(total=Count('id'))
+    .filter(total__gt=1)
+)
 
     return render(
         request,
@@ -126,6 +201,7 @@ def funcionarios(request):
             'funcionarios': funcionarios,
             'busca': busca,
             'ordem': ordem,
+            'nomes_duplicados': nomes_duplicados,
         }
     )
 
@@ -133,14 +209,23 @@ def funcionarios(request):
 @login_required(login_url='/login/')
 def alterar_status(request, id):
 
-    funcionario = get_object_or_404(Funcionario, id=id)
+    funcionario = get_object_or_404(
+        Funcionario,
+        id=id
+    )
 
     if request.method == 'POST':
 
         status = request.POST.get('status')
 
-        if status in ['ativo', 'inativo', 'demitido']:
+        if status in [
+            'ativo',
+            'inativo',
+            'demitido'
+        ]:
+
             funcionario.status = status
+
             funcionario.save()
 
     return redirect('/funcionarios/')
@@ -149,22 +234,69 @@ def alterar_status(request, id):
 @login_required(login_url='/login/')
 def editar_funcionario(request, id):
 
-    funcionario = get_object_or_404(Funcionario, id=id)
+    funcionario = get_object_or_404(
+        Funcionario,
+        id=id
+    )
 
     if request.method == 'POST':
 
-        funcionario.nome = request.POST.get('nome')
+        nome = request.POST.get('nome')
+
+        nome_duplicado = Funcionario.objects.filter(
+            nome__iexact=nome
+        ).exclude(
+            id=funcionario.id
+        ).first()
+
+        if nome_duplicado:
+
+            return render(
+                request,
+                'editar_funcionario.html',
+                {
+                    'funcionario': funcionario,
+                    'erro_nome_duplicado': True,
+                    'nome_duplicado': nome
+                }
+            )
+
+        funcionario.nome = nome
+
+        funcionario.situacao_contratual = request.POST.get(
+            'situacao_contratual'
+        )
+
         funcionario.cpf = request.POST.get('cpf')
-        funcionario.escola = request.POST.get('escola') or funcionario.escola
-        funcionario.carga_horaria = request.POST.get('carga_horaria') or 0
-        funcionario.numero = request.POST.get('numero')
-        funcionario.localidade = request.POST.get('localidade')
-        funcionario.data_admissao = request.POST.get('data_admissao') or None
+
+        funcionario.escola = request.POST.get(
+            'escola'
+        ) or funcionario.escola
+
+        funcionario.carga_horaria = request.POST.get(
+            'carga_horaria'
+        ) or 0
+
+        funcionario.numero = request.POST.get(
+            'numero'
+        )
+
+        funcionario.localidade = request.POST.get(
+            'localidade'
+        )
+
+        funcionario.data_admissao = request.POST.get(
+            'data_admissao'
+        ) or None
 
         cargo_nome = request.POST.get('cargo')
 
         if cargo_nome:
-            cargo, created = Cargo.objects.get_or_create(nome=cargo_nome)
+
+            cargo, created = Cargo.objects.get_or_create(
+                nome=cargo_nome
+            )
+
             funcionario.cargo = cargo
 
         funcionario.save()
@@ -183,7 +315,11 @@ def editar_funcionario(request, id):
 @login_required(login_url='/login/')
 def excluir_funcionario(request, id):
 
-    funcionario = get_object_or_404(Funcionario, id=id)
+    funcionario = get_object_or_404(
+        Funcionario,
+        id=id
+    )
+
     funcionario.delete()
 
     return redirect('/funcionarios/')
@@ -193,9 +329,11 @@ def excluir_funcionario(request, id):
 def horas_extras(request):
 
     busca = request.GET.get('busca')
+
     funcionarios = []
 
     if busca:
+
         funcionarios = Funcionario.objects.filter(
             nome__icontains=busca
         ).order_by('nome')
@@ -213,7 +351,10 @@ def horas_extras(request):
 @login_required(login_url='/login/')
 def adicionar_hora_extra(request, id):
 
-    funcionario = get_object_or_404(Funcionario, id=id)
+    funcionario = get_object_or_404(
+        Funcionario,
+        id=id
+    )
 
     agora = datetime.now()
     mes_atual = agora.month
@@ -224,8 +365,23 @@ def adicionar_hora_extra(request, id):
         quantidade_horas = request.POST.get('quantidade_horas') or '0'
         valor = request.POST.get('valor') or '0'
 
-        quantidade_horas = quantidade_horas.replace(',', '.')
-        valor = valor.replace(',', '.')
+        quantidade_horas = (
+            quantidade_horas
+            .replace('h', '')
+            .replace('H', '')
+            .replace('R$', '')
+            .replace(' ', '')
+            .replace(',', '.')
+        )
+
+        valor = (
+            valor
+            .replace('h', '')
+            .replace('H', '')
+            .replace('R$', '')
+            .replace(' ', '')
+            .replace(',', '.')
+        )
 
         mes_referencia = request.POST.get('mes_referencia') or mes_atual
         ano = request.POST.get('ano') or ano_atual
@@ -235,7 +391,7 @@ def adicionar_hora_extra(request, id):
             mes_referencia=mes_referencia,
             ano=ano,
             defaults={
-                'tipo': request.POST.get('tipo'),
+                'tipo': request.POST.get('tipo') or 'normal',
                 'quantidade_horas': 0,
                 'valor': 0,
                 'observacao_hora_extra': '',
@@ -246,10 +402,23 @@ def adicionar_hora_extra(request, id):
             }
         )
 
-        lancamento.tipo = request.POST.get('tipo')
+        lancamento.tipo = request.POST.get('tipo') or 'normal'
 
-        lancamento.quantidade_horas += Decimal(quantidade_horas)
-        lancamento.valor += Decimal(valor)
+        try:
+            quantidade_horas_decimal = Decimal(quantidade_horas)
+        except:
+            quantidade_horas_decimal = Decimal('0')
+
+        try:
+            valor_decimal = Decimal(valor)
+        except:
+            valor_decimal = Decimal('0')
+
+        lancamento.quantidade_horas = Decimal(lancamento.quantidade_horas or 0)
+        lancamento.valor = Decimal(lancamento.valor or 0)
+
+        lancamento.quantidade_horas += quantidade_horas_decimal
+        lancamento.valor += valor_decimal
 
         lancamento.observacao_hora_extra = limpar_observacao(
             request.POST.get('observacao')
@@ -269,7 +438,9 @@ def adicionar_hora_extra(request, id):
 
         lancamento.save()
 
-        return redirect(f'/funcionario/{funcionario.id}/horas/')
+        return redirect(
+            f'/funcionario/{funcionario.id}/horas/'
+        )
 
     return render(
         request,
@@ -285,7 +456,10 @@ def adicionar_hora_extra(request, id):
 @login_required(login_url='/login/')
 def horas_funcionario(request, id):
 
-    funcionario = get_object_or_404(Funcionario, id=id)
+    funcionario = get_object_or_404(
+        Funcionario,
+        id=id
+    )
 
     lancamentos = HoraExtra.objects.filter(
         funcionario=funcionario
@@ -311,7 +485,9 @@ def lancamentos_mes(request):
     agora = datetime.now()
 
     mes = request.GET.get('mes') or agora.month
+
     ano = request.GET.get('ano') or agora.year
+
     busca = request.GET.get('busca')
 
     lancamentos = HoraExtra.objects.filter(
@@ -320,6 +496,7 @@ def lancamentos_mes(request):
     )
 
     if busca:
+
         lancamentos = lancamentos.filter(
             funcionario__nome__istartswith=busca
         )
@@ -332,10 +509,13 @@ def lancamentos_mes(request):
     )
 
     total_horas = Decimal('0')
+
     total_valor = Decimal('0')
 
     for item in lancamentos:
+
         total_horas += item.quantidade_horas
+
         total_valor += item.valor
 
     return render(
@@ -355,41 +535,78 @@ def lancamentos_mes(request):
 @login_required(login_url='/login/')
 def editar_hora_extra(request, id):
 
-    lancamento = get_object_or_404(HoraExtra, id=id)
+    lancamento = get_object_or_404(
+        HoraExtra,
+        id=id
+    )
 
     if request.method == 'POST':
 
-        quantidade_horas = request.POST.get('quantidade_horas') or '0'
-        valor = request.POST.get('valor') or '0'
+        quantidade_horas = request.POST.get(
+            'quantidade_horas'
+        ) or '0'
 
-        quantidade_horas = quantidade_horas.replace(',', '.')
-        valor = valor.replace(',', '.')
+        valor = request.POST.get(
+            'valor'
+        ) or '0'
 
-        lancamento.tipo = request.POST.get('tipo')
-        lancamento.quantidade_horas = Decimal(quantidade_horas)
-        lancamento.valor = Decimal(valor)
-        lancamento.mes_referencia = request.POST.get('mes_referencia')
-        lancamento.ano = request.POST.get('ano')
-
-        lancamento.observacao_hora_extra = limpar_observacao(
-            request.POST.get('observacao_hora_extra')
+        quantidade_horas = quantidade_horas.replace(
+            ',',
+            '.'
         )
 
-        lancamento.numero_faltas = request.POST.get('numero_faltas') or 0
+        valor = valor.replace(
+            ',',
+            '.'
+        )
+
+        lancamento.tipo = request.POST.get('tipo')
+
+        lancamento.quantidade_horas = Decimal(
+            quantidade_horas
+        )
+
+        lancamento.valor = Decimal(
+            valor
+        )
+
+        lancamento.mes_referencia = request.POST.get(
+            'mes_referencia'
+        )
+
+        lancamento.ano = request.POST.get(
+            'ano'
+        )
+
+        lancamento.observacao_hora_extra = limpar_observacao(
+            request.POST.get(
+                'observacao_hora_extra'
+            )
+        )
+
+        lancamento.numero_faltas = request.POST.get(
+            'numero_faltas'
+        ) or 0
 
         lancamento.data_falta = tratar_data_falta(
             request.POST.get('data_falta')
         )
 
         lancamento.observacao_falta = limpar_observacao(
-            request.POST.get('observacao_falta')
+            request.POST.get(
+                'observacao_falta'
+            )
         )
 
-        lancamento.cor_texto = request.POST.get('cor_texto') or 'normal'
+        lancamento.cor_texto = request.POST.get(
+            'cor_texto'
+        ) or 'normal'
 
         lancamento.save()
 
-        return redirect(f'/funcionario/{lancamento.funcionario.id}/horas/')
+        return redirect(
+            f'/funcionario/{lancamento.funcionario.id}/horas/'
+        )
 
     return render(
         request,
@@ -403,14 +620,20 @@ def editar_hora_extra(request, id):
 @login_required(login_url='/login/')
 def excluir_hora_extra(request, id):
 
-    lancamento = get_object_or_404(HoraExtra, id=id)
+    lancamento = get_object_or_404(
+        HoraExtra,
+        id=id
+    )
 
     mes = lancamento.mes_referencia
+
     ano = lancamento.ano
 
     lancamento.delete()
 
-    return redirect(f'/lancamentos-mes/?mes={mes}&ano={ano}')
+    return redirect(
+        f'/lancamentos-mes/?mes={mes}&ano={ano}'
+    )
 
 
 @login_required(login_url='/login/')
@@ -436,8 +659,29 @@ def exportar_lancamentos_excel(request):
     ws = wb.active
     ws.title = 'Horas Extras'
 
+    ws.page_setup.orientation = 'landscape'
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+
+    ws.sheet_view.showGridLines = True
+
+    ws.page_margins = PageMargins(
+        left=0.3,
+        right=0.3,
+        top=0.5,
+        bottom=0.5
+    )
+
+    borda = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
     ws.append([
         'Funcionário',
+        'Situação Contratual',
         'CPF',
         'Escola',
         'Cargo',
@@ -462,21 +706,22 @@ def exportar_lancamentos_excel(request):
             color='FFFFFF',
             size=12
         )
-
         cell.fill = PatternFill(
             'solid',
             fgColor='1F4E78'
         )
-
         cell.alignment = Alignment(
             horizontal='center',
-            vertical='center'
+            vertical='center',
+            wrap_text=True
         )
+        cell.border = borda
 
     for item in lancamentos:
 
         linha = [
             item.funcionario.nome,
+            item.funcionario.situacao_contratual or '',
             item.funcionario.cpf or '',
             item.funcionario.escola or '',
             item.funcionario.cargo.nome if item.funcionario.cargo else '',
@@ -496,6 +741,44 @@ def exportar_lancamentos_excel(request):
         ]
 
         ws.append(linha)
+
+        for cell in ws[ws.max_row]:
+            cell.border = borda
+            cell.alignment = Alignment(
+                vertical='top',
+                wrap_text=True
+            )
+
+    larguras = {
+        'A': 28,  # Funcionário
+        'B': 24,  # Situação Contratual
+        'C': 18,  # CPF
+        'D': 32,  # Escola
+        'E': 24,  # Cargo
+        'F': 16,  # Carga Horária
+        'G': 18,  # Contato
+        'H': 24,  # Localidade
+        'I': 14,  # Status
+        'J': 22,  # Tipo
+        'K': 12,  # Horas
+        'L': 16,  # Valor
+        'M': 14,  # Mês
+        'N': 10,  # Ano
+        'O': 35,  # Obs. Hora Extra
+        'P': 12,  # Nº Faltas
+        'Q': 16,  # Data Falta
+        'R': 35,  # Obs. Falta
+    }
+
+    for coluna, largura in larguras.items():
+        ws.column_dimensions[coluna].width = largura
+
+    ws.row_dimensions[1].height = 30
+
+    for linha in range(2, ws.max_row + 1):
+        ws.row_dimensions[linha].height = 45
+
+    ws.freeze_panes = 'A2'
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
