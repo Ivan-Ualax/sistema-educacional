@@ -293,6 +293,19 @@
             font-weight:600;
 }
 
+    .duplicados-grid{
+        display:grid;
+        grid-template-columns:repeat(4, 1fr);
+        gap:8px 20px;
+        margin-top:15px;
+}
+
+    .duplicados-grid div{
+        color:#fde68a;
+        font-weight:600;
+        line-height:1.4;
+}
+
     /* RESPONSIVO */
 
     @media (max-width: 900px){
@@ -463,24 +476,29 @@
 
         </form>
 
-            {% if nomes_duplicados %}
+         {% if nomes_duplicados %}
 
-            <div class="aviso-duplicado">
+<div class="aviso-duplicado">
 
-                <strong>
-                    ⚠ Funcionários com nomes repetidos encontrados:
-                </strong>
+    <strong>
+        ⚠ Funcionários com nomes repetidos encontrados:
+    </strong>
 
-                <br><br>
+    <div class="duplicados-grid">
 
                 {% for item in nomes_duplicados %}
 
-                    {{ item.nome_limpo }} ({{ item.total }} cadastros)
-
-                    <br>
+                    <div>
+                        {{ item.nome_limpo }} ({{ item.total }} cadastros)
+                    </div>
 
                 {% endfor %}
 
+            </div>
+
+        </div>
+
+        {% endif %}
             </div>
 
             {% endif %}
