@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Lançamentos Gerais</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    padding:30px;
+}
+
+h1{
+    margin-bottom:10px;
+}
+
+.subtitulo{
+    color:#94a3b8;
+    margin-bottom:25px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#1e293b;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+th{
+    background:#020617;
+    color:#38bdf8;
+    padding:14px;
+    text-align:left;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #334155;
+}
+
+tr:hover{
+    background:#273449;
+}
+
+.btn{
+    background:#2563eb;
+    color:white;
+    text-decoration:none;
+    padding:10px 16px;
+    border-radius:8px;
+    display:inline-block;
+    margin-bottom:20px;
+}
+
+.filtro-geral{
+    background:#0f172a;
+    border:1px solid #1e293b;
+    border-radius:16px;
+    padding:18px;
+    display:flex;
+    gap:14px;
+    align-items:end;
+    margin-bottom:24px;
+    max-width:650px;
+}
+
+.campo-filtro{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.campo-filtro label{
+    color:#cbd5e1;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.campo-filtro select,
+.campo-filtro input{
+    background:#020617;
+    color:white;
+    border:1px solid #334155;
+    padding:11px 14px;
+    border-radius:10px;
+    font-size:14px;
+    outline:none;
+    min-width:160px;
+}
+
+.btn-buscar{
+    background:#38bdf8;
+    color:#020617;
+    border:none;
+    padding:12px 22px;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<a href="/lancamentos-mes/" class="btn">
+    Voltar
+</a>
+
+<h1>
+    Lançamentos Gerais
+</h1>
+
+<p class="subtitulo">
+    Histórico de lançamentos encerrados.
+</p>
+
+<form method="GET" class="filtro-geral">
+
+    <div class="campo-filtro">
+        <label>Mês</label>
+        <select name="mes">
+            <option value="">Selecione</option>
+            <option value="1" {% if mes == 1 %}selected{% endif %}>Janeiro</option>
+            <option value="2" {% if mes == 2 %}selected{% endif %}>Fevereiro</option>
+            <option value="3" {% if mes == 3 %}selected{% endif %}>Março</option>
+            <option value="4" {% if mes == 4 %}selected{% endif %}>Abril</option>
+            <option value="5" {% if mes == 5 %}selected{% endif %}>Maio</option>
+            <option value="6" {% if mes == 6 %}selected{% endif %}>Junho</option>
+            <option value="7" {% if mes == 7 %}selected{% endif %}>Julho</option>
+            <option value="8" {% if mes == 8 %}selected{% endif %}>Agosto</option>
+            <option value="9" {% if mes == 9 %}selected{% endif %}>Setembro</option>
+            <option value="10" {% if mes == 10 %}selected{% endif %}>Outubro</option>
+            <option value="11" {% if mes == 11 %}selected{% endif %}>Novembro</option>
+            <option value="12" {% if mes == 12 %}selected{% endif %}>Dezembro</option>
+        </select>
+    </div>
+
+    <div class="campo-filtro">
+        <label>Ano</label>
+        <input type="number" name="ano" value="{{ ano|default:'2026' }}">
+    </div>
+
+    <button type="submit" class="btn-buscar">
+        Buscar
+    </button>
+
+</form>
+
+<table>
+
+    <thead>
+
+        <tr>
+            <th>Funcionário</th>
+            <th>Cargo</th>
+            <th>Escola</th>
+            <th>Mês</th>
+            <th>Ano</th>
+            <th>Horas</th>
+            <th>Valor</th>
+            <th>Faltas</th>
+            <th>Data Encerramento</th>
+            <th>Status</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+       {% for item in lancamentos %}
+
+<tr>
+
+    <td>{{ item.funcionario.nome }}</td>
+
+    <td>
+        {% if item.funcionario.cargo %}
+            {{ item.funcionario.cargo.nome }}
+        {% endif %}
+    </td>
+
+    <td>{{ item.funcionario.escola }}</td>
+
+    <td>{{ item.get_mes_referencia_display }}</td>
+
+    <td>{{ item.ano }}</td>
+
+    <td>{{ item.quantidade_horas }}</td>
+
+    <td>R$ {{ item.valor }}</td>
+
+    <td>{{ item.numero_faltas }}</td>
+
+    <td>
+        {{ item.data_encerramento|date:"d/m/Y H:i" }}
+    </td>
+
+    <td>
+        ✅ Encerrado
+    </td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="10">
+        Nenhum lançamento encerrado encontrado.
+    </td>
+</tr>
+
+{% endfor %}
+
+        
+    </tbody>
+
+</table>
+
+</body>
+</html>

@@ -68,6 +68,8 @@ class Funcionario(models.Model):
 
     criado_em = models.DateTimeField(auto_now_add=True)
 
+
+
     def __str__(self):
         return self.nome
 
@@ -89,10 +91,12 @@ class HoraExtra(models.Model):
         (12, 'Dezembro'),
     )
 
+
+
     TIPO_HORA = (
-        ('normal', 'Hora Extra Normal'),
-        ('f1', 'Hora Extra F1'),
-        ('f2', 'Hora Extra F2'),
+        ('normal', 'Hora Extra'),
+        ('f1', 'Hora Aula F1'),
+        ('f2', 'Hora Aula F2'),
     )
 
     COR_TEXTO = (
@@ -154,7 +158,22 @@ class HoraExtra(models.Model):
         default='normal'
     )
 
+    encerrado = models.BooleanField(default=False)
+
+    data_encerramento = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
+   
+
     criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('funcionario', 'mes_referencia', 'ano')
+
+    
 
     def __str__(self):
         return f'{self.funcionario.nome} - {self.get_mes_referencia_display()}/{self.ano}'
+    

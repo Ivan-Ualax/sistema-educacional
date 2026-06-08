@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Adicionar Hora Extra</title>
+    <title>Horas extras e faltas do mês.</title>
 
     <style>
     * {
@@ -228,7 +228,7 @@
 
         <div class="topo">
 
-            <h1>Adicionar Hora Extra</h1>
+            <h1>Horas extras e faltas do mês.</h1>
 
             <p>
                 Funcionário:
@@ -250,7 +250,7 @@
                     <select name="tipo" required>
 
                         <option value="normal">
-                            Hora Extra Normal
+                            Hora Extra 
                         </option>
 
                         <option value="f1">
@@ -258,7 +258,7 @@
                         </option>
 
                         <option value="f2">
-                            Hora Extra F2
+                            Hora Aula F2
                         </option>
 
                     </select>
@@ -269,7 +269,7 @@
 
                     <label>Quantidade de Horas</label>
 
-                    <input type="number" step="0.01" name="quantidade_horas" required>
+                    <input type="number" step="0.01" name="quantidade_horas" value="0">
 
                 </div>
 
@@ -277,7 +277,7 @@
 
                     <label>Valor</label>
 
-                    <input type="number" step="0.01" name="valor" required>
+                    <input type="number" step="0.01" name="valor" value="0">
 
 
 
@@ -357,8 +357,66 @@
 
                 </div>
 
+                <div class="campo">
+
+    <label>Número de Faltas</label>
+
+            <input
+                type="number"
+                name="numero_faltas"
+                value="0"
+                min="0"
+            >
+
+        </div>
+
+        <div class="campo">
+
+            <label>Data da Falta</label>
+
+            <input
+                type="text"
+                name="data_falta"
+                placeholder="Ex: 08/06"
+            >
+
+        </div>
+
+        <div class="campo">
+
+            <label>Observação da Falta</label>
+
+            <textarea
+                name="observacao_falta"
+                placeholder="Opcional"
+            ></textarea>
+
+        </div>
+
+        <div class="campo">
+
+            <label>Cor do Destaque</label>
+
+            <select name="cor_texto">
+
+                <option value="normal">
+                    Normal
+                </option>
+
+                <option value="vermelho">
+                    Vermelho
+                </option>
+
+                <option value="verde">
+                    Verde
+                </option>
+
+            </select>
+
+    </div>
+
                 <button type="submit">
-                    Salvar Hora Extra
+                    Salvar Lançamento
                 </button>
 
                 <a href="/horas-extras/" class="btn-voltar">

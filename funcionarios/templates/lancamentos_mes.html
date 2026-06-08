@@ -216,6 +216,19 @@
             text-decoration:none;
         }
 
+        .btn-encerrar{
+            background:#dc2626;
+            color:white;
+            padding:10px 16px;
+            border-radius:10px;
+            font-weight:bold;
+            text-decoration:none;
+        }
+
+        .btn-encerrar:hover{
+            background:#b91c1c;
+        }
+
         .modal-fundo{
             display:none;
             position:fixed;
@@ -349,7 +362,7 @@
         </a>
 
         <a href="/horas-extras/">
-            Horas Extras
+            Horas extras e faltas do mês.
         </a>
 
         <a href="/lancamentos-mes/">
@@ -367,6 +380,26 @@
         <p class="subtitulo">
             Busque funcionários, acompanhe horas extras e controle todos os lançamentos do período.
         </p>
+
+        {% if mes_encerrado %}
+
+        <div class="aviso" style="background:#14532d; border:1px solid #22c55e; color:#dcfce7;">
+            ✅ Este mês já foi encerrado.
+        </div>
+
+        {% endif %}
+        
+        {% if mes_encerrado %}
+
+        <div class="aviso" style="
+        background:#14532d;
+        border:1px solid #22c55e;
+        color:#dcfce7;
+        ">
+            ✅ Este mês já foi encerrado.
+        </div>
+
+        {% endif %}
 
         <form method="GET" class="filtros">
 
@@ -430,6 +463,18 @@
             >
                 Exportar Excel
             </a>
+
+            {% if not mes_encerrado %}
+
+            <a
+                href="{% url 'encerrar_lancamentos_mes' %}?mes={{ mes }}&ano={{ ano }}"
+                class="btn-encerrar"
+                onclick="return confirm('Deseja realmente encerrar os lançamentos deste mês?');"
+            >
+                Encerrar Lançamentos
+            </a>
+
+        {% endif %}
 
         </form>
 

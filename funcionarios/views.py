@@ -4,6 +4,7 @@ from django.http import HttpResponse
 
 from datetime import datetime
 from decimal import Decimal
+from django.utils import timezone
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -351,10 +352,7 @@ def horas_extras(request):
 @login_required(login_url='/login/')
 def adicionar_hora_extra(request, id):
 
-    funcionario = get_object_or_404(
-        Funcionario,
-        id=id
-    )
+    funcionario = get_object_or_404(Funcionario, id=id)
 
     agora = datetime.now()
     mes_atual = agora.month
@@ -365,23 +363,8 @@ def adicionar_hora_extra(request, id):
         quantidade_horas = request.POST.get('quantidade_horas') or '0'
         valor = request.POST.get('valor') or '0'
 
-        quantidade_horas = (
-            quantidade_horas
-            .replace('h', '')
-            .replace('H', '')
-            .replace('R$', '')
-            .replace(' ', '')
-            .replace(',', '.')
-        )
-
-        valor = (
-            valor
-            .replace('h', '')
-            .replace('H', '')
-            .replace('R$', '')
-            .replace(' ', '')
-            .replace(',', '.')
-        )
+        quantidade_horas = quantidade_horas.replace('h', '').replace('H', '').replace('R$', '').replace(' ', '').replace(',', '.')
+        valor = valor.replace('h', '').replace('H', '').replace('R$', '').replace(' ', '').replace(',', '.')
 
         mes_referencia = request.POST.get('mes_referencia') or mes_atual
         ano = request.POST.get('ano') or ano_atual
@@ -414,33 +397,40 @@ def adicionar_hora_extra(request, id):
         except:
             valor_decimal = Decimal('0')
 
-        lancamento.quantidade_horas = Decimal(lancamento.quantidade_horas or 0)
-        lancamento.valor = Decimal(lancamento.valor or 0)
+        lancamento.quantidade_horas = Decimal(lancamento.quantidade_horas or 0) + quantidade_horas_decimal
+        lancamento.valor = Decimal(lancamento.valor or 0) + valor_decimal
 
-        lancamento.quantidade_horas += quantidade_horas_decimal
-        lancamento.valor += valor_decimal
+        nova_obs_hora = limpar_observacao(request.POST.get('observacao'))
 
-        lancamento.observacao_hora_extra = limpar_observacao(
-            request.POST.get('observacao')
-        )
+        if nova_obs_hora:
+            obs_antiga_hora = limpar_observacao(lancamento.observacao_hora_extra)
+            lancamento.observacao_hora_extra = (
+                obs_antiga_hora + '\n' + nova_obs_hora
+                if obs_antiga_hora else nova_obs_hora
+            )
 
-        lancamento.numero_faltas = request.POST.get('numero_faltas') or 0
+        numero_faltas = int(request.POST.get('numero_faltas') or 0)
+        lancamento.numero_faltas = int(lancamento.numero_faltas or 0) + numero_faltas
 
-        lancamento.data_falta = tratar_data_falta(
-            request.POST.get('data_falta')
-        )
+        data_falta = tratar_data_falta(request.POST.get('data_falta'))
 
-        lancamento.observacao_falta = limpar_observacao(
-            request.POST.get('observacao_falta')
-        )
+        if data_falta:
+            lancamento.data_falta = data_falta
+
+        nova_obs_falta = limpar_observacao(request.POST.get('observacao_falta'))
+
+        if nova_obs_falta:
+            obs_antiga_falta = limpar_observacao(lancamento.observacao_falta)
+            lancamento.observacao_falta = (
+                obs_antiga_falta + '\n' + nova_obs_falta
+                if obs_antiga_falta else nova_obs_falta
+            )
 
         lancamento.cor_texto = request.POST.get('cor_texto') or 'normal'
 
         lancamento.save()
 
-        return redirect(
-            f'/funcionario/{funcionario.id}/horas/'
-        )
+        return redirect(f'/funcionario/{funcionario.id}/horas/')
 
     return render(
         request,
@@ -451,7 +441,6 @@ def adicionar_hora_extra(request, id):
             'ano_atual': ano_atual,
         }
     )
-
 
 @login_required(login_url='/login/')
 def horas_funcionario(request, id):
@@ -469,6 +458,8 @@ def horas_funcionario(request, id):
         '-id'
     )
 
+
+
     return render(
         request,
         'horas_funcionario.html',
@@ -479,57 +470,6 @@ def horas_funcionario(request, id):
     )
 
 
-@login_required(login_url='/login/')
-def lancamentos_mes(request):
-
-    agora = datetime.now()
-
-    mes = request.GET.get('mes') or agora.month
-
-    ano = request.GET.get('ano') or agora.year
-
-    busca = request.GET.get('busca')
-
-    lancamentos = HoraExtra.objects.filter(
-        mes_referencia=mes,
-        ano=ano
-    )
-
-    if busca:
-
-        lancamentos = lancamentos.filter(
-            funcionario__nome__istartswith=busca
-        )
-
-    lancamentos = lancamentos.select_related(
-        'funcionario',
-        'funcionario__cargo'
-    ).order_by(
-        'funcionario__nome'
-    )
-
-    total_horas = Decimal('0')
-
-    total_valor = Decimal('0')
-
-    for item in lancamentos:
-
-        total_horas += item.quantidade_horas
-
-        total_valor += item.valor
-
-    return render(
-        request,
-        'lancamentos_mes.html',
-        {
-            'lancamentos': lancamentos,
-            'mes': int(mes),
-            'ano': int(ano),
-            'busca': busca,
-            'total_horas': total_horas,
-            'total_valor': total_valor,
-        }
-    )
 
 
 @login_required(login_url='/login/')
@@ -620,14 +560,18 @@ def editar_hora_extra(request, id):
 @login_required(login_url='/login/')
 def excluir_hora_extra(request, id):
 
-    lancamento = get_object_or_404(
-        HoraExtra,
-        id=id
-    )
+    try:
+        lancamento = HoraExtra.objects.get(id=id)
+    except HoraExtra.DoesNotExist:
+        return redirect('/lancamentos-mes/')
 
     mes = lancamento.mes_referencia
-
     ano = lancamento.ano
+
+    if lancamento.encerrado:
+        return redirect(
+            f'/lancamentos-mes/?mes={mes}&ano={ano}'
+        )
 
     lancamento.delete()
 
@@ -635,9 +579,8 @@ def excluir_hora_extra(request, id):
         f'/lancamentos-mes/?mes={mes}&ano={ano}'
     )
 
-
 @login_required(login_url='/login/')
-def exportar_lancamentos_excel(request):
+def exportar_pendencias_excel(request):
 
     mes = request.GET.get('mes')
     ano = request.GET.get('ano')
@@ -657,20 +600,54 @@ def exportar_lancamentos_excel(request):
 
     wb = Workbook()
     ws = wb.active
-    ws.title = 'Horas Extras'
+    ws.title = 'Pendências'
 
-    ws.page_setup.orientation = 'landscape'
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_A4
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0
 
-    ws.sheet_view.showGridLines = True
+    ws.print_options.horizontalCentered = True
 
     ws.page_margins = PageMargins(
-        left=0.3,
-        right=0.3,
-        top=0.5,
-        bottom=0.5
+        left=0.15,
+        right=0.15,
+        top=0.05,
+        bottom=0.15,
+        header=0,
+        footer=0
     )
+
+    ws.merge_cells('A1:D1')
+
+    titulo = ws['A1']
+    meses = {
+    '1': 'JANEIRO',
+    '2': 'FEVEREIRO',
+    '3': 'MARÇO',
+    '4': 'ABRIL',
+    '5': 'MAIO',
+    '6': 'JUNHO',
+    '7': 'JULHO',
+    '8': 'AGOSTO',
+    '9': 'SETEMBRO',
+    '10': 'OUTUBRO',
+    '11': 'NOVEMBRO',
+    '12': 'DEZEMBRO',
+}
+
+    titulo.value = f'FOLHA-MÊS DE {meses.get(str(mes), mes)} {ano}'
+    titulo.font = Font(bold=True, color='FFFFFF', size=13)
+    titulo.fill = PatternFill('solid', fgColor='1F4E78')
+    titulo.alignment = Alignment(horizontal='center', vertical='center')
+
+    ws.append([
+        'FUNCIONÁRIO',
+        'FUNÇÃO',
+        'LOCAL DE TRABALHO',
+        'PENDÊNCIA'
+    ])
 
     borda = Border(
         left=Side(style='thin'),
@@ -679,115 +656,182 @@ def exportar_lancamentos_excel(request):
         bottom=Side(style='thin')
     )
 
-    ws.append([
-        'Funcionário',
-        'Situação Contratual',
-        'CPF',
-        'Escola',
-        'Cargo',
-        'Carga Horária',
-        'Contato',
-        'Localidade',
-        'Status',
-        'Tipo',
-        'Horas',
-        'Valor',
-        'Mês',
-        'Ano',
-        'Obs. Hora Extra',
-        'Nº Faltas',
-        'Data Falta',
-        'Obs. Falta'
-    ])
-
-    for cell in ws[1]:
-        cell.font = Font(
-            bold=True,
-            color='FFFFFF',
-            size=12
-        )
-        cell.fill = PatternFill(
-            'solid',
-            fgColor='1F4E78'
-        )
-        cell.alignment = Alignment(
-            horizontal='center',
-            vertical='center',
-            wrap_text=True
-        )
+    for cell in ws[2]:
+        cell.font = Font(bold=True, color='FFFFFF', size=9)
+        cell.fill = PatternFill('solid', fgColor='244062')
+        cell.alignment = Alignment(horizontal='center', vertical='center')
         cell.border = borda
 
     for item in lancamentos:
 
-        linha = [
-            item.funcionario.nome,
-            item.funcionario.situacao_contratual or '',
-            item.funcionario.cpf or '',
-            item.funcionario.escola or '',
-            item.funcionario.cargo.nome if item.funcionario.cargo else '',
-            item.funcionario.carga_horaria,
-            item.funcionario.numero or '',
-            item.funcionario.localidade or '',
-            item.funcionario.status,
-            item.get_tipo_display(),
-            f'{float(item.quantidade_horas):,.0f}h',
-            f'R$ {float(item.valor):,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.'),
-            item.get_mes_referencia_display(),
-            item.ano,
-            item.observacao_hora_extra or '',
-            item.numero_faltas,
-            item.data_falta.strftime('%d/%m/%Y') if item.data_falta else '',
-            item.observacao_falta or ''
-        ]
+        pendencias = []
 
-        ws.append(linha)
+        if item.quantidade_horas and item.quantidade_horas > 0:
+            texto_hora = (
+                f'{item.get_tipo_display()} | '
+                f'Horas: {int(item.quantidade_horas)}h | '
+                f'Valor: R$ {item.valor} | '
+                f'Obs: {item.observacao_hora_extra or "Sem observação"}'
+            )
+            pendencias.append(texto_hora)
+
+        if item.numero_faltas and item.numero_faltas > 0:
+            data_falta = (
+                item.data_falta.strftime('%d/%m/%Y')
+                if item.data_falta else
+                'Não informada'
+            )
+
+            texto_falta = (
+                f'Faltas: {item.numero_faltas} | '
+                f'Data: {data_falta} | '
+                f'Obs: {item.observacao_falta or "Sem observação"}'
+            )
+            pendencias.append(texto_falta)
+
+        pendencia = ' || '.join(pendencias)
+
+        if not pendencia:
+            continue
+
+        ws.append([
+            item.funcionario.nome,
+            item.funcionario.cargo.nome if item.funcionario.cargo else '',
+            item.funcionario.escola or '',
+            pendencia
+        ])
 
         for cell in ws[ws.max_row]:
+            cell.font = Font(size=9)
             cell.border = borda
             cell.alignment = Alignment(
-                vertical='top',
+                horizontal='center',
+                vertical='center',
                 wrap_text=True
             )
 
-    larguras = {
-        'A': 28,  # Funcionário
-        'B': 24,  # Situação Contratual
-        'C': 18,  # CPF
-        'D': 32,  # Escola
-        'E': 24,  # Cargo
-        'F': 16,  # Carga Horária
-        'G': 18,  # Contato
-        'H': 24,  # Localidade
-        'I': 14,  # Status
-        'J': 22,  # Tipo
-        'K': 12,  # Horas
-        'L': 16,  # Valor
-        'M': 14,  # Mês
-        'N': 10,  # Ano
-        'O': 35,  # Obs. Hora Extra
-        'P': 12,  # Nº Faltas
-        'Q': 16,  # Data Falta
-        'R': 35,  # Obs. Falta
-    }
+    ws.column_dimensions['A'].width = 34
+    ws.column_dimensions['B'].width = 24
+    ws.column_dimensions['C'].width = 34
+    ws.column_dimensions['D'].width = 65
 
-    for coluna, largura in larguras.items():
-        ws.column_dimensions[coluna].width = largura
+    ws.row_dimensions[1].height = 18
+    ws.row_dimensions[2].height = 15
 
-    ws.row_dimensions[1].height = 30
+    for linha in range(3, ws.max_row + 1):
+        ws.row_dimensions[linha].height = 22
 
-    for linha in range(2, ws.max_row + 1):
-        ws.row_dimensions[linha].height = 45
-
-    ws.freeze_panes = 'A2'
+    ws.freeze_panes = 'A3'
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
     response['Content-Disposition'] = (
-        f'attachment; filename=horas_extras_{mes}_{ano}.xlsx'
+        f'attachment; filename=pendencias_{mes}_{ano}.xlsx'
     )
 
     wb.save(response)
 
     return response
+@login_required(login_url='/login/')
+def lancamentos_mes(request):
+
+    agora = datetime.now()
+
+    mes = request.GET.get('mes') or agora.month
+    ano = request.GET.get('ano') or agora.year
+    busca = request.GET.get('busca')
+
+    lancamentos = HoraExtra.objects.filter(
+        mes_referencia=mes,
+        ano=ano
+    )
+
+    if busca:
+        lancamentos = lancamentos.filter(
+            funcionario__nome__istartswith=busca
+        )
+
+    lancamentos = lancamentos.select_related(
+        'funcionario',
+        'funcionario__cargo'
+    ).order_by(
+        'funcionario__nome'
+    )
+
+    total_horas = Decimal('0')
+    total_valor = Decimal('0')
+
+    for item in lancamentos:
+        total_horas += item.quantidade_horas
+        total_valor += item.valor
+
+    mes_encerrado = lancamentos.filter(
+        encerrado=True
+    ).exists()
+
+    return render(
+        request,
+        'lancamentos_mes.html',
+        {
+            'lancamentos': lancamentos,
+            'mes': int(mes),
+            'ano': int(ano),
+            'busca': busca,
+            'total_horas': total_horas,
+            'total_valor': total_valor,
+            'mes_encerrado': mes_encerrado,
+        }
+    )
+
+@login_required(login_url='/login/')
+def encerrar_lancamentos_mes(request):
+
+    mes = request.GET.get('mes')
+    ano = request.GET.get('ano')
+
+    if not mes or not ano:
+        return redirect('/lancamentos-mes/')
+
+    HoraExtra.objects.filter(
+        mes_referencia=mes,
+        ano=ano,
+        encerrado=False
+    ).update(
+        encerrado=True,
+        data_encerramento=timezone.now()
+    )
+
+    return redirect('/lancamentos-gerais/')
+
+
+@login_required(login_url='/login/')
+def lancamentos_gerais(request):
+
+    mes = request.GET.get('mes')
+    ano = request.GET.get('ano')
+
+    lancamentos = HoraExtra.objects.none()
+
+    if mes and ano:
+        lancamentos = HoraExtra.objects.filter(
+            encerrado=True,
+            mes_referencia=mes,
+            ano=ano
+        ).select_related(
+            'funcionario',
+            'funcionario__cargo'
+        ).order_by(
+            'funcionario__nome'
+        )
+
+    return render(
+        request,
+        'lancamentos_gerais.html',
+        {
+            'lancamentos': lancamentos,
+            'mes': int(mes) if mes else '',
+            'ano': int(ano) if ano else '',
+        }
+    )

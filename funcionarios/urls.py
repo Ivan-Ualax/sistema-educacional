@@ -95,6 +95,12 @@ urlpatterns = [
         name='lancamentos_mes'
     ),
 
+    path(
+    'lancamentos-mes/encerrar/',
+    views.encerrar_lancamentos_mes,
+    name='encerrar_lancamentos_mes'
+),
+
     # =========================
     # EDITAR HORA EXTRA
     # =========================
@@ -120,12 +126,17 @@ urlpatterns = [
     # EXPORTAR EXCEL
     # =========================
 
-    path(
-        'exportar-lancamentos-excel/',
-        views.exportar_lancamentos_excel,
-        name='exportar_lancamentos_excel'
-    ),
+   path(
+    'exportar-lancamentos-excel/',
+    views.exportar_pendencias_excel,
+    name='exportar_lancamentos_excel'
+),
 
+path(
+    'lancamentos-gerais/',
+    views.lancamentos_gerais,
+    name='lancamentos_gerais'
+),
     
 
 ]
