@@ -260,8 +260,29 @@
         <div class="logo">Sistema Escolar</div>
 
         <a href="/">Página inicial</a>
-        <a href="/funcionarios/">Funcionários</a>
-        <a href="/horas-extras/">Horas Extras</a>
+        <a href="/">
+            🏠 Página Inicial
+        </a>
+
+        <a href="/funcionarios/">
+            👥 Funcionários
+        </a>
+
+        <a href="/funcionarios/cadastrar/">
+            ➕ Novo Funcionário
+        </a>
+
+        <a href="/horas-extras/">
+            📝 Adicionais e Faltas
+        </a>
+
+        <a href="/lancamentos-mes/">
+            📅 Lançamentos Mensal
+        </a>
+
+        <a href="/lancamentos-gerais/">
+            📊 Histórico Geral
+        </a>
         
     </div>
 
@@ -317,35 +338,41 @@
         </div>
 
         <div class="box">
-            <h2 style="margin-bottom:20px;">Lançamentos de Horas Extras</h2>
+            <h2 style="margin-bottom:20px;">Lançamentos de Aulas Extras Faltas E Adicionais</h2>
 
             <table>
-                <tr>
-                    <th>Mês</th>
-                    <th>Ano</th>
-                    <th>Tipo</th>
-                    <th>Horas</th>
-                    <th>Valor</th>
-                    <th>Observação</th>
-                </tr>
+    <tr>
+        <th>Mês</th>
+        <th>Ano</th>
+        <th>Tipo</th>
+        <th>Aulas Extras</th>
+        <th>Valor</th>
+        <th>Obs. Hora Extra</th>
+        <th>Nº Faltas</th>
+        <th>Data Falta</th>
+        <th>Obs. Falta</th>
+    </tr>
 
-                {% for item in lancamentos %}
-                <tr>
-                    <td>{{ item.get_mes_referencia_display }}</td>
-                    <td>{{ item.ano }}</td>
-                    <td>{{ item.get_tipo_display }}</td>
-                    <td>{{ item.quantidade_horas }}</td>
-                    <td>R$ {{ item.valor }}</td>
-                    <td>{{ item.observacao }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="vazio">
-                        Nenhum lançamento encontrado para este funcionário.
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
+    {% for item in lancamentos %}
+    <tr>
+        <td>{{ item.get_mes_referencia_display }}</td>
+        <td>{{ item.ano }}</td>
+        <td>{{ item.get_tipo_display }}</td>
+        <td>{{ item.quantidade_horas|floatformat:0 }}</td>
+        <td>R$ {{ item.valor }}</td>
+        <td>{{ item.observacao_hora_extra }}</td>
+        <td>{{ item.numero_faltas }}</td>
+        <td>{{ item.data_falta|date:"d/m/Y" }}</td>
+        <td>{{ item.observacao_falta }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="9" class="vazio">
+            Nenhum lançamento encontrado para este funcionário.
+        </td>
+    </tr>
+    {% endfor %}
+</table>
         </div>
 
     </div>

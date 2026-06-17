@@ -65,7 +65,8 @@ tr:hover{
     gap:14px;
     align-items:end;
     margin-bottom:24px;
-    max-width:650px;
+    max-width:900px;
+    flex-wrap:wrap;
 }
 
 .campo-filtro{
@@ -146,6 +147,20 @@ tr:hover{
         <input type="number" name="ano" value="{{ ano|default:'2026' }}">
     </div>
 
+    <div class="campo-filtro">
+    <label>Escola</label>
+
+    <select name="escola">
+        <option value="">Todas as escolas</option>
+
+        {% for escola in escolas %}
+            <option value="{{ escola }}" {% if escola_filtro == escola %}selected{% endif %}>
+                {{ escola }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
     <button type="submit" class="btn-buscar">
         Buscar
     </button>
@@ -185,13 +200,13 @@ tr:hover{
         {% endif %}
     </td>
 
-    <td>{{ item.funcionario.escola }}</td>
+    <td>{{ item.funcionario.escola|cut:"  " }}</td>
 
     <td>{{ item.get_mes_referencia_display }}</td>
 
     <td>{{ item.ano }}</td>
 
-    <td>{{ item.quantidade_horas }}</td>
+    <td>{{ item.quantidade_horas|floatformat:0 }}</td>
 
     <td>R$ {{ item.valor }}</td>
 

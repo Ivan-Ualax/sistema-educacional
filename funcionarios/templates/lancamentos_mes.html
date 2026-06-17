@@ -350,23 +350,26 @@
         </h1>
 
         <a href="/">
-            Página inicial
+            🏠 Página inicial
         </a>
-
-        <a href="/funcionarios/cadastrar/">
-            Cadastrar Funcionário
-        </a>
-
+        
         <a href="/funcionarios/">
-            Funcionários
+            👥 Funcionários
         </a>
+    
+    
+        <a href="/funcionarios/cadastrar/">
+        ➕ Novo Funcionário
+        </a>
+
+    
 
         <a href="/horas-extras/">
-            Horas extras e faltas do mês.
+            📝 Adicionais e Faltas
         </a>
 
         <a href="/lancamentos-mes/">
-            Lançamentos do Mês
+            📅  Lancamentos Do Mês
         </a>
 
     </div>
@@ -457,12 +460,39 @@
                 Filtrar
             </button>
 
-            <a
-                class="btn-excel"
-                href="/exportar-lancamentos-excel/?mes={{ mes }}&ano={{ ano }}"
+            <div>
+
+        <label>
+            Escola
+        </label>
+
+        <select name="escola">
+
+            <option value="">
+                Todas as Escolas
+            </option>
+
+            {% for escola in escolas %}
+
+            <option
+                value="{{ escola }}"
+                {% if escola_filtro == escola %}selected{% endif %}
             >
-                Exportar Excel
-            </a>
+                {{ escola }}
+            </option>
+
+            {% endfor %}
+
+        </select>
+
+</div>
+
+        <a
+            class="btn-excel"
+            href="/exportar-lancamentos-excel/?mes={{ mes }}&ano={{ ano }}&busca={{ busca }}&escola={{ escola_filtro }}"
+        >
+            Exportar Excel
+        </a>
 
             {% if not mes_encerrado %}
 

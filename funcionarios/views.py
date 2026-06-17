@@ -11,6 +11,8 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.styles import Border, Side
 from openpyxl.worksheet.page import PageMargins
 from django.db.models.functions import Lower, Trim
+from django.db.models import Q
+
 
 from .models import Funcionario, Cargo, HoraExtra
 
@@ -584,6 +586,8 @@ def exportar_pendencias_excel(request):
 
     mes = request.GET.get('mes')
     ano = request.GET.get('ano')
+    busca = request.GET.get('busca') or ''
+    escola_filtro = request.GET.get('escola') or ''
 
     if not mes or not ano:
         return redirect('/lancamentos-mes/')
@@ -594,7 +598,21 @@ def exportar_pendencias_excel(request):
     ).select_related(
         'funcionario',
         'funcionario__cargo'
-    ).order_by(
+    )
+
+    if busca:
+        lancamentos = lancamentos.filter(
+            funcionario__nome__icontains=busca.strip()
+        )
+
+    if escola_filtro:
+        lancamentos = lancamentos.annotate(
+            escola_limpa=Trim('funcionario__escola')
+        ).filter(
+            escola_limpa=escola_filtro.strip()
+        )
+
+    lancamentos = lancamentos.order_by(
         'funcionario__nome'
     )
 
@@ -607,7 +625,6 @@ def exportar_pendencias_excel(request):
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0
-
     ws.print_options.horizontalCentered = True
 
     ws.page_margins = PageMargins(
@@ -622,22 +639,28 @@ def exportar_pendencias_excel(request):
     ws.merge_cells('A1:D1')
 
     titulo = ws['A1']
-    meses = {
-    '1': 'JANEIRO',
-    '2': 'FEVEREIRO',
-    '3': 'MARÇO',
-    '4': 'ABRIL',
-    '5': 'MAIO',
-    '6': 'JUNHO',
-    '7': 'JULHO',
-    '8': 'AGOSTO',
-    '9': 'SETEMBRO',
-    '10': 'OUTUBRO',
-    '11': 'NOVEMBRO',
-    '12': 'DEZEMBRO',
-}
 
-    titulo.value = f'FOLHA-MÊS DE {meses.get(str(mes), mes)} {ano}'
+    meses = {
+        '1': 'JANEIRO',
+        '2': 'FEVEREIRO',
+        '3': 'MARÇO',
+        '4': 'ABRIL',
+        '5': 'MAIO',
+        '6': 'JUNHO',
+        '7': 'JULHO',
+        '8': 'AGOSTO',
+        '9': 'SETEMBRO',
+        '10': 'OUTUBRO',
+        '11': 'NOVEMBRO',
+        '12': 'DEZEMBRO',
+    }
+
+    titulo_texto = f'FOLHA-MÊS DE {meses.get(str(mes), mes)} {ano}'
+
+    if escola_filtro:
+        titulo_texto += f' - {escola_filtro.strip()}'
+
+    titulo.value = titulo_texto
     titulo.font = Font(bold=True, color='FFFFFF', size=13)
     titulo.fill = PatternFill('solid', fgColor='1F4E78')
     titulo.alignment = Alignment(horizontal='center', vertical='center')
@@ -691,13 +714,15 @@ def exportar_pendencias_excel(request):
 
         pendencia = ' || '.join(pendencias)
 
+        pendencia = ' || '.join(pendencias)
+
         if not pendencia:
-            continue
+            pendencia = 'Sem pendência'
 
         ws.append([
             item.funcionario.nome,
             item.funcionario.cargo.nome if item.funcionario.cargo else '',
-            item.funcionario.escola or '',
+            (item.funcionario.escola or '').strip(),
             pendencia
         ])
 
@@ -727,8 +752,13 @@ def exportar_pendencias_excel(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
+    nome_arquivo = f'pendencias_{mes}_{ano}'
+
+    if escola_filtro:
+        nome_arquivo += f'_{escola_filtro.strip().replace(" ", "_")}'
+
     response['Content-Disposition'] = (
-        f'attachment; filename=pendencias_{mes}_{ano}.xlsx'
+        f'attachment; filename={nome_arquivo}.xlsx'
     )
 
     wb.save(response)
@@ -741,22 +771,30 @@ def lancamentos_mes(request):
 
     mes = request.GET.get('mes') or agora.month
     ano = request.GET.get('ano') or agora.year
-    busca = request.GET.get('busca')
+    busca = request.GET.get('busca') or ''
+    escola_filtro = request.GET.get('escola') or ''
 
     lancamentos = HoraExtra.objects.filter(
         mes_referencia=mes,
         ano=ano
+    ).select_related(
+        'funcionario',
+        'funcionario__cargo'
     )
 
     if busca:
         lancamentos = lancamentos.filter(
-            funcionario__nome__istartswith=busca
+            funcionario__nome__icontains=busca.strip()
         )
 
-    lancamentos = lancamentos.select_related(
-        'funcionario',
-        'funcionario__cargo'
-    ).order_by(
+    if escola_filtro:
+        lancamentos = lancamentos.annotate(
+            escola_limpa=Trim('funcionario__escola')
+        ).filter(
+            escola_limpa=escola_filtro.strip()
+        )
+
+    lancamentos = lancamentos.order_by(
         'funcionario__nome'
     )
 
@@ -771,6 +809,16 @@ def lancamentos_mes(request):
         encerrado=True
     ).exists()
 
+    escolas = (
+        Funcionario.objects
+        .exclude(escola__isnull=True)
+        .exclude(escola='')
+        .annotate(escola_limpa=Trim('escola'))
+        .values_list('escola_limpa', flat=True)
+        .distinct()
+        .order_by('escola_limpa')
+    )
+
     return render(
         request,
         'lancamentos_mes.html',
@@ -779,6 +827,8 @@ def lancamentos_mes(request):
             'mes': int(mes),
             'ano': int(ano),
             'busca': busca,
+            'escolas': escolas,
+            'escola_filtro': escola_filtro,
             'total_horas': total_horas,
             'total_valor': total_valor,
             'mes_encerrado': mes_encerrado,
@@ -806,11 +856,13 @@ def encerrar_lancamentos_mes(request):
     return redirect('/lancamentos-gerais/')
 
 
+
 @login_required(login_url='/login/')
 def lancamentos_gerais(request):
 
     mes = request.GET.get('mes')
     ano = request.GET.get('ano')
+    escola_filtro = request.GET.get('escola') or ''
 
     lancamentos = HoraExtra.objects.none()
 
@@ -822,9 +874,28 @@ def lancamentos_gerais(request):
         ).select_related(
             'funcionario',
             'funcionario__cargo'
-        ).order_by(
+        )
+
+        if escola_filtro:
+            lancamentos = lancamentos.annotate(
+                escola_limpa=Trim('funcionario__escola')
+            ).filter(
+                escola_limpa=escola_filtro.strip()
+            )
+
+        lancamentos = lancamentos.order_by(
             'funcionario__nome'
         )
+
+    escolas = (
+        Funcionario.objects
+        .exclude(escola__isnull=True)
+        .exclude(escola='')
+        .annotate(escola_limpa=Trim('escola'))
+        .values_list('escola_limpa', flat=True)
+        .distinct()
+        .order_by('escola_limpa')
+    )
 
     return render(
         request,
@@ -833,5 +904,7 @@ def lancamentos_gerais(request):
             'lancamentos': lancamentos,
             'mes': int(mes) if mes else '',
             'ano': int(ano) if ano else '',
+            'escolas': escolas,
+            'escola_filtro': escola_filtro,
         }
     )
