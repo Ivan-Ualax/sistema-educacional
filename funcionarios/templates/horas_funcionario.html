@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Horas do Funcionário</title>
 
-    <style>
+   <style>
 
     *{
         margin:0;
@@ -12,24 +12,36 @@
         box-sizing:border-box;
     }
 
+    html{
+        width:100%;
+        min-height:100%;
+        overflow-x:hidden;
+    }
+
     body{
         background:#020617;
         color:white;
-        font-family:Arial, sans-serif;
+        font-family:Arial, Helvetica, sans-serif;
         display:flex;
         min-height:100vh;
+        width:100%;
+        max-width:100%;
+        overflow-x:hidden;
+    }
+
+    a{
+        max-width:100%;
     }
 
     .sidebar{
         width:260px;
-        height:100vh;
+        min-width:260px;
+        min-height:100vh;
         background:#0f172a;
         padding:25px;
-        position:fixed;
         border-right:1px solid #1e293b;
-        left:0;
-        top:0;
         overflow-y:auto;
+        flex-shrink:0;
     }
 
     .logo{
@@ -37,6 +49,7 @@
         font-weight:bold;
         color:#38bdf8;
         margin-bottom:35px;
+        line-height:1.2;
     }
 
     .sidebar a{
@@ -47,6 +60,7 @@
         border-radius:12px;
         margin-bottom:10px;
         transition:0.3s;
+        word-break:break-word;
     }
 
     .sidebar a:hover{
@@ -55,9 +69,12 @@
     }
 
     .content{
-        margin-left:260px;
+        flex:1;
         padding:35px;
         width:100%;
+        min-width:0;
+        max-width:100%;
+        overflow-x:hidden;
     }
 
     .topo{
@@ -66,16 +83,19 @@
         align-items:center;
         margin-bottom:25px;
         gap:20px;
+        flex-wrap:wrap;
     }
 
     h1{
-        font-size:32px;
+        font-size:clamp(26px,4vw,32px);
         margin-bottom:8px;
+        line-height:1.2;
     }
 
     .sub{
         color:#94a3b8;
         font-size:15px;
+        line-height:1.5;
     }
 
     .btn{
@@ -87,6 +107,9 @@
         font-weight:bold;
         transition:0.3s;
         white-space:nowrap;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
     }
 
     .btn:hover{
@@ -99,6 +122,8 @@
         border-radius:18px;
         padding:25px;
         margin-bottom:25px;
+        width:100%;
+        max-width:100%;
         overflow-x:auto;
     }
 
@@ -114,6 +139,7 @@
         border-radius:14px;
         padding:15px;
         transition:0.3s;
+        min-width:0;
     }
 
     .item:hover{
@@ -146,6 +172,7 @@
         font-size:13px;
         text-transform:uppercase;
         border-bottom:1px solid #1e293b;
+        white-space:nowrap;
     }
 
     td{
@@ -184,9 +211,7 @@
         font-weight:bold;
     }
 
-    /* RESPONSIVO */
-
-    @media(max-width:800px){
+    @media(max-width:900px){
 
         body{
             flex-direction:column;
@@ -194,9 +219,11 @@
 
         .sidebar{
             width:100%;
-            height:auto;
-            position:relative;
+            min-width:100%;
+            min-height:auto;
             padding:20px;
+            border-right:none;
+            border-bottom:1px solid #1e293b;
         }
 
         .logo{
@@ -211,22 +238,12 @@
         }
 
         .content{
-            margin-left:0;
-            padding:20px;
-            width:100%;
+            padding:24px;
         }
 
         .topo{
             flex-direction:column;
             align-items:flex-start;
-        }
-
-        h1{
-            font-size:26px;
-        }
-
-        .sub{
-            font-size:14px;
         }
 
         .btn{
@@ -235,7 +252,7 @@
         }
 
         .box{
-            padding:18px;
+            padding:20px;
         }
 
         .dados{
@@ -249,6 +266,50 @@
         td,
         th{
             white-space:nowrap;
+        }
+    }
+
+    @media(max-width:600px){
+
+        .content{
+            padding:16px;
+        }
+
+        .sub{
+            font-size:14px;
+        }
+
+        .box{
+            padding:18px;
+            border-radius:16px;
+        }
+
+        .item{
+            padding:14px;
+        }
+    }
+
+    @media(max-width:380px){
+
+        .sidebar{
+            padding:16px;
+        }
+
+        .content{
+            padding:14px;
+        }
+
+        .logo{
+            font-size:20px;
+        }
+
+        .sidebar a{
+            font-size:14px;
+            padding:12px;
+        }
+
+        .box{
+            padding:14px;
         }
     }
 
@@ -346,7 +407,9 @@
         <th>Ano</th>
         <th>Tipo</th>
         <th>Aulas Extras</th>
+        {% if pode_ver_valores %}
         <th>Valor</th>
+        {% endif %}
         <th>Obs. Hora Extra</th>
         <th>Nº Faltas</th>
         <th>Data Falta</th>
@@ -359,7 +422,9 @@
         <td>{{ item.ano }}</td>
         <td>{{ item.get_tipo_display }}</td>
         <td>{{ item.quantidade_horas|floatformat:0 }}</td>
+        {% if pode_ver_valores %}
         <td>R$ {{ item.valor }}</td>
+        {% endif %}
         <td>{{ item.observacao_hora_extra }}</td>
         <td>{{ item.numero_faltas }}</td>
         <td>{{ item.data_falta|date:"d/m/Y" }}</td>
@@ -367,7 +432,7 @@
     </tr>
     {% empty %}
     <tr>
-        <td colspan="9" class="vazio">
+        <td colspan="{% if pode_ver_valores %}9{% else %}8{% endif %}" class="vazio">
             Nenhum lançamento encontrado para este funcionário.
         </td>
     </tr>

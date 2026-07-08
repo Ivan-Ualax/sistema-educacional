@@ -54,6 +54,10 @@ def limpar_observacao(texto):
 
     return '\n'.join(linhas_limpas)
 
+def usuario_pode_ver_valores(user):
+
+    return user.is_superuser
+
 
 @login_required(login_url='/login/')
 def home(request):
@@ -495,14 +499,15 @@ def adicionar_hora_extra(request, id):
         return redirect(f'/funcionario/{funcionario.id}/horas/')
 
     return render(
-        request,
-        'adicionar_hora_extra.html',
-        {
-            'funcionario': funcionario,
-            'mes_atual': mes_atual,
-            'ano_atual': ano_atual,
-        }
-    )
+    request,
+    'adicionar_hora_extra.html',
+    {
+        'funcionario': funcionario,
+        'mes_atual': mes_atual,
+        'ano_atual': ano_atual,
+        'pode_ver_valores': usuario_pode_ver_valores(request.user),
+    }
+)
 
 @login_required(login_url='/login/')
 def horas_funcionario(request, id):
@@ -528,6 +533,8 @@ def horas_funcionario(request, id):
         {
             'funcionario': funcionario,
             'lancamentos': lancamentos,
+            
+            'pode_ver_valores': usuario_pode_ver_valores(request.user),
         }
     )
 
@@ -611,12 +618,13 @@ def editar_hora_extra(request, id):
         )
 
     return render(
-        request,
-        'editar_hora_extra.html',
-        {
-            'lancamento': lancamento
-        }
-    )
+    request,
+    'editar_hora_extra.html',
+    {
+        'lancamento': lancamento,
+        'pode_ver_valores': usuario_pode_ver_valores(request.user),
+    }
+)
 
 
 @login_required(login_url='/login/')
@@ -652,6 +660,8 @@ def exportar_pendencias_excel(request):
     if not mes or not ano:
         return redirect('/lancamentos-mes/')
 
+    pode_ver_valores = usuario_pode_ver_valores(request.user)
+
     lancamentos = HoraExtra.objects.filter(
         mes_referencia=mes,
         ano=ano
@@ -672,9 +682,7 @@ def exportar_pendencias_excel(request):
             escola_limpa=escola_filtro.strip()
         )
 
-    lancamentos = lancamentos.order_by(
-        'funcionario__nome'
-    )
+    lancamentos = lancamentos.order_by('funcionario__nome')
 
     wb = Workbook()
     ws = wb.active
@@ -698,8 +706,6 @@ def exportar_pendencias_excel(request):
 
     ws.merge_cells('A1:D1')
 
-    titulo = ws['A1']
-
     meses = {
         '1': 'JANEIRO',
         '2': 'FEVEREIRO',
@@ -720,6 +726,7 @@ def exportar_pendencias_excel(request):
     if escola_filtro:
         titulo_texto += f' - {escola_filtro.strip()}'
 
+    titulo = ws['A1']
     titulo.value = titulo_texto
     titulo.font = Font(bold=True, color='FFFFFF', size=13)
     titulo.fill = PatternFill('solid', fgColor='1F4E78')
@@ -750,15 +757,25 @@ def exportar_pendencias_excel(request):
         pendencias = []
 
         if item.quantidade_horas and item.quantidade_horas > 0:
-            texto_hora = (
-                f'{item.get_tipo_display()} | '
-                f'Horas: {int(item.quantidade_horas)}h | '
-                f'Valor: R$ {item.valor} | '
-                f'Obs: {item.observacao_hora_extra or "Sem observação"}'
-            )
+
+            if pode_ver_valores:
+                texto_hora = (
+                    f'{item.get_tipo_display()} | '
+                    f'Horas: {int(item.quantidade_horas)}h | '
+                    f'Valor: R$ {item.valor} | '
+                    f'Obs: {item.observacao_hora_extra or "Sem observação"}'
+                )
+            else:
+                texto_hora = (
+                    f'{item.get_tipo_display()} | '
+                    f'Horas: {int(item.quantidade_horas)}h | '
+                    f'Obs: {item.observacao_hora_extra or "Sem observação"}'
+                )
+
             pendencias.append(texto_hora)
 
         if item.numero_faltas and item.numero_faltas > 0:
+
             data_falta = (
                 item.data_falta.strftime('%d/%m/%Y')
                 if item.data_falta else
@@ -770,9 +787,8 @@ def exportar_pendencias_excel(request):
                 f'Data: {data_falta} | '
                 f'Obs: {item.observacao_falta or "Sem observação"}'
             )
-            pendencias.append(texto_falta)
 
-        pendencia = ' || '.join(pendencias)
+            pendencias.append(texto_falta)
 
         pendencia = ' || '.join(pendencias)
 
@@ -892,6 +908,8 @@ def lancamentos_mes(request):
             'total_horas': total_horas,
             'total_valor': total_valor,
             'mes_encerrado': mes_encerrado,
+
+             'pode_ver_valores': usuario_pode_ver_valores(request.user),
         }
     )
 
