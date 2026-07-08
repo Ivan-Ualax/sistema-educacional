@@ -12,7 +12,7 @@ from openpyxl.styles import Border, Side
 from openpyxl.worksheet.page import PageMargins
 from django.db.models.functions import Lower, Trim
 from django.db.models import Q
-
+from django.db.models import Count
 
 from .models import Funcionario, Cargo, HoraExtra
 
@@ -78,31 +78,43 @@ def home(request):
 
     funcionarios = Funcionario.objects.all().order_by('-id')[:10]
 
+    escolas_resumo = (
+    Funcionario.objects
+    .exclude(escola__isnull=True)
+    .exclude(escola='')
+    .annotate(escola_limpa=Trim('escola'))
+    .values('escola_limpa')
+    .annotate(total=Count('id'))
+    .order_by('escola_limpa')
+)
+
     context = {
 
-        'funcionarios': funcionarios,
+    'funcionarios': funcionarios,
 
-        'total_funcionarios': Funcionario.objects.count(),
+    'total_funcionarios': Funcionario.objects.count(),
 
-        'ativos': Funcionario.objects.filter(
-            status='ativo'
-        ).count(),
+    'ativos': Funcionario.objects.filter(
+        status='ativo'
+    ).count(),
 
-        'inativos': Funcionario.objects.filter(
-            status='inativo'
-        ).count(),
+    'inativos': Funcionario.objects.filter(
+        status='inativo'
+    ).count(),
 
-        'demitidos': Funcionario.objects.filter(
-            status='demitido'
-        ).count(),
+    'demitidos': Funcionario.objects.filter(
+        status='demitido'
+    ).count(),
 
-        'horas_extras': HoraExtra.objects.count(),
+    'horas_extras': HoraExtra.objects.count(),
 
-        'mes_atual': meses[agora.month],
+    'mes_atual': meses[agora.month],
 
-        'ano_atual': agora.year,
+    'ano_atual': agora.year,
 
-    }
+    'escolas_resumo': escolas_resumo,
+
+}
 
     return render(
         request,

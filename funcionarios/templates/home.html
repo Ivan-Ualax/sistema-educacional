@@ -359,6 +359,39 @@ body{
     margin-bottom:16px;
 }
 
+.lista-escolas{
+    max-height:520px;
+    overflow-y:auto;
+    padding-right:8px;
+}
+
+.lista-escolas::-webkit-scrollbar{
+    width:8px;
+}
+
+.lista-escolas::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:10px;
+}
+
+.escola-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.escola-item strong{
+    color:white;
+    font-size:15px;
+}
+
+.escola-item span{
+    color:#38bdf8;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
 .indicador h3{
     margin-bottom:10px;
 }
@@ -606,7 +639,7 @@ td{
         <hr>
 
         <a href="/horas-extras/">
-            📝 Adicionais e Faltas
+            📑 Registro de Frequência
         </a>
 
         <hr>
@@ -615,9 +648,7 @@ td{
             📅 Lançamentos Mensal
         </a>
 
-        <a href="/lancamentos-gerais/">
-            📊 Histórico Geral
-        </a>
+        
 
     </div>
 
@@ -778,37 +809,41 @@ td{
 
         </div>
 
-        <div class="box">
+      <div class="box">
 
-            <h2>
-                Indicadores
-            </h2>
+    <h2>
+        Escolas
+    </h2>
 
-            <div class="indicador">
+    <div class="lista-escolas">
 
-                <h3>
-                    Funcionários
-                </h3>
+        {% for escola in escolas_resumo %}
 
-                <p>
-                    Controle completo dos servidores.
-                </p>
+            <div class="indicador escola-item">
 
-            </div>
+                <strong>
+                    {{ escola.escola_limpa }}
+                </strong>
 
-            <div class="indicador">
-
-                <h3>
-                    Horas Extras
-                </h3>
-
-                <p>
-                    Lançamentos individuais por funcionário.
-                </p>
+                <span>
+                    {{ escola.total }} funcionário{{ escola.total|pluralize:"s" }}
+                </span>
 
             </div>
 
-        </div>
+        {% empty %}
+
+            <div class="indicador">
+
+                Nenhuma escola cadastrada.
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
 
     </div>
 
