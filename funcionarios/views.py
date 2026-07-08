@@ -114,7 +114,22 @@ def home(request):
 @login_required(login_url='/login/')
 def cadastrar_funcionario(request):
 
+    escolas = (
+        Funcionario.objects
+        .exclude(escola__isnull=True)
+        .exclude(escola='')
+        .annotate(escola_limpa=Trim('escola'))
+        .values_list('escola_limpa', flat=True)
+        .distinct()
+        .order_by('escola_limpa')
+    )
+
     if request.method == 'POST':
+
+        escola_existente = request.POST.get('escola_existente')
+        nova_escola = request.POST.get('nova_escola')
+
+        escola = nova_escola.strip() if nova_escola else escola_existente
 
         cargo_nome = request.POST.get('cargo')
 
@@ -123,7 +138,7 @@ def cadastrar_funcionario(request):
         if cargo_nome:
 
             cargo, created = Cargo.objects.get_or_create(
-                nome=cargo_nome
+                nome=cargo_nome.strip()
             )
 
         Funcionario.objects.create(
@@ -136,7 +151,7 @@ def cadastrar_funcionario(request):
 
             cpf=request.POST.get('cpf'),
 
-            escola=request.POST.get('escola'),
+            escola=escola,
 
             carga_horaria=request.POST.get(
                 'carga_horaria'
@@ -160,7 +175,10 @@ def cadastrar_funcionario(request):
 
     return render(
         request,
-        'funcionario.html'
+        'funcionario.html',
+        {
+            'escolas': escolas
+        }
     )
 
 

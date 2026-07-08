@@ -129,6 +129,20 @@
             outline:none;
             border:1px solid #38bdf8;
         }
+        .input-box select{
+        background:#0f172a;
+        border:1px solid #334155;
+        border-radius:14px;
+        padding:16px;
+        color:white;
+        font-size:15px;
+        width:100%;
+        }
+
+        .input-box select:focus{
+            outline:none;
+            border:1px solid #38bdf8;
+        }
 
         .acoes{
             margin-top:40px;
@@ -334,18 +348,41 @@
 
                     <div class="input-box">
 
-                        <label>
-                            Escola *
-                        </label>
+    <label>
+        Escola *
+    </label>
 
-                        <input
-                            type="text"
-                            name="escola"
-                            placeholder="Nome da escola"
-                            required
-                        >
+    <select name="escola_existente" id="escola_existente">
+    <option value="">Selecione uma escola</option>
 
-                    </div>
+    {% for escola in escolas %}
+        <option value="{{ escola }}">
+            {{ escola }}
+        </option>
+    {% endfor %}
+
+    <option value="nova_escola">
+        ➕ Cadastrar nova escola
+    </option>
+
+    </select>
+
+        </div>
+
+        <div class="input-box" id="campo_nova_escola" style="display:none;">
+
+    <label>
+        Nova escola
+    </label>
+
+    <input
+        type="text"
+        name="nova_escola"
+        id="nova_escola"
+        placeholder="Digite o nome da nova escola"
+    >
+
+    </div>
 
                     <div class="input-box">
 
@@ -458,6 +495,31 @@
         </form>
 
     </div>
+
+    <script>
+
+const selectEscola = document.getElementById("escola_existente");
+const campoNovaEscola = document.getElementById("campo_nova_escola");
+const inputNovaEscola = document.getElementById("nova_escola");
+
+selectEscola.addEventListener("change", function(){
+
+    if(this.value === "nova_escola"){
+
+        campoNovaEscola.style.display = "flex";
+        inputNovaEscola.required = true;
+
+    }else{
+
+        campoNovaEscola.style.display = "none";
+        inputNovaEscola.required = false;
+        inputNovaEscola.value = "";
+
+    }
+
+});
+
+</script>
 
 </body>
 
