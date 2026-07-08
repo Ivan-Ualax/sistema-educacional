@@ -167,6 +167,17 @@
                 font-size:14px;
             }
 
+            select{
+                background:#0f172a;
+                border:1px solid #334155;
+                color:white;
+                padding:14px;
+                border-radius:12px;
+                outline:none;
+                font-size:15px;
+                width:100%;
+            }
+
             button,
             .btn-voltar{
                 width:100%;
@@ -223,9 +234,36 @@
                 </div>
 
                 <div class="campo">
-                    <label>Escola</label>
-                    <input type="text" name="escola" value="{{ funcionario.escola }}">
-                </div>
+                <label>Escola</label>
+
+                <select name="escola_existente" id="escola_existente">
+                    <option value="">Selecione uma escola</option>
+
+                    {% for escola in escolas %}
+                        <option
+                            value="{{ escola }}"
+                            {% if funcionario.escola == escola %}selected{% endif %}
+                        >
+                            {{ escola }}
+                        </option>
+                    {% endfor %}
+
+                    <option value="nova_escola">
+                        ➕ Cadastrar nova escola
+                    </option>
+                </select>
+            </div>
+
+<div class="campo" id="campo_nova_escola" style="display:none;">
+    <label>Nova escola</label>
+
+    <input
+        type="text"
+        name="nova_escola"
+        id="nova_escola"
+        placeholder="Digite o nome da nova escola"
+    >
+</div>
 
                 <div class="campo">
                     <label>Profissão / Cargo</label>
@@ -265,6 +303,23 @@
         </div>
 
     </div>
+
+    <script>
+    const selectEscola = document.getElementById("escola_existente");
+    const campoNovaEscola = document.getElementById("campo_nova_escola");
+    const inputNovaEscola = document.getElementById("nova_escola");
+
+    selectEscola.addEventListener("change", function(){
+        if(this.value === "nova_escola"){
+            campoNovaEscola.style.display = "flex";
+            inputNovaEscola.required = true;
+        }else{
+            campoNovaEscola.style.display = "none";
+            inputNovaEscola.required = false;
+            inputNovaEscola.value = "";
+        }
+    });
+</script>
 
 </body>
 </html>

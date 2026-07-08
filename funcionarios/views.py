@@ -257,6 +257,16 @@ def alterar_status(request, id):
         id=id
     )
 
+    escolas = (
+    Funcionario.objects
+    .exclude(escola__isnull=True)
+    .exclude(escola='')
+    .annotate(escola_limpa=Trim('escola'))
+    .values_list('escola_limpa', flat=True)
+    .distinct()
+    .order_by('escola_limpa')
+    )
+
     if request.method == 'POST':
 
         status = request.POST.get('status')
@@ -282,6 +292,16 @@ def editar_funcionario(request, id):
         id=id
     )
 
+    escolas = (
+        Funcionario.objects
+        .exclude(escola__isnull=True)
+        .exclude(escola='')
+        .annotate(escola_limpa=Trim('escola'))
+        .values_list('escola_limpa', flat=True)
+        .distinct()
+        .order_by('escola_limpa')
+    )
+
     if request.method == 'POST':
 
         nome = request.POST.get('nome')
@@ -300,46 +320,34 @@ def editar_funcionario(request, id):
                 {
                     'funcionario': funcionario,
                     'erro_nome_duplicado': True,
-                    'nome_duplicado': nome
+                    'nome_duplicado': nome,
+                    'escolas': escolas,
                 }
             )
 
         funcionario.nome = nome
-
-        funcionario.situacao_contratual = request.POST.get(
-            'situacao_contratual'
-        )
-
+        funcionario.situacao_contratual = request.POST.get('situacao_contratual')
         funcionario.cpf = request.POST.get('cpf')
 
-        funcionario.escola = request.POST.get(
-            'escola'
-        ) or funcionario.escola
+        escola_existente = request.POST.get('escola_existente')
+        nova_escola = request.POST.get('nova_escola')
 
-        funcionario.carga_horaria = request.POST.get(
-            'carga_horaria'
-        ) or 0
+        if nova_escola:
+            funcionario.escola = nova_escola.strip()
+        elif escola_existente:
+            funcionario.escola = escola_existente
 
-        funcionario.numero = request.POST.get(
-            'numero'
-        )
-
-        funcionario.localidade = request.POST.get(
-            'localidade'
-        )
-
-        funcionario.data_admissao = request.POST.get(
-            'data_admissao'
-        ) or None
+        funcionario.carga_horaria = request.POST.get('carga_horaria') or 0
+        funcionario.numero = request.POST.get('numero')
+        funcionario.localidade = request.POST.get('localidade')
+        funcionario.data_admissao = request.POST.get('data_admissao') or None
 
         cargo_nome = request.POST.get('cargo')
 
         if cargo_nome:
-
             cargo, created = Cargo.objects.get_or_create(
-                nome=cargo_nome
+                nome=cargo_nome.strip()
             )
-
             funcionario.cargo = cargo
 
         funcionario.save()
@@ -350,10 +358,10 @@ def editar_funcionario(request, id):
         request,
         'editar_funcionario.html',
         {
-            'funcionario': funcionario
+            'funcionario': funcionario,
+            'escolas': escolas,
         }
     )
-
 
 @login_required(login_url='/login/')
 def excluir_funcionario(request, id):
