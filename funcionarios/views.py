@@ -191,6 +191,8 @@ def funcionarios(request):
 
     ordem = request.GET.get('ordem')
 
+    escola_filtro = request.GET.get('escola') or ''
+
     funcionarios = Funcionario.objects.all()
 
     if busca:
@@ -198,6 +200,14 @@ def funcionarios(request):
         funcionarios = funcionarios.filter(
             nome__icontains=busca
         )
+
+    if escola_filtro:
+
+        funcionarios = funcionarios.annotate(
+            escola_limpa=Trim('escola')
+        ).filter(
+            escola_limpa=escola_filtro.strip()
+    )
 
     if ordem == 'antigo':
 
@@ -215,6 +225,16 @@ def funcionarios(request):
     .filter(total__gt=1)
 )
 
+
+    escolas = (
+    Funcionario.objects
+    .exclude(escola__isnull=True)
+    .exclude(escola='')
+    .annotate(escola_limpa=Trim('escola'))
+    .values_list('escola_limpa', flat=True)
+    .distinct()
+    .order_by('escola_limpa')
+)
     return render(
         request,
         'funcionarios.html',
@@ -223,6 +243,8 @@ def funcionarios(request):
             'busca': busca,
             'ordem': ordem,
             'nomes_duplicados': nomes_duplicados,
+            'escolas': escolas,
+            'escola_filtro': escola_filtro,
         }
     )
 

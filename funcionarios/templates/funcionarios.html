@@ -459,6 +459,23 @@
                 value="{{ busca|default:'' }}"
             >
 
+            <select name="escola">
+
+            <option value="">Todas as escolas</option>
+
+            {% for escola in escolas %}
+
+                <option
+                    value="{{ escola }}"
+                    {% if escola_filtro == escola %}selected{% endif %}
+                >
+                    {{ escola }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
             <select name="ordem">
 
                 <option
