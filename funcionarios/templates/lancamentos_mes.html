@@ -237,15 +237,16 @@
         max-width:100%;
         overflow-x:auto;
         -webkit-overflow-scrolling:touch;
+        overflow-y:hidden;
     }
 
     table{
         width:100%;
-        min-width:1250px;
+        min-width:1600px;
         border-collapse:collapse;
         background:#0f172a;
-        table-layout:fixed;
-}
+        table-layout:auto;
+    }
 
     th{
         background:#020617;
@@ -258,13 +259,16 @@
         line-height:1.2;
     }
 
-    td{
+   td{
         padding:12px;
         border-top:1px solid #1e293b;
         font-size:14px;
         vertical-align:middle;
-        line-height:1.25;
-        overflow-wrap:break-word;
+        line-height:1.3;
+
+        white-space:normal;
+        word-break:normal;
+        overflow-wrap:normal;
     }
 
     tr:hover{
@@ -283,65 +287,80 @@
         min-width:145px;
     }
 
+    /* Funcionário */
+    th:nth-child(1),
+    td:nth-child(1){
+        min-width:180px;
+    }
+
+    /* Situação */
+    th:nth-child(2),
+    td:nth-child(2){
+        min-width:170px;
+    }
+
     /* Escola */
-th:nth-child(3),
-td:nth-child(3){
-    width:18%;
-}
+    th:nth-child(3),
+    td:nth-child(3){
+        min-width:320px;
+    }
 
-/* Cargo */
-th:nth-child(4),
-td:nth-child(4){
-    width:8%;
-}
+    /* Cargo */
+    th:nth-child(4),
+    td:nth-child(4){
+        min-width:170px;
+    }
 
-/* Tipo */
-th:nth-child(5),
-td:nth-child(5){
-    width:6%;
-}
+    /* Tipo */
+    th:nth-child(5),
+    td:nth-child(5){
+        min-width:90px;
+    }
 
-/* Horas */
-th:nth-child(6),
-td:nth-child(6){
-    width:4%;
-}
+    /* Horas */
+    th:nth-child(6),
+    td:nth-child(6){
+        min-width:70px;
+        white-space:nowrap;
+    }
 
-/* Valor */
-th:nth-child(7),
-td:nth-child(7){
-    width:5%;
-}
+    /* Valor */
+    th:nth-child(7),
+    td:nth-child(7){
+        min-width:90px;
+        white-space:nowrap;
+    }
 
-/* Obs Hora Extra */
-th:nth-child(8),
-td:nth-child(8){
-    width:18%;
-}
+    /* Obs Hora Extra */
+    th:nth-child(8),
+    td:nth-child(8){
+        min-width:300px;
+    }
 
-/* Nº Faltas */
-th:nth-child(9),
-td:nth-child(9){
-    width:5%;
-}
+    /* Nº Faltas */
+    th:nth-child(9),
+    td:nth-child(9){
+        min-width:90px;
+    }
 
-/* Data */
-th:nth-child(10),
-td:nth-child(10){
-    width:7%;
-}
+    /* Data */
+    th:nth-child(10),
+    td:nth-child(10){
+        min-width:120px;
+        white-space:nowrap;
+    }
 
-/* Obs Falta */
-th:nth-child(11),
-td:nth-child(11){
-    width:18%;
-}
+    /* Obs Falta */
+    th:nth-child(11),
+    td:nth-child(11){
+        min-width:320px;
+    }
 
-/* Ações */
-th:last-child,
-td:last-child{
-    width:7%;
-}
+    /* Ações */
+    th:last-child,
+    td:last-child{
+        min-width:170px;
+    }
 
     /* =========================
        AÇÕES
@@ -610,7 +629,7 @@ td:last-child{
         }
 
         table{
-            min-width:980px;
+            min-width:1600px;
         }
 
         th{
@@ -782,7 +801,7 @@ td:last-child{
         }
 
         table{
-            min-width:900px;
+            min-width:1600px;
         }
 
         th{
@@ -1318,8 +1337,10 @@ td:last-child{
 
         {% endif %}
 
-        <table>
+      
 
+  <div class="tabela-box">
+<table>
             <tr>
 
                 <th>Funcionário</th>
