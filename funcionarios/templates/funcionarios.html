@@ -40,6 +40,10 @@
         max-width:100%;
     }
 
+    /* =========================
+       SIDEBAR
+    ========================= */
+
     .sidebar{
         width:260px;
         min-width:260px;
@@ -73,6 +77,10 @@
     .sidebar a:hover{
         background:#1e293b;
     }
+
+    /* =========================
+       CONTEÚDO
+    ========================= */
 
     .content{
         flex:1;
@@ -108,11 +116,16 @@
         display:inline-flex;
         align-items:center;
         justify-content:center;
+        white-space:nowrap;
     }
 
     .topo a:hover{
         opacity:0.9;
     }
+
+    /* =========================
+       FILTROS
+    ========================= */
 
     .filtros{
         display:flex;
@@ -155,16 +168,22 @@
         font-weight:bold;
         cursor:pointer;
         transition:0.3s;
+        white-space:nowrap;
     }
 
     .filtros button:hover{
         background:#0ea5e9;
     }
 
+    /* =========================
+       TABELA
+    ========================= */
+
     .box{
         width:100%;
         max-width:100%;
         overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
     }
 
     table{
@@ -180,6 +199,7 @@
         border-bottom:1px solid #334155;
         font-size:15px;
         white-space:nowrap;
+        line-height:1.2;
     }
 
     td{
@@ -187,7 +207,40 @@
         border-bottom:1px solid #334155;
         font-size:14px;
         vertical-align:middle;
+        line-height:1.2;
     }
+
+    td,
+    th{
+        word-break:normal;
+        overflow-wrap:break-word;
+    }
+
+    /* Impede as colunas pequenas de ocuparem espaço demais */
+
+    th:nth-child(2),
+    td:nth-child(2){
+        white-space:nowrap;
+    }
+
+    th:nth-child(7),
+    td:nth-child(7){
+        white-space:nowrap;
+    }
+
+    th:nth-child(9),
+    td:nth-child(9){
+        white-space:nowrap;
+    }
+
+    th:last-child,
+    td:last-child{
+        white-space:nowrap;
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
 
     .ativo,
     .inativo,
@@ -221,6 +274,10 @@
         border-color:rgba(239,68,68,0.4);
     }
 
+    /* =========================
+       AÇÕES
+    ========================= */
+
     .acoes{
         display:flex;
         gap:10px;
@@ -237,6 +294,7 @@
         outline:none;
         font-size:13px;
         cursor:pointer;
+        white-space:nowrap;
     }
 
     .btn-editar{
@@ -249,6 +307,7 @@
         font-weight:600;
         transition:0.3s;
         display:inline-block;
+        white-space:nowrap;
     }
 
     .btn-excluir{
@@ -261,12 +320,17 @@
         font-weight:600;
         transition:0.3s;
         display:inline-block;
+        white-space:nowrap;
     }
 
     .btn-editar:hover,
     .btn-excluir:hover{
         opacity:0.9;
     }
+
+    /* =========================
+       MODAL
+    ========================= */
 
     .modal-fundo{
         display:none;
@@ -326,6 +390,10 @@
         display:inline-block;
     }
 
+    /* =========================
+       AVISO DE DUPLICADOS
+    ========================= */
+
     .aviso-duplicado{
         background:#78350f;
         border:1px solid #f59e0b;
@@ -340,7 +408,7 @@
 
     .duplicados-grid{
         display:grid;
-        grid-template-columns:repeat(4, 1fr);
+        grid-template-columns:repeat(4, minmax(0, 1fr));
         gap:10px 20px;
         margin-top:15px;
     }
@@ -353,13 +421,352 @@
         word-break:break-word;
     }
 
+    /* =====================================================
+       NOTEBOOKS — 901px ATÉ 1600px
+       Diminui tudo sem esconder nenhuma coluna
+    ===================================================== */
+
+    @media (min-width:901px) and (max-width:1600px){
+
+        .sidebar{
+            width:190px;
+            min-width:190px;
+            padding:18px 14px;
+        }
+
+        .logo{
+            font-size:20px;
+            margin-bottom:25px;
+        }
+
+        .sidebar a{
+            padding:11px 10px;
+            margin-bottom:6px;
+            border-radius:9px;
+            font-size:13px;
+        }
+
+        .content{
+            padding:18px;
+        }
+
+        .topo{
+            margin-bottom:18px;
+            gap:10px;
+        }
+
+        .topo h1{
+            font-size:25px;
+        }
+
+        .topo a{
+            padding:10px 14px;
+            border-radius:9px;
+            font-size:12px;
+        }
+
+        .filtros{
+            gap:9px;
+            margin-bottom:14px;
+            flex-wrap:nowrap;
+        }
+
+        .filtros input{
+            min-width:120px;
+            padding:9px 11px;
+            border-radius:9px;
+            font-size:12px;
+        }
+
+        .filtros select{
+            width:170px;
+            padding:9px 10px;
+            border-radius:9px;
+            font-size:12px;
+        }
+
+        .filtros button{
+            padding:9px 14px;
+            border-radius:9px;
+            font-size:12px;
+        }
+
+        .aviso-duplicado{
+            padding:12px;
+            margin-bottom:14px;
+            border-radius:10px;
+            font-size:12px;
+        }
+
+        .duplicados-grid{
+            grid-template-columns:repeat(4, minmax(0, 1fr));
+            gap:7px 12px;
+            margin-top:10px;
+        }
+
+        .duplicados-grid div{
+            font-size:11px;
+            line-height:1.25;
+        }
+
+        table{
+            min-width:100%;
+        }
+
+        th{
+            padding:9px 6px;
+            font-size:11px;
+            line-height:1.1;
+        }
+
+        td{
+            padding:9px 6px;
+            font-size:11px;
+            line-height:1.1;
+        }
+
+        /* Nome */
+
+        th:nth-child(1),
+        td:nth-child(1){
+            min-width:125px;
+            max-width:145px;
+        }
+
+        /* CPF */
+
+        th:nth-child(2),
+        td:nth-child(2){
+            min-width:70px;
+            max-width:95px;
+        }
+
+        /* Situação contratual */
+
+        th:nth-child(3),
+        td:nth-child(3){
+            min-width:95px;
+            max-width:115px;
+        }
+
+        /* Escola */
+
+        th:nth-child(4),
+        td:nth-child(4){
+            min-width:140px;
+            max-width:175px;
+        }
+
+        /* Número */
+
+        th:nth-child(5),
+        td:nth-child(5){
+            min-width:55px;
+            max-width:70px;
+        }
+
+        /* Profissão */
+
+        th:nth-child(6),
+        td:nth-child(6){
+            min-width:125px;
+            max-width:155px;
+        }
+
+        /* Carga horária */
+
+        th:nth-child(7),
+        td:nth-child(7){
+            min-width:60px;
+            max-width:75px;
+        }
+
+        /* Localidade */
+
+        th:nth-child(8),
+        td:nth-child(8){
+            min-width:80px;
+            max-width:105px;
+        }
+
+        /* Status */
+
+        th:nth-child(9),
+        td:nth-child(9){
+            min-width:78px;
+            max-width:90px;
+        }
+
+        /* Admissão */
+
+        th:nth-child(10),
+        td:nth-child(10){
+            min-width:70px;
+            max-width:85px;
+        }
+
+        /* Ações */
+
+        th:nth-child(11),
+        td:nth-child(11){
+            min-width:205px;
+        }
+
+        .ativo,
+        .inativo,
+        .demitido{
+            padding:6px 9px;
+            min-width:76px;
+            font-size:11px;
+        }
+
+        .acoes{
+            gap:5px;
+        }
+
+        .status-select{
+            padding:6px 7px;
+            border-radius:7px;
+            font-size:10px;
+            width:68px;
+        }
+
+        .btn-editar,
+        .btn-excluir{
+            padding:7px 8px;
+            border-radius:7px;
+            font-size:10px;
+        }
+    }
+
+    /* =====================================================
+       NOTEBOOK MENOR — ATÉ 1366px
+    ===================================================== */
+
+    @media (min-width:901px) and (max-width:1366px){
+
+        .sidebar{
+            width:170px;
+            min-width:170px;
+            padding:15px 11px;
+        }
+
+        .logo{
+            font-size:18px;
+            margin-bottom:20px;
+        }
+
+        .sidebar a{
+            padding:9px 8px;
+            font-size:12px;
+        }
+
+        .content{
+            padding:14px;
+        }
+
+        .topo{
+            margin-bottom:14px;
+        }
+
+        .topo h1{
+            font-size:22px;
+        }
+
+        .topo a{
+            padding:9px 12px;
+            font-size:11px;
+        }
+
+        .filtros{
+            gap:7px;
+        }
+
+        .filtros input{
+            padding:8px 9px;
+            font-size:11px;
+        }
+
+        .filtros select{
+            width:145px;
+            padding:8px 8px;
+            font-size:11px;
+        }
+
+        .filtros button{
+            padding:8px 11px;
+            font-size:11px;
+        }
+
+        .aviso-duplicado{
+            padding:10px;
+            font-size:11px;
+        }
+
+        .duplicados-grid{
+            gap:6px 9px;
+        }
+
+        .duplicados-grid div{
+            font-size:10px;
+        }
+
+        table{
+            min-width:1050px;
+        }
+
+        th{
+            padding:8px 5px;
+            font-size:10px;
+        }
+
+        td{
+            padding:8px 5px;
+            font-size:10px;
+        }
+
+        .ativo,
+        .inativo,
+        .demitido{
+            min-width:70px;
+            padding:5px 7px;
+            font-size:10px;
+        }
+
+        .acoes{
+            gap:4px;
+        }
+
+        .status-select{
+            width:64px;
+            padding:5px;
+            font-size:9px;
+        }
+
+        .btn-editar,
+        .btn-excluir{
+            padding:6px 7px;
+            font-size:9px;
+        }
+
+        th:nth-child(11),
+        td:nth-child(11){
+            min-width:185px;
+        }
+    }
+
+    /* =====================================================
+       TABLET E CELULAR
+    ===================================================== */
+
     @media (max-width:1100px){
         .duplicados-grid{
-            grid-template-columns:repeat(2, 1fr);
+            grid-template-columns:repeat(2, minmax(0, 1fr));
         }
     }
 
     @media (max-width:900px){
+
         body{
             flex-direction:column;
         }
@@ -412,6 +819,16 @@
             min-width:1000px;
         }
 
+        th{
+            padding:11px 9px;
+            font-size:12px;
+        }
+
+        td{
+            padding:11px 9px;
+            font-size:12px;
+        }
+
         .acoes{
             flex-wrap:wrap;
         }
@@ -435,6 +852,7 @@
     }
 
     @media (max-width:600px){
+
         .content{
             padding:16px;
         }
@@ -454,6 +872,7 @@
     }
 
     @media (max-width:380px){
+
         .sidebar{
             padding:16px;
         }

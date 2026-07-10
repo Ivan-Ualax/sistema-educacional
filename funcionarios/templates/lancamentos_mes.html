@@ -43,6 +43,10 @@
         max-width:100%;
     }
 
+    /* =========================
+       SIDEBAR
+    ========================= */
+
     .sidebar{
         width:220px;
         min-width:220px;
@@ -78,6 +82,10 @@
         color:#38bdf8;
     }
 
+    /* =========================
+       CONTEÚDO
+    ========================= */
+
     .content{
         flex:1;
         padding:20px;
@@ -110,10 +118,18 @@
         letter-spacing:0.3px;
         padding:18px 22px;
         border-left:4px solid #38bdf8;
-        background:linear-gradient(90deg, rgba(56,189,248,0.10), rgba(15,23,42,0.2));
+        background:linear-gradient(
+            90deg,
+            rgba(56,189,248,0.10),
+            rgba(15,23,42,0.2)
+        );
         border-radius:14px;
         box-shadow:0 0 25px rgba(56,189,248,0.08);
     }
+
+    /* =========================
+       FILTROS
+    ========================= */
 
     .filtros{
         background:#0f172a;
@@ -162,6 +178,10 @@
         cursor:pointer;
     }
 
+    /* =========================
+       CARDS
+    ========================= */
+
     .cards{
         display:grid;
         grid-template-columns:repeat(3,1fr);
@@ -190,6 +210,10 @@
         word-break:break-word;
     }
 
+    /* =========================
+       AVISO
+    ========================= */
+
     .aviso{
         background:#78350f;
         border:1px solid #f59e0b;
@@ -202,19 +226,25 @@
         line-height:1.5;
     }
 
+    /* =========================
+       TABELA
+    ========================= */
+
     .tabela-box,
     .table-box,
     .box-tabela{
         width:100%;
         max-width:100%;
         overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
     }
 
     table{
         width:100%;
-        min-width:900px;
+        min-width:1450px;
         border-collapse:collapse;
         background:#0f172a;
+        table-layout:auto;
     }
 
     th{
@@ -225,6 +255,7 @@
         font-size:12px;
         text-transform:uppercase;
         white-space:nowrap;
+        line-height:1.2;
     }
 
     td{
@@ -232,11 +263,97 @@
         border-top:1px solid #1e293b;
         font-size:14px;
         vertical-align:middle;
+        line-height:1.25;
+        overflow-wrap:break-word;
     }
 
     tr:hover{
         background:#111827;
     }
+
+    /* Funcionário */
+    th:nth-child(1),
+    td:nth-child(1){
+        min-width:145px;
+    }
+
+    /* Situação contratual */
+    th:nth-child(2),
+    td:nth-child(2){
+        min-width:145px;
+    }
+
+    /* Escola */
+    th:nth-child(3),
+    td:nth-child(3){
+        min-width:280px;
+        max-width:330px;
+    }
+
+    /* Cargo */
+    th:nth-child(4),
+    td:nth-child(4){
+        min-width:125px;
+    }
+
+    /* Tipo */
+    th:nth-child(5),
+    td:nth-child(5){
+        min-width:70px;
+    }
+
+    /* Horas */
+    th:nth-child(6),
+    td:nth-child(6){
+        min-width:55px;
+        white-space:nowrap;
+    }
+
+    /* Valor */
+    th:nth-child(7),
+    td:nth-child(7){
+        min-width:75px;
+        white-space:nowrap;
+    }
+
+    /* Observação hora extra */
+    th:nth-child(8),
+    td:nth-child(8){
+        min-width:240px;
+        max-width:320px;
+    }
+
+    /* Número de faltas */
+    th:nth-child(9),
+    td:nth-child(9){
+        min-width:70px;
+        text-align:center;
+    }
+
+    /* Data da falta */
+    th:nth-child(10),
+    td:nth-child(10){
+        min-width:90px;
+        white-space:nowrap;
+    }
+
+    /* Observação da falta */
+    th:nth-child(11),
+    td:nth-child(11){
+        min-width:240px;
+        max-width:330px;
+    }
+
+    /* Ações */
+    th:last-child,
+    td:last-child{
+        min-width:145px;
+        white-space:nowrap;
+    }
+
+    /* =========================
+       AÇÕES
+    ========================= */
 
     .acoes{
         display:flex;
@@ -294,6 +411,28 @@
     .btn-encerrar:hover{
         background:#b91c1c;
     }
+
+    /* =========================
+       CORES DO TEXTO
+    ========================= */
+
+    .texto-normal{
+        color:white;
+    }
+
+    .texto-vermelho{
+        color:#ef4444;
+        font-weight:bold;
+    }
+
+    .texto-verde{
+        color:#22c55e;
+        font-weight:bold;
+    }
+
+    /* =========================
+       MODAL
+    ========================= */
 
     .modal-fundo{
         display:none;
@@ -375,19 +514,372 @@
         display:inline-block;
     }
 
-    .texto-normal{
-        color:white;
+    /* =====================================================
+       NOTEBOOKS — 901px ATÉ 1600px
+    ===================================================== */
+
+    @media (min-width:901px) and (max-width:1600px){
+
+        .sidebar{
+            width:175px;
+            min-width:175px;
+            padding:15px 12px;
+        }
+
+        .sidebar h1{
+            font-size:18px;
+            margin-bottom:20px;
+        }
+
+        .sidebar a{
+            padding:8px;
+            margin-bottom:4px;
+            font-size:12px;
+            border-radius:8px;
+        }
+
+        .content{
+            padding:14px;
+        }
+
+        h1{
+            font-size:23px;
+        }
+
+        p{
+            font-size:12px;
+            margin-bottom:14px;
+        }
+
+        .subtitulo{
+            font-size:13px;
+            line-height:1.5;
+            padding:12px 15px;
+            margin-bottom:16px;
+            border-radius:10px;
+        }
+
+        .filtros{
+            padding:12px;
+            gap:8px;
+            margin-bottom:14px;
+            border-radius:11px;
+            flex-wrap:nowrap;
+        }
+
+        .filtros > div{
+            min-width:100px;
+        }
+
+        label{
+            font-size:10px;
+            margin-bottom:4px;
+        }
+
+        select,
+        input{
+            padding:7px 8px;
+            border-radius:7px;
+            font-size:11px;
+        }
+
+        button,
+        .btn-excel,
+        .btn-encerrar{
+            padding:8px 11px;
+            border-radius:7px;
+            font-size:10px;
+        }
+
+        .cards{
+            gap:9px;
+            margin-bottom:14px;
+        }
+
+        .card{
+            padding:12px;
+            border-radius:11px;
+        }
+
+        .card span{
+            font-size:10px;
+        }
+
+        .card strong{
+            font-size:18px;
+            margin-top:4px;
+        }
+
+        .aviso{
+            padding:11px;
+            margin-bottom:14px;
+            font-size:11px;
+            border-radius:10px;
+        }
+
+        table{
+            min-width:1180px;
+        }
+
+        th{
+            padding:8px 6px;
+            font-size:9px;
+            line-height:1.1;
+        }
+
+        td{
+            padding:8px 6px;
+            font-size:10px;
+            line-height:1.15;
+        }
+
+        th:nth-child(1),
+        td:nth-child(1){
+            min-width:110px;
+            max-width:135px;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2){
+            min-width:110px;
+            max-width:130px;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3){
+            min-width:205px;
+            max-width:245px;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4){
+            min-width:95px;
+            max-width:115px;
+        }
+
+        th:nth-child(5),
+        td:nth-child(5){
+            min-width:50px;
+            max-width:65px;
+        }
+
+        th:nth-child(6),
+        td:nth-child(6){
+            min-width:42px;
+        }
+
+        th:nth-child(7),
+        td:nth-child(7){
+            min-width:58px;
+        }
+
+        th:nth-child(8),
+        td:nth-child(8){
+            min-width:185px;
+            max-width:230px;
+        }
+
+        th:nth-child(9),
+        td:nth-child(9){
+            min-width:55px;
+        }
+
+        th:nth-child(10),
+        td:nth-child(10){
+            min-width:72px;
+        }
+
+        th:nth-child(11),
+        td:nth-child(11){
+            min-width:185px;
+            max-width:235px;
+        }
+
+        th:last-child,
+        td:last-child{
+            min-width:115px;
+        }
+
+        .acoes{
+            gap:5px;
+        }
+
+        .btn-editar,
+        .btn-excluir{
+            padding:6px 9px;
+            border-radius:7px;
+            font-size:10px;
+        }
     }
 
-    .texto-vermelho{
-        color:#ef4444;
-        font-weight:bold;
+    /* =====================================================
+       NOTEBOOK DE 1366px
+    ===================================================== */
+
+    @media (min-width:901px) and (max-width:1366px){
+
+        .sidebar{
+            width:155px;
+            min-width:155px;
+            padding:13px 9px;
+        }
+
+        .sidebar h1{
+            font-size:16px;
+            margin-bottom:16px;
+        }
+
+        .sidebar a{
+            padding:7px;
+            font-size:11px;
+        }
+
+        .content{
+            padding:10px;
+        }
+
+        h1{
+            font-size:20px;
+        }
+
+        .subtitulo{
+            font-size:12px;
+            padding:10px 12px;
+        }
+
+        .filtros{
+            padding:9px;
+            gap:6px;
+        }
+
+        .filtros > div{
+            min-width:85px;
+        }
+
+        label{
+            font-size:9px;
+        }
+
+        select,
+        input{
+            padding:6px;
+            font-size:10px;
+        }
+
+        button,
+        .btn-excel,
+        .btn-encerrar{
+            padding:7px 9px;
+            font-size:9px;
+        }
+
+        .cards{
+            gap:7px;
+        }
+
+        .card{
+            padding:9px;
+        }
+
+        .card span{
+            font-size:9px;
+        }
+
+        .card strong{
+            font-size:16px;
+        }
+
+        table{
+            min-width:1080px;
+        }
+
+        th{
+            padding:7px 4px;
+            font-size:8px;
+        }
+
+        td{
+            padding:7px 4px;
+            font-size:9px;
+        }
+
+        th:nth-child(1),
+        td:nth-child(1){
+            min-width:95px;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2){
+            min-width:95px;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3){
+            min-width:175px;
+            max-width:205px;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4){
+            min-width:80px;
+        }
+
+        th:nth-child(5),
+        td:nth-child(5){
+            min-width:45px;
+        }
+
+        th:nth-child(6),
+        td:nth-child(6){
+            min-width:36px;
+        }
+
+        th:nth-child(7),
+        td:nth-child(7){
+            min-width:50px;
+        }
+
+        th:nth-child(8),
+        td:nth-child(8){
+            min-width:155px;
+            max-width:190px;
+        }
+
+        th:nth-child(9),
+        td:nth-child(9){
+            min-width:45px;
+        }
+
+        th:nth-child(10),
+        td:nth-child(10){
+            min-width:65px;
+        }
+
+        th:nth-child(11),
+        td:nth-child(11){
+            min-width:155px;
+            max-width:195px;
+        }
+
+        th:last-child,
+        td:last-child{
+            min-width:105px;
+        }
+
+        .acoes{
+            gap:4px;
+        }
+
+        .btn-editar,
+        .btn-excluir{
+            padding:5px 7px;
+            font-size:9px;
+        }
     }
 
-    .texto-verde{
-        color:#22c55e;
-        font-weight:bold;
-    }
+    /* =========================
+       TABLET
+    ========================= */
 
     @media(max-width:1000px){
         .cards{
@@ -396,6 +888,7 @@
     }
 
     @media(max-width:900px){
+
         body{
             flex-direction:column;
         }
@@ -437,7 +930,12 @@
         }
     }
 
+    /* =========================
+       CELULAR
+    ========================= */
+
     @media(max-width:600px){
+
         .content{
             padding:16px;
         }
@@ -495,6 +993,8 @@
             font-size:14px;
             white-space:normal;
             word-break:break-word;
+            max-width:none !important;
+            min-width:0 !important;
         }
 
         td:last-child{
@@ -524,18 +1024,38 @@
         }
 
         td:nth-child(4)::before{
-            content:"Mês";
+            content:"Cargo";
         }
 
         td:nth-child(5)::before{
-            content:"Horas";
+            content:"Tipo";
         }
 
         td:nth-child(6)::before{
-            content:"Valor";
+            content:"Horas";
         }
 
         td:nth-child(7)::before{
+            content:"Valor";
+        }
+
+        td:nth-child(8)::before{
+            content:"Observação hora extra";
+        }
+
+        td:nth-child(9)::before{
+            content:"Número de faltas";
+        }
+
+        td:nth-child(10)::before{
+            content:"Data da falta";
+        }
+
+        td:nth-child(11)::before{
+            content:"Observação da falta";
+        }
+
+        td:last-child::before{
             content:"Ações";
         }
 
@@ -571,6 +1091,7 @@
     }
 
     @media(max-width:380px){
+
         .sidebar{
             padding:16px;
         }
@@ -595,9 +1116,6 @@
             padding:12px;
         }
     }
-
-</style>
-
 </style>
 
 </head>
