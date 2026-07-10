@@ -682,7 +682,10 @@ def exportar_pendencias_excel(request):
             escola_limpa=escola_filtro.strip()
         )
 
-    lancamentos = lancamentos.order_by('funcionario__nome')
+    lancamentos = lancamentos.order_by(
+    '-data_falta',
+    'funcionario__nome'
+)
 
     wb = Workbook()
     ws = wb.active
