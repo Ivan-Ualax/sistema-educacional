@@ -236,8 +236,37 @@
         width:100%;
         max-width:100%;
         overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
         overflow-y:hidden;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-gutter:stable;
+        padding-bottom:6px;
+    }
+
+    .tabela-box::-webkit-scrollbar,
+    .table-box::-webkit-scrollbar,
+    .box-tabela::-webkit-scrollbar{
+        height:12px;
+    }
+
+    .tabela-box::-webkit-scrollbar-track,
+    .table-box::-webkit-scrollbar-track,
+    .box-tabela::-webkit-scrollbar-track{
+        background:#020617;
+        border-radius:10px;
+    }
+
+    .tabela-box::-webkit-scrollbar-thumb,
+    .table-box::-webkit-scrollbar-thumb,
+    .box-tabela::-webkit-scrollbar-thumb{
+        background:#334155;
+        border-radius:10px;
+        border:2px solid #020617;
+    }
+
+    .tabela-box::-webkit-scrollbar-thumb:hover,
+    .table-box::-webkit-scrollbar-thumb:hover,
+    .box-tabela::-webkit-scrollbar-thumb:hover{
+        background:#475569;
     }
 
     table{
@@ -273,18 +302,6 @@
 
     tr:hover{
         background:#111827;
-    }
-
-    /* Funcionário */
-    th:nth-child(1),
-    td:nth-child(1){
-        min-width:145px;
-    }
-
-    /* Situação contratual */
-    th:nth-child(2),
-    td:nth-child(2){
-        min-width:145px;
     }
 
     /* Funcionário */
@@ -356,10 +373,12 @@
         min-width:320px;
     }
 
-    /* Ações */
+    /* Coluna Ações */
     th:last-child,
     td:last-child{
-        min-width:170px;
+        min-width:180px;
+        width:180px;
+        white-space:nowrap;
     }
 
     /* =========================
@@ -368,9 +387,11 @@
 
     .acoes{
         display:flex;
+        justify-content:center;
         align-items:center;
-        gap:10px;
+        gap:8px;
         flex-wrap:nowrap;
+        min-width:160px;
     }
 
     .btn-editar{
@@ -706,10 +727,7 @@
             max-width:235px;
         }
 
-        th:last-child,
-        td:last-child{
-            min-width:115px;
-        }
+        
 
         .acoes{
             gap:5px;
@@ -872,10 +890,7 @@
             max-width:195px;
         }
 
-        th:last-child,
-        td:last-child{
-            min-width:105px;
-        }
+        
 
         .acoes{
             gap:4px;
