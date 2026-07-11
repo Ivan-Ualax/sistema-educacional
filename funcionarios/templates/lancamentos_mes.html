@@ -229,6 +229,32 @@
     /* =========================
        TABELA
     ========================= */
+    .scroll-tabela-topo{
+    width:100%;
+    height:14px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    margin-bottom:6px;
+    }
+
+    .scroll-tabela-conteudo{
+        height:1px;
+        width:1600px;
+    }
+
+    .scroll-tabela-topo::-webkit-scrollbar{
+        height:12px;
+    }
+
+    .scroll-tabela-topo::-webkit-scrollbar-track{
+        background:#020617;
+    }
+
+    .scroll-tabela-topo::-webkit-scrollbar-thumb{
+        background:#475569;
+        border-radius:8px;
+    }
+
 
     .tabela-box,
     .table-box,
@@ -1352,10 +1378,16 @@
 
         {% endif %}
 
-      
+        <div class="scroll-tabela-topo" id="scrollTabelaTopo">
+            <div
+                class="scroll-tabela-conteudo"
+                id="scrollTabelaConteudo"
+            ></div>
+        </div>
 
-  <div class="tabela-box">
-<table>
+        <div class="tabela-box" id="tabelaBox">
+
+            <table id="tabelaLancamentos">
             <tr>
 
                 <th>Funcionário</th>
@@ -1540,6 +1572,36 @@
         }
 
     </script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const scrollTopo = document.getElementById('scrollTabelaTopo');
+    const scrollConteudo = document.getElementById('scrollTabelaConteudo');
+    const tabelaBox = document.getElementById('tabelaBox');
+    const tabela = document.getElementById('tabelaLancamentos');
+
+    if (!scrollTopo || !scrollConteudo || !tabelaBox || !tabela) {
+        return;
+    }
+
+    function atualizarScroll() {
+        scrollConteudo.style.width = tabela.scrollWidth + 'px';
+    }
+
+    scrollTopo.addEventListener('scroll', function () {
+        tabelaBox.scrollLeft = scrollTopo.scrollLeft;
+    });
+
+    tabelaBox.addEventListener('scroll', function () {
+        scrollTopo.scrollLeft = tabelaBox.scrollLeft;
+    });
+
+    atualizarScroll();
+
+    window.addEventListener('resize', atualizarScroll);
+});
+</script>
 
 </body>
 
