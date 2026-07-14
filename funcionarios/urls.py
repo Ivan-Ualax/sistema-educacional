@@ -132,11 +132,17 @@ urlpatterns = [
     name='exportar_lancamentos_excel'
 ),
 
-path(
-    'lancamentos-gerais/',
-    views.lancamentos_gerais,
-    name='lancamentos_gerais'
-),
+    path(
+        'lancamentos-gerais/',
+        views.lancamentos_gerais,
+        name='lancamentos_gerais'
+    ),
+
+    path(
+        'funcionarios/exportar-excel/',
+        views.exportar_funcionarios_excel,
+        name='exportar_funcionarios_excel'
+    ),
     
 
 ]

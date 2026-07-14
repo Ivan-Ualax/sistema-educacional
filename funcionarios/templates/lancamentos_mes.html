@@ -1507,17 +1507,7 @@
             Exportar Excel
         </a>
 
-            {% if not mes_encerrado %}
-
-            <a
-                href="{% url 'encerrar_lancamentos_mes' %}?mes={{ mes }}&ano={{ ano }}"
-                class="btn-encerrar"
-                onclick="return confirm('Deseja realmente encerrar os lançamentos deste mês?');"
-            >
-                Encerrar Lançamentos
-            </a>
-
-        {% endif %}
+            
 
         </form>
 

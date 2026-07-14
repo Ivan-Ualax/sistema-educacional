@@ -175,6 +175,27 @@
         background:#0ea5e9;
     }
 
+    .btn-exportar-excel{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        background:#22c55e;
+        color:#020617;
+        padding:12px 20px;
+        border-radius:12px;
+        font-size:14px;
+        font-weight:bold;
+        text-decoration:none;
+        white-space:nowrap;
+        transition:0.3s;
+    }
+
+.btn-exportar-excel:hover{
+    background:#16a34a;
+    color:white;
+    transform:translateY(-1px);
+}
+
     /* =========================
        TABELA
     ========================= */
@@ -810,9 +831,11 @@
 
         .filtros input,
         .filtros select,
-        .filtros button{
+        .filtros button,
+        .btn-exportar-excel{
             width:100%;
             min-width:0;
+            text-align:center;
         }
 
         table{
@@ -989,6 +1012,13 @@
             <button type="submit">
                 Filtrar
             </button>
+
+            <a
+                    href="{% url 'exportar_funcionarios_excel' %}?busca={{ busca|urlencode }}&escola={{ escola_filtro|urlencode }}&ordem={{ ordem|urlencode }}"
+                    class="btn-exportar-excel"
+                >
+                    📊 Exportar Excel
+            </a>
 
         </form>
 

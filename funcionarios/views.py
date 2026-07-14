@@ -989,3 +989,220 @@ def lancamentos_gerais(request):
             'escola_filtro': escola_filtro,
         }
     )
+
+
+@login_required(login_url='/login/')
+def exportar_funcionarios_excel(request):
+
+    busca = request.GET.get('busca') or ''
+    escola_filtro = request.GET.get('escola') or ''
+    ordem = request.GET.get('ordem') or ''
+
+    funcionarios = (
+        Funcionario.objects
+        .select_related('cargo')
+        .all()
+    )
+
+    if busca:
+        funcionarios = funcionarios.filter(
+            nome__icontains=busca.strip()
+        )
+
+    if escola_filtro:
+        funcionarios = funcionarios.annotate(
+            escola_limpa=Trim('escola')
+        ).filter(
+            escola_limpa=escola_filtro.strip()
+        )
+
+    if ordem == 'antigo':
+        funcionarios = funcionarios.order_by('id')
+    else:
+        funcionarios = funcionarios.order_by('-id')
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Funcionários'
+
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_A4
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+
+    ws.page_margins = PageMargins(
+        left=0.20,
+        right=0.20,
+        top=0.30,
+        bottom=0.30,
+        header=0,
+        footer=0
+    )
+
+    # Título
+    ws.merge_cells('A1:J1')
+
+    titulo = ws['A1']
+    titulo.value = 'RELAÇÃO DE FUNCIONÁRIOS'
+    titulo.font = Font(
+        bold=True,
+        color='FFFFFF',
+        size=14
+    )
+    titulo.fill = PatternFill(
+        'solid',
+        fgColor='1F4E78'
+    )
+    titulo.alignment = Alignment(
+        horizontal='center',
+        vertical='center'
+    )
+
+    # Descrição dos filtros aplicados
+    filtros_aplicados = []
+
+    if busca:
+        filtros_aplicados.append(
+            f'Nome: {busca}'
+        )
+
+    if escola_filtro:
+        filtros_aplicados.append(
+            f'Escola: {escola_filtro}'
+        )
+
+    texto_filtros = (
+        'Filtros: ' + ' | '.join(filtros_aplicados)
+        if filtros_aplicados
+        else 'Todos os funcionários'
+    )
+
+    ws.merge_cells('A2:J2')
+
+    ws['A2'] = texto_filtros
+    ws['A2'].font = Font(
+        italic=True,
+        color='475569',
+        size=10
+    )
+    ws['A2'].alignment = Alignment(
+        horizontal='center',
+        vertical='center'
+    )
+
+    cabecalhos = [
+        'NOME',
+        'SITUAÇÃO CONTRATUAL',
+        'CPF',
+        'NÚMERO',
+        'LOCALIDADE',
+        'ESCOLA',
+        'CARGO',
+        'CARGA HORÁRIA',
+        'STATUS',
+        'DATA DE ADMISSÃO',
+    ]
+
+    ws.append(cabecalhos)
+
+    borda = Border(
+        left=Side(style='thin', color='94A3B8'),
+        right=Side(style='thin', color='94A3B8'),
+        top=Side(style='thin', color='94A3B8'),
+        bottom=Side(style='thin', color='94A3B8')
+    )
+
+    for cell in ws[3]:
+        cell.font = Font(
+            bold=True,
+            color='FFFFFF',
+            size=9
+        )
+        cell.fill = PatternFill(
+            'solid',
+            fgColor='244062'
+        )
+        cell.alignment = Alignment(
+            horizontal='center',
+            vertical='center',
+            wrap_text=True
+        )
+        cell.border = borda
+
+    for funcionario in funcionarios:
+
+        data_admissao = (
+            funcionario.data_admissao.strftime('%d/%m/%Y')
+            if funcionario.data_admissao
+            else ''
+        )
+
+        ws.append([
+            funcionario.nome,
+            funcionario.situacao_contratual or '',
+            funcionario.cpf or '',
+            funcionario.numero or '',
+            funcionario.localidade or '',
+            (funcionario.escola or '').strip(),
+            funcionario.cargo.nome if funcionario.cargo else '',
+            funcionario.carga_horaria or 0,
+            funcionario.get_status_display(),
+            data_admissao,
+        ])
+
+        linha = ws.max_row
+
+        for cell in ws[linha]:
+            cell.font = Font(size=9)
+            cell.border = borda
+            cell.alignment = Alignment(
+                vertical='center',
+                wrap_text=True
+            )
+
+        ws.cell(
+            row=linha,
+            column=8
+        ).number_format = '0" h"'
+
+    ws.column_dimensions['A'].width = 32
+    ws.column_dimensions['B'].width = 22
+    ws.column_dimensions['C'].width = 18
+    ws.column_dimensions['D'].width = 16
+    ws.column_dimensions['E'].width = 25
+    ws.column_dimensions['F'].width = 35
+    ws.column_dimensions['G'].width = 25
+    ws.column_dimensions['H'].width = 16
+    ws.column_dimensions['I'].width = 15
+    ws.column_dimensions['J'].width = 18
+
+    ws.row_dimensions[1].height = 24
+    ws.row_dimensions[2].height = 20
+    ws.row_dimensions[3].height = 28
+
+    for linha in range(4, ws.max_row + 1):
+        ws.row_dimensions[linha].height = 24
+
+    ws.freeze_panes = 'A4'
+
+    if ws.max_row >= 4:
+        ws.auto_filter.ref = f'A3:J{ws.max_row}'
+
+    response = HttpResponse(
+        content_type=(
+            'application/vnd.openxmlformats-'
+            'officedocument.spreadsheetml.sheet'
+        )
+    )
+
+    data_atual = timezone.localdate().strftime('%d-%m-%Y')
+
+    response['Content-Disposition'] = (
+        f'attachment; '
+        f'filename="funcionarios_{data_atual}.xlsx"'
+    )
+
+    wb.save(response)
+
+    return response
