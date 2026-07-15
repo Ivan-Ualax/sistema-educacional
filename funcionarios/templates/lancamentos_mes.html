@@ -1255,18 +1255,36 @@
     }
 
     #tabelaLancamentos th,
-    #tabelaLancamentos td{
-        min-width:0 !important;
-        max-width:none !important;
-        width:auto;
-        padding:clamp(4px, .48vw, 9px) clamp(3px, .36vw, 7px) !important;
-        font-size:clamp(8px, .68vw, 12px) !important;
-        line-height:1.22;
-        white-space:normal !important;
-        overflow-wrap:anywhere !important;
-        word-break:break-word !important;
-        hyphens:auto;
-    }
+#tabelaLancamentos td{
+    min-width:0 !important;
+    max-width:none !important;
+    width:auto;
+
+    padding:clamp(5px, .48vw, 9px)
+            clamp(3px, .36vw, 7px) !important;
+
+    line-height:1.35;
+
+    white-space:normal !important;
+    overflow-wrap:break-word !important;
+    word-break:normal !important;
+    hyphens:auto;
+}
+
+#tabelaLancamentos th{
+    font-size:clamp(10px, .75vw, 13px) !important;
+}
+
+#tabelaLancamentos td{
+    font-size:clamp(11px, .82vw, 14px) !important;
+}
+
+/* Destaca e preserva melhor o nome */
+#tabelaLancamentos td:first-child{
+    font-weight:600;
+    overflow-wrap:break-word !important;
+    word-break:normal !important;
+}
 
     #tabelaLancamentos th{
         text-align:center;
@@ -1311,26 +1329,34 @@
         white-space:normal;
     }
 
-    @media (max-width:1366px){
-        .subtitulo{
-            margin-bottom:14px;
-        }
+ @media (max-width:1366px){
 
-        .filtros{
-            padding:10px;
-            gap:7px;
-        }
-
-        .filtros > div{
-            min-width:110px;
-        }
-
-        #tabelaLancamentos th,
-        #tabelaLancamentos td{
-            font-size:8px !important;
-            padding:5px 3px !important;
-        }
+    .subtitulo{
+        margin-bottom:14px;
     }
+
+    .filtros{
+        padding:10px;
+        gap:7px;
+    }
+
+    .filtros > div{
+        min-width:110px;
+    }
+
+    #tabelaLancamentos th{
+        font-size:10px !important;
+        padding:7px 4px !important;
+        line-height:1.25;
+    }
+
+    #tabelaLancamentos td{
+        font-size:11px !important;
+        padding:8px 4px !important;
+        line-height:1.35;
+    }
+}
+    
 
     @media (min-width:1601px){
         .acoes{
@@ -1351,6 +1377,30 @@
         #tabelaLancamentos td::before{
             content:attr(data-label) !important;
         }
+
+        /* Permite nomes maiores sem aumentar a tabela */
+        #tabelaLancamentos td:nth-child(1),
+        #tabelaLancamentos td:nth-child(2),
+        #tabelaLancamentos td:nth-child(3),
+        #tabelaLancamentos td:nth-child(4){
+            white-space:normal !important;
+            word-break:normal !important;
+            overflow-wrap:break-word !important;
+        }
+
+        /* Nome do funcionário com mais destaque */
+        #tabelaLancamentos td:nth-child(1){
+            font-weight:600;
+            line-height:1.4;
+        }
+
+        /* Mantém números e datas compactos */
+        #tabelaLancamentos td:nth-child(6),
+        #tabelaLancamentos td:nth-child(7),
+        #tabelaLancamentos td:nth-child(9),
+        #tabelaLancamentos td:nth-child(10){
+            white-space:nowrap !important;
+}
     }
 
 </style>
@@ -1562,20 +1612,20 @@
             <table id="tabelaLancamentos">
 
             {% if pode_ver_valores %}
-            <colgroup>
-                <col class="col-funcionario" style="width:10%">
-                <col class="col-situacao" style="width:8%">
-                <col class="col-escola" style="width:14%">
-                <col class="col-cargo" style="width:8%">
-                <col class="col-tipo" style="width:6%">
-                <col class="col-horas" style="width:4.5%">
-                <col class="col-valor" style="width:6%">
-                <col class="col-obs-hora" style="width:14%">
-                <col class="col-faltas" style="width:5%">
-                <col class="col-data" style="width:7%">
-                <col class="col-obs-falta" style="width:11.5%">
-                <col class="col-acoes" style="width:6%">
-            </colgroup>
+         <colgroup>
+            <col class="col-funcionario" style="width:12%">
+            <col class="col-situacao" style="width:9%">
+            <col class="col-escola" style="width:10%">
+            <col class="col-cargo" style="width:8%">
+            <col class="col-tipo" style="width:6%">
+            <col class="col-horas" style="width:4%">
+            <col class="col-valor" style="width:5%">
+            <col class="col-obs-hora" style="width:13%">
+            <col class="col-faltas" style="width:3.5%">
+            <col class="col-data" style="width:6%">
+            <col class="col-obs-falta" style="width:12%">
+            <col class="col-acoes" style="width:6%">
+        </colgroup>
             {% else %}
             <colgroup>
                 <col class="col-funcionario" style="width:11%">
