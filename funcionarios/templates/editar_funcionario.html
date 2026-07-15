@@ -278,6 +278,12 @@
 
                 {% csrf_token %}
 
+                <input
+                    type="hidden"
+                    name="next"
+                    value="{{ next_url }}"
+                >
+
                 <div class="campo">
                     <label>Nome Completo</label>
                     <input type="text" name="nome" value="{{ funcionario.nome }}" required>
@@ -354,7 +360,10 @@
                     Salvar Alterações
                 </button>
 
-                <a href="/funcionarios/" class="btn-voltar">
+                <a
+                    href="{% if next_url %}{{ next_url }}{% else %}{% url 'funcionarios' %}{% endif %}"
+                    class="btn-voltar"
+                >
                     Voltar
                 </a>
 

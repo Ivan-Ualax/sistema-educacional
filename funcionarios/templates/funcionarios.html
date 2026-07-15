@@ -1160,6 +1160,12 @@
 
                                 {% csrf_token %}
 
+                                <input
+                                    type="hidden"
+                                    name="next"
+                                    value="{{ request.get_full_path }}"
+                                >
+
                                 <select
                                     name="status"
                                     class="status-select"
@@ -1192,7 +1198,7 @@
                             </form>
 
                             <a
-                                href="/funcionarios/editar/{{ funcionario.id }}/"
+                                href="{% url 'editar_funcionario' funcionario.id %}?next={{ request.get_full_path|urlencode }}"
                                 class="btn-editar"
                             >
                                 Editar
@@ -1201,10 +1207,14 @@
                             <a
                                 href="#"
                                 class="btn-excluir"
-                                onclick="abrirModalExcluir('{{ funcionario.id }}', '{{ funcionario.nome }}')"
+                                onclick="abrirModalExcluir(
+                                    '{{ funcionario.id }}',
+                                    '{{ funcionario.nome|escapejs }}',
+                                    '{{ request.get_full_path|escapejs }}'
+                                ); return false;"
                             >
                                 Excluir
-                            </a>
+                        </a>
 
                         </div>
 
@@ -1258,30 +1268,40 @@
     </div>
 
     <script>
+    function abrirModalExcluir(id, nome, nextUrl) {
 
-        function abrirModalExcluir(id, nome){
+        document.getElementById(
+            'nomeFuncionario'
+        ).innerText = nome;
 
-            document.getElementById(
-                'nomeFuncionario'
-            ).innerText = nome;
+        const urlBase =
+            "{% url 'excluir_funcionario' 999999 %}"
+            .replace('999999', id);
 
-            document.getElementById(
-                'btnConfirmarExcluir'
-            ).href = '/funcionarios/excluir/' + id + '/';
+        let urlExcluir = urlBase;
 
-            document.getElementById(
-                'modalExcluir'
-            ).style.display = 'flex';
+        if (nextUrl) {
+            urlExcluir +=
+                '?next=' +
+                encodeURIComponent(nextUrl);
         }
 
-        function fecharModalExcluir(){
+        document.getElementById(
+            'btnConfirmarExcluir'
+        ).href = urlExcluir;
 
-            document.getElementById(
-                'modalExcluir'
-            ).style.display = 'none';
-        }
+        document.getElementById(
+            'modalExcluir'
+        ).style.display = 'flex';
+    }
 
-    </script>
+    function fecharModalExcluir() {
+
+        document.getElementById(
+            'modalExcluir'
+        ).style.display = 'none';
+    }
+</script>
 
 </body>
 

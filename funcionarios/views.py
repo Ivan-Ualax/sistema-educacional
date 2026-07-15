@@ -1,20 +1,19 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-
 from datetime import datetime
 from decimal import Decimal
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
+from django.db.models.functions import Lower, Trim
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
-from openpyxl.styles import Border, Side
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.page import PageMargins
-from django.db.models.functions import Lower, Trim
-from django.db.models import Q
-from django.db.models import Count
 
-from .models import Funcionario, Cargo, HoraExtra
+from .models import Cargo, Funcionario, HoraExtra
 
 
 def tratar_data_falta(data_falta):
@@ -57,6 +56,24 @@ def limpar_observacao(texto):
 def usuario_pode_ver_valores(user):
 
     return user.is_superuser
+
+
+def obter_next_url_segura(request):
+
+    next_url = (
+        request.POST.get('next')
+        or request.GET.get('next')
+        or ''
+    )
+
+    if next_url and url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure()
+    ):
+        return next_url
+
+    return ''
 
 
 @login_required(login_url='/login/')
@@ -198,7 +215,7 @@ def cadastrar_funcionario(request):
     )
 
 
-from django.db.models import Count
+
 
 @login_required(login_url='/login/')
 def funcionarios(request):
@@ -273,31 +290,24 @@ def alterar_status(request, id):
         id=id
     )
 
-    escolas = (
-    Funcionario.objects
-    .exclude(escola__isnull=True)
-    .exclude(escola='')
-    .annotate(escola_limpa=Trim('escola'))
-    .values_list('escola_limpa', flat=True)
-    .distinct()
-    .order_by('escola_limpa')
-    )
+    next_url = obter_next_url_segura(request)
 
     if request.method == 'POST':
 
         status = request.POST.get('status')
 
-        if status in [
+        if status in {
             'ativo',
             'inativo',
             'demitido'
-        ]:
-
+        }:
             funcionario.status = status
+            funcionario.save(update_fields=['status'])
 
-            funcionario.save()
+    if next_url:
+        return redirect(next_url)
 
-    return redirect('/funcionarios/')
+    return redirect('funcionarios')
 
 
 @login_required(login_url='/login/')
@@ -307,6 +317,8 @@ def editar_funcionario(request, id):
         Funcionario,
         id=id
     )
+
+    next_url = obter_next_url_segura(request)
 
     escolas = (
         Funcionario.objects
@@ -320,13 +332,17 @@ def editar_funcionario(request, id):
 
     if request.method == 'POST':
 
-        nome = request.POST.get('nome')
+        nome = (
+            request.POST.get('nome')
+            or ''
+        ).strip()
 
-        nome_duplicado = Funcionario.objects.filter(
-            nome__iexact=nome
-        ).exclude(
-            id=funcionario.id
-        ).first()
+        nome_duplicado = (
+            Funcionario.objects
+            .filter(nome__iexact=nome)
+            .exclude(id=funcionario.id)
+            .first()
+        )
 
         if nome_duplicado:
 
@@ -338,37 +354,86 @@ def editar_funcionario(request, id):
                     'erro_nome_duplicado': True,
                     'nome_duplicado': nome,
                     'escolas': escolas,
+                    'next_url': next_url,
                 }
             )
 
         funcionario.nome = nome
-        funcionario.situacao_contratual = request.POST.get('situacao_contratual')
-        funcionario.cpf = request.POST.get('cpf')
 
-        escola_existente = request.POST.get('escola_existente')
-        nova_escola = request.POST.get('nova_escola')
+        funcionario.situacao_contratual = (
+            request.POST.get('situacao_contratual')
+            or ''
+        ).strip()
+
+        funcionario.cpf = (
+            request.POST.get('cpf')
+            or ''
+        ).strip()
+
+        escola_existente = (
+            request.POST.get('escola_existente')
+            or ''
+        ).strip()
+
+        nova_escola = (
+            request.POST.get('nova_escola')
+            or ''
+        ).strip()
 
         if nova_escola:
-            funcionario.escola = nova_escola.strip()
-        elif escola_existente:
+
+            funcionario.escola = nova_escola
+
+        elif (
+            escola_existente
+            and escola_existente != 'nova_escola'
+        ):
+
             funcionario.escola = escola_existente
 
-        funcionario.carga_horaria = request.POST.get('carga_horaria') or 0
-        funcionario.numero = request.POST.get('numero')
-        funcionario.localidade = request.POST.get('localidade')
-        funcionario.data_admissao = request.POST.get('data_admissao') or None
+        funcionario.carga_horaria = (
+            request.POST.get('carga_horaria')
+            or 0
+        )
 
-        cargo_nome = request.POST.get('cargo')
+        funcionario.numero = (
+            request.POST.get('numero')
+            or ''
+        ).strip()
+
+        funcionario.localidade = (
+            request.POST.get('localidade')
+            or ''
+        ).strip()
+
+        funcionario.data_admissao = (
+            request.POST.get('data_admissao')
+            or None
+        )
+
+        cargo_nome = (
+            request.POST.get('cargo')
+            or ''
+        ).strip()
 
         if cargo_nome:
-            cargo, created = Cargo.objects.get_or_create(
-                nome=cargo_nome.strip()
+
+            cargo, _ = Cargo.objects.get_or_create(
+                nome=cargo_nome
             )
+
             funcionario.cargo = cargo
+
+        else:
+
+            funcionario.cargo = None
 
         funcionario.save()
 
-        return redirect('/funcionarios/')
+        if next_url:
+            return redirect(next_url)
+
+        return redirect('funcionarios')
 
     return render(
         request,
@@ -376,6 +441,7 @@ def editar_funcionario(request, id):
         {
             'funcionario': funcionario,
             'escolas': escolas,
+            'next_url': next_url,
         }
     )
 
@@ -387,32 +453,14 @@ def excluir_funcionario(request, id):
         id=id
     )
 
+    next_url = obter_next_url_segura(request)
+
     funcionario.delete()
 
-    return redirect('/funcionarios/')
+    if next_url:
+        return redirect(next_url)
 
-
-@login_required(login_url='/login/')
-def horas_extras(request):
-
-    busca = request.GET.get('busca')
-
-    funcionarios = []
-
-    if busca:
-
-        funcionarios = Funcionario.objects.filter(
-            nome__icontains=busca
-        ).order_by('nome')
-
-    return render(
-        request,
-        'horas_extras.html',
-        {
-            'busca': busca,
-            'funcionarios': funcionarios,
-        }
-    )
+    return redirect('funcionarios')
 
 
 @login_required(login_url='/login/')
@@ -541,7 +589,7 @@ def horas_funcionario(request, id):
 
 
 
-from django.utils.http import url_has_allowed_host_and_scheme
+
 
 
 @login_required(login_url='/login/')
