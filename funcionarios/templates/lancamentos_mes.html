@@ -1552,7 +1552,7 @@
 
         <a
             class="btn-excel"
-            href="/exportar-lancamentos-excel/?mes={{ mes }}&ano={{ ano }}&busca={{ busca }}&escola={{ escola_filtro }}"
+            href="{% url 'exportar_lancamentos_excel' %}?mes={{ mes }}&ano={{ ano }}&busca={{ busca|urlencode }}&escola={{ escola_filtro|urlencode }}"
         >
             Exportar Excel
         </a>
@@ -1723,20 +1723,23 @@
 
                     <div class="acoes">
 
-                        <a
-                            href="{% url 'editar_hora_extra' item.id %}"
-                            class="btn-editar"
-                        >
-                            Editar
-                        </a>
+                <a
+                    href="{% url 'editar_hora_extra' item.id %}?next={{ request.get_full_path|urlencode }}"
+                    class="btn-editar"
+                >
+                    Editar
+                </a>
 
-                        <button
-                            type="button"
-                            class="btn-excluir"
-                            onclick="abrirModal('{{ item.id }}')"
-                        >
-                            Excluir
-                        </button>
+                <button
+                    type="button"
+                    class="btn-excluir"
+                    onclick="abrirModal(
+                        '{{ item.id }}',
+                        '{{ request.get_full_path|escapejs }}'
+                    )"
+                >
+                    Excluir
+                </button>
 
                     </div>
 
@@ -1805,26 +1808,29 @@
     </div>
 
     <script>
+    function abrirModal(id, nextUrl) {
 
-        function abrirModal(id){
+        document.getElementById(
+            'modalExcluir'
+        ).style.display = 'flex';
 
-            document.getElementById(
-                'modalExcluir'
-            ).style.display = 'flex';
+        const urlExcluir = "{% url 'excluir_hora_extra' 999999 %}"
+            .replace('999999', id);
 
-            document.getElementById(
-                'btnConfirmarExcluir'
-            ).href = '/horas-extras/excluir/' + id + '/';
-        }
+        document.getElementById(
+            'btnConfirmarExcluir'
+        ).href =
+            urlExcluir +
+            '?next=' +
+            encodeURIComponent(nextUrl);
+    }
 
-        function fecharModal(){
-
-            document.getElementById(
-                'modalExcluir'
-            ).style.display = 'none';
-        }
-
-    </script>
+    function fecharModal() {
+        document.getElementById(
+            'modalExcluir'
+        ).style.display = 'none';
+    }
+</script>
 
     <script>
 document.addEventListener('DOMContentLoaded', function () {

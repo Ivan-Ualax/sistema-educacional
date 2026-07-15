@@ -318,6 +318,12 @@
 
         {% csrf_token %}
 
+        <input
+            type="hidden"
+            name="next"
+            value="{{ next_url }}"
+        >
+
         <div class="grid-edicao">
 
             <!-- HORA EXTRA -->
@@ -506,17 +512,33 @@
             <button
                 type="button"
                 class="btn-excluir"
-                onclick="document.getElementById('modalExcluir').style.display='flex'"
+                onclick="abrirModalExcluir(
+                    '{{ lancamento.id }}',
+                    '{{ next_url|escapejs }}'
+                )"
             >
                 Excluir
             </button>
 
+            {% if next_url %}
+
             <a
-                href="{% url 'lancamentos_mes' %}"
-                class="btn-voltar"
-            >
-                Voltar
+                    href="{{ next_url }}"
+                    class="btn-voltar"
+                >
+                    Voltar
             </a>
+
+                {% else %}
+
+            <a
+                    href="{% url 'lancamentos_mes' %}"
+                    class="btn-voltar"
+            >
+                    Voltar
+            </a>
+
+                {% endif %}
 
         </div>
 
@@ -564,18 +586,27 @@
 
 <script>
 
-    function abrirModalExcluir(id){
+    function abrirModalExcluir(id, nextUrl) {
+
+        const urlBase = "{% url 'excluir_hora_extra' 999999 %}"
+            .replace('999999', id);
+
+        let urlExcluir = urlBase;
+
+        if (nextUrl) {
+            urlExcluir += '?next=' + encodeURIComponent(nextUrl);
+        }
 
         document.getElementById(
             'btnConfirmarExcluir'
-        ).href = '/horas-extras/excluir/' + id + '/';
+        ).href = urlExcluir;
 
         document.getElementById(
             'modalExcluir'
         ).style.display = 'flex';
     }
 
-    function fecharModalExcluir(){
+    function fecharModalExcluir() {
 
         document.getElementById(
             'modalExcluir'
@@ -586,19 +617,22 @@
         'input[name="data_falta"]'
     );
 
-    campoData.addEventListener('input', function(){
+    if (campoData) {
 
-        let valor = this.value.replace(/\D/g, '');
+        campoData.addEventListener('input', function() {
 
-        if(valor.length >= 2){
+            let valor = this.value.replace(/\D/g, '');
 
-            valor = valor.substring(0,2) + '/' + valor.substring(2,4);
+            if (valor.length >= 2) {
+                valor =
+                    valor.substring(0, 2) +
+                    '/' +
+                    valor.substring(2, 4);
+            }
 
-        }
-
-        this.value = valor.substring(0,5);
-
-    });
+            this.value = valor.substring(0, 5);
+        });
+    }
 
 </script>
 

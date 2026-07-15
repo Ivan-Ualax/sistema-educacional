@@ -541,6 +541,9 @@ def horas_funcionario(request, id):
 
 
 
+from django.utils.http import url_has_allowed_host_and_scheme
+
+
 @login_required(login_url='/login/')
 def editar_hora_extra(request, id):
 
@@ -549,101 +552,157 @@ def editar_hora_extra(request, id):
         id=id
     )
 
+    next_url = (
+        request.POST.get('next')
+        or request.GET.get('next')
+        or ''
+    )
+
     if request.method == 'POST':
 
-        quantidade_horas = request.POST.get(
-            'quantidade_horas'
-        ) or '0'
-
-        valor = request.POST.get(
-            'valor'
-        ) or '0'
-
-        quantidade_horas = quantidade_horas.replace(
-            ',',
-            '.'
+        quantidade_horas = (
+            request.POST.get('quantidade_horas')
+            or '0'
         )
 
-        valor = valor.replace(
-            ',',
-            '.'
-        )
-
-        lancamento.tipo = request.POST.get('tipo')
-
-        lancamento.quantidade_horas = Decimal(
+        quantidade_horas = (
             quantidade_horas
+            .replace('h', '')
+            .replace('H', '')
+            .replace(' ', '')
+            .replace(',', '.')
         )
 
-        lancamento.valor = Decimal(
-            valor
+        lancamento.tipo = (
+            request.POST.get('tipo')
+            or 'normal'
         )
 
-        lancamento.mes_referencia = request.POST.get(
-            'mes_referencia'
+        try:
+            lancamento.quantidade_horas = Decimal(
+                quantidade_horas
+            )
+        except:
+            lancamento.quantidade_horas = Decimal('0')
+
+        # Só altera o valor quando o usuário pode visualizá-lo
+        if usuario_pode_ver_valores(request.user):
+
+            valor = (
+                request.POST.get('valor')
+                or '0'
+            )
+
+            valor = (
+                valor
+                .replace('R$', '')
+                .replace(' ', '')
+                .replace(',', '.')
+            )
+
+            try:
+                lancamento.valor = Decimal(valor)
+            except:
+                # Mantém o valor anterior se o conteúdo for inválido
+                pass
+
+        lancamento.mes_referencia = (
+            request.POST.get('mes_referencia')
+            or lancamento.mes_referencia
         )
 
-        lancamento.ano = request.POST.get(
-            'ano'
+        lancamento.ano = (
+            request.POST.get('ano')
+            or lancamento.ano
         )
 
         lancamento.observacao_hora_extra = limpar_observacao(
-            request.POST.get(
-                'observacao_hora_extra'
-            )
+            request.POST.get('observacao_hora_extra')
         )
 
-        lancamento.numero_faltas = request.POST.get(
-            'numero_faltas'
-        ) or 0
+        lancamento.numero_faltas = (
+            request.POST.get('numero_faltas')
+            or 0
+        )
 
         lancamento.data_falta = tratar_data_falta(
             request.POST.get('data_falta')
         )
 
         lancamento.observacao_falta = limpar_observacao(
-            request.POST.get(
-                'observacao_falta'
+            request.POST.get('observacao_falta')
+        )
+
+        lancamento.cor_texto = (
+            request.POST.get('cor_texto')
+            or 'normal'
+        )
+
+        lancamento.save()
+
+        next_url_valida = (
+            next_url
+            and url_has_allowed_host_and_scheme(
+                url=next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure()
             )
         )
 
-        lancamento.cor_texto = request.POST.get(
-            'cor_texto'
-        ) or 'normal'
-
-        lancamento.save()
+        if next_url_valida:
+            return redirect(next_url)
 
         return redirect(
             f'/funcionario/{lancamento.funcionario.id}/horas/'
         )
 
     return render(
-    request,
-    'editar_hora_extra.html',
-    {
-        'lancamento': lancamento,
-        'pode_ver_valores': usuario_pode_ver_valores(request.user),
-    }
-)
-
+        request,
+        'editar_hora_extra.html',
+        {
+            'lancamento': lancamento,
+            'pode_ver_valores': usuario_pode_ver_valores(
+                request.user
+            ),
+            'next_url': next_url,
+        }
+    )
 
 @login_required(login_url='/login/')
 def excluir_hora_extra(request, id):
 
-    try:
-        lancamento = HoraExtra.objects.get(id=id)
-    except HoraExtra.DoesNotExist:
-        return redirect('/lancamentos-mes/')
+    next_url = request.GET.get('next') or ''
+
+    lancamento = get_object_or_404(
+        HoraExtra,
+        id=id
+    )
 
     mes = lancamento.mes_referencia
     ano = lancamento.ano
 
+    next_url_valida = (
+        next_url
+        and url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure()
+        )
+    )
+
     if lancamento.encerrado:
+
+        if next_url_valida:
+            return redirect(next_url)
+
         return redirect(
             f'/lancamentos-mes/?mes={mes}&ano={ano}'
         )
 
     lancamento.delete()
+
+    if next_url_valida:
+        return redirect(next_url)
 
     return redirect(
         f'/lancamentos-mes/?mes={mes}&ano={ano}'
