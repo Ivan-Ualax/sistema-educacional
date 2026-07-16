@@ -464,6 +464,30 @@ def excluir_funcionario(request, id):
 
 
 @login_required(login_url='/login/')
+def horas_extras(request):
+
+    busca = request.GET.get('busca')
+
+    funcionarios = []
+
+    if busca:
+        funcionarios = (
+            Funcionario.objects
+            .filter(nome__icontains=busca)
+            .order_by('nome')
+        )
+
+    return render(
+        request,
+        'horas_extras.html',
+        {
+            'busca': busca,
+            'funcionarios': funcionarios,
+        }
+    )
+
+
+@login_required(login_url='/login/')
 def adicionar_hora_extra(request, id):
 
     funcionario = get_object_or_404(Funcionario, id=id)
