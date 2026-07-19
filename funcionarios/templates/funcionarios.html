@@ -921,62 +921,54 @@
 
     <div class="sidebar">
 
-        <div class="logo">
-            Sistema Escolar
-        </div>
-
-    <a href="/">
-        🏠 Página inicial
-    </a>
-    
-    <a href="/funcionarios/">
-        👥 Funcionários
-    </a>
-    
-    
-    <a href="/funcionarios/cadastrar/">
-       ➕ Novo Funcionário
-    </a>
-
-    
-
-    <a href="/horas-extras/">
-        📝 Adicionais e Faltas
-    </a>
-
-    <a href="/lancamentos-mes/">
-          📅  Lancamentos Do Mês
-    </a>
-        
-
+    <div class="logo">
+        Sistema Escolar
     </div>
 
-    <div class="content">
+    <a href="/">
+        🏠 PAGINA INICIAL
+    </a>
 
-        <div class="topo">
+    <a href="/funcionarios/">
+        👥 FUNCIONARIOS
+    </a>
 
-            <h1>
-                👥Funcionários
-            </h1>
+    <a href="/funcionarios/cadastrar/">
+        ➕ NOVO FUNCIONARIO
+    </a>
 
-            <a href="/funcionarios/cadastrar/">
-                Novo Funcionário
-            </a>
+    <hr>
 
-        </div>
+    <a href="/horas-extras/">
+        📑 REGISTRAR FREQUENCIA
+    </a>
 
-        <form method="GET" class="filtros">
+    <hr>
 
-            <input
-                type="text"
-                name="busca"
-                placeholder="Pesquisar por nome..."
-                value="{{ busca|default:'' }}"
-            >
+    <a href="/lancamentos-mes/">
+        📅 LANÇAMENTO MENSAL
+    </a>
 
-            <select name="escola">
+</div>
+<!-- FIM DA SIDEBAR -->
 
-            <option value="">Todas as escolas</option>
+
+<div class="content">
+
+    <form method="GET" class="filtros">
+
+        <input
+            type="text"
+            name="busca"
+            placeholder="Pesquisar por nome..."
+            value="{{ busca|default:'' }}"
+        >
+
+        <select name="escola">
+
+            <option value="">
+                Todas as escolas
+            </option>
 
             {% for escola in escolas %}
 
@@ -991,70 +983,66 @@
 
         </select>
 
-            <select name="ordem">
+        <select name="ordem">
 
-                <option
-                    value="recente"
-                    {% if ordem != 'antigo' %}selected{% endif %}
-                >
-                    Mais recente
-                </option>
+            <option
+                value="recente"
+                {% if ordem != 'antigo' %}selected{% endif %}
+            >
+                Mais recente
+            </option>
 
-                <option
-                    value="antigo"
-                    {% if ordem == 'antigo' %}selected{% endif %}
-                >
-                    Mais antigo
-                </option>
+            <option
+                value="antigo"
+                {% if ordem == 'antigo' %}selected{% endif %}
+            >
+                Mais antigo
+            </option>
 
-            </select>
+        </select>
 
-            <button type="submit">
-                Filtrar
-            </button>
+        <button type="submit">
+            Filtrar
+        </button>
 
-            <a
-                    href="{% url 'exportar_funcionarios_excel' %}?busca={{ busca|urlencode }}&escola={{ escola_filtro|urlencode }}&ordem={{ ordem|urlencode }}"
-                    class="btn-exportar-excel"
-                >
-                    📊 Exportar Excel
-            </a>
+        <a
+            href="{% url 'exportar_funcionarios_excel' %}?busca={{ busca|urlencode }}&escola={{ escola_filtro|urlencode }}&ordem={{ ordem|urlencode }}"
+            class="btn-exportar-excel"
+        >
+            📊 Exportar Excel
+        </a>
 
-        </form>
+    </form>
 
-            {% if nomes_duplicados %}
 
-            <div class="aviso-duplicado">
+    {% if nomes_duplicados %}
 
-                <strong>
-                    ⚠ Funcionários com nomes repetidos encontrados:
-                </strong>
+        <div class="aviso-duplicado">
 
-                <br><br>
+            <strong>
+                ⚠ Funcionários com nomes repetidos encontrados:
+            </strong>
 
-                <div class="duplicados-grid">
+            <div class="duplicados-grid">
 
-                    {% for item in nomes_duplicados %}
+                {% for item in nomes_duplicados %}
 
-                        <div>
-                            {{ item.nome_limpo }} ({{ item.total }})
-                        </div>
+                    <div>
+                        {{ item.nome_limpo }} ({{ item.total }})
+                    </div>
 
-                    {% endfor %}
-
-             </div>
+                {% endfor %}
 
             </div>
 
-            {% endif %}
+        </div>
 
-            <div class="box">
-
-
+    {% endif %}
 
 
+    <div class="box">
 
-            <table>
+        <table>
 
                 <tr>
 
