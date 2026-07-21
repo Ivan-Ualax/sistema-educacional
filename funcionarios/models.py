@@ -1,179 +1,103 @@
-# funcionarios/models.py
-
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
-class Cargo(models.Model):
-
-    nome = models.CharField(
-        max_length=100,
-        unique=True
+class Contrato(models.Model):
+    MODALIDADES = (
+        ('credenciamento', 'Credenciamento'),
+        ('prestacao', 'Prestação de Serviço'),
     )
 
-    def __str__(self):
-        return self.nome
+    SECRETARIAS = (
+        ('administracao', 'Administração e Finanças'),
+        ('assistencia', 'Assistência Social'),
+        ('agricultura', 'Agricultura'),
+        ('educacao', 'Educação'),
+        ('infraestrutura', 'Infraestrutura'),
+        ('saude', 'Saúde'),
+    )
 
-
-class Funcionario(models.Model):
-
-    STATUS = (
+    SITUACOES = (
         ('ativo', 'Ativo'),
-        ('inativo', 'Inativo'),
         ('demitido', 'Demitido'),
     )
 
     nome = models.CharField(max_length=150)
+    funcao = models.CharField(max_length=150)
+    local_trabalho = models.CharField(max_length=150)
 
-    situacao_contratual = models.CharField(
-    max_length=100,
-    blank=True,
-    null=True
-)
-
-    cpf = models.CharField(max_length=14)
-
-    numero = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True
+    cpf = models.CharField(
+        max_length=14,
+        unique=True,
+        db_index=True,
     )
 
-    localidade = models.CharField(
-        max_length=150,
+    rg = models.CharField(
+        max_length=30,
         blank=True,
-        null=True
-    )
-
-    escola = models.CharField(max_length=150)
-
-    cargo = models.ForeignKey(
-        Cargo,
-        on_delete=models.SET_NULL,
         null=True,
-        blank=True
     )
 
-    carga_horaria = models.IntegerField(default=0)
-
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS,
-        default='ativo'
-    )
-
-    data_admissao = models.DateField(
+    data_nascimento = models.DateField(
         blank=True,
-        null=True
+        null=True,
+    )
+
+    banco = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+
+    agencia = models.CharField(
+        max_length=30,
+        blank=True,
+        null=True,
+    )
+
+    conta_bancaria = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+    )
+
+    salario_fixo = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+    )
+
+    secretaria = models.CharField(
+        max_length=30,
+        choices=SECRETARIAS,
+        db_index=True,
+    )
+
+    modalidade = models.CharField(
+        max_length=30,
+        choices=MODALIDADES,
+        db_index=True,
+    )
+
+    situacao = models.CharField(
+        max_length=20,
+        choices=SITUACOES,
+        default='ativo',
+        db_index=True,
     )
 
     criado_em = models.DateTimeField(auto_now_add=True)
-
-
-
-    def __str__(self):
-        return self.nome
-
-
-class HoraExtra(models.Model):
-
-    MES_CHOICES = (
-        (1, 'Janeiro'),
-        (2, 'Fevereiro'),
-        (3, 'Março'),
-        (4, 'Abril'),
-        (5, 'Maio'),
-        (6, 'Junho'),
-        (7, 'Julho'),
-        (8, 'Agosto'),
-        (9, 'Setembro'),
-        (10, 'Outubro'),
-        (11, 'Novembro'),
-        (12, 'Dezembro'),
-    )
-
-
-
-    TIPO_HORA = (
-        ('normal', 'Hora Extra'),
-        ('f1', 'Hora Aula F1'),
-        ('f2', 'Hora Aula F2'),
-    )
-
-    COR_TEXTO = (
-        ('normal', 'Normal'),
-        ('vermelho', 'Vermelho'),
-        ('verde', 'Verde'),
-    )
-
-    funcionario = models.ForeignKey(
-        Funcionario,
-        on_delete=models.CASCADE
-    )
-
-    tipo = models.CharField(
-        max_length=20,
-        choices=TIPO_HORA,
-        default='normal'
-    )
-
-    quantidade_horas = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        default=0
-    )
-
-    valor = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0
-    )
-
-    mes_referencia = models.IntegerField(
-        choices=MES_CHOICES,
-        default=1
-    )
-
-    ano = models.IntegerField(default=2026)
-
-    observacao_hora_extra = models.TextField(
-        blank=True,
-        null=True
-    )
-
-    numero_faltas = models.IntegerField(default=0)
-
-    data_falta = models.DateField(
-        blank=True,
-        null=True
-    )
-
-    observacao_falta = models.TextField(
-        blank=True,
-        null=True
-    )
-
-    cor_texto = models.CharField(
-        max_length=20,
-        choices=COR_TEXTO,
-        default='normal'
-    )
-
-    encerrado = models.BooleanField(default=False)
-
-    data_encerramento = models.DateTimeField(
-        blank=True,
-        null=True
-    )
-
-   
-
-    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('funcionario', 'mes_referencia', 'ano')
-
-    
+        ordering = ['nome']
+        verbose_name = 'Contrato'
+        verbose_name_plural = 'Contratos'
+        indexes = [
+            models.Index(fields=['secretaria', 'modalidade']),
+            models.Index(fields=['situacao', 'secretaria']),
+        ]
 
     def __str__(self):
-        return f'{self.funcionario.nome} - {self.get_mes_referencia_display()}/{self.ano}'
-    
+        return f'{self.nome} - {self.get_modalidade_display()}'

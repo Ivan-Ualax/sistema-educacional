@@ -1,0 +1,1135 @@
+{% extends 'contratos/base.html' %}
+
+{% block title %}
+    {{ titulo|default:"Cadastrar servidor" }}
+    | Gestão de Contratos
+{% endblock %}
+
+{% block topbar_title %}
+    {{ titulo|default:"Cadastrar servidor" }}
+{% endblock %}
+
+{% block topbar_subtitle %}
+    {% if contrato %}
+        Atualize os dados pessoais, contratuais e bancários do servidor
+    {% else %}
+        Preencha os dados para cadastrar um novo servidor
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+
+<style>
+    .form-page-header {
+        position: relative;
+
+        padding: 22px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .form-page-header::after {
+        position: absolute;
+        right: -45px;
+        top: -60px;
+
+        width: 170px;
+        height: 170px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.12),
+                transparent 70%
+            );
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .form-page-title {
+        position: relative;
+        z-index: 2;
+
+        margin: 0;
+
+        color: #f4f8fe;
+
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    .form-card {
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 19px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .form-section {
+        position: relative;
+
+        padding: 24px;
+
+        border-bottom:
+            1px solid rgba(121, 170, 214, 0.13);
+
+        transition:
+            background 0.25s ease;
+    }
+
+    .form-section:hover {
+        background:
+            rgba(98, 198, 217, 0.015);
+    }
+
+    .form-section:last-child {
+        border-bottom: 0;
+    }
+
+    .form-section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        margin-bottom: 20px;
+    }
+
+    .form-section-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.20);
+
+        border-radius: 13px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(98, 198, 217, 0.12),
+                rgba(115, 169, 245, 0.10)
+            );
+
+        color: #62c6d9;
+
+        font-size: 18px;
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255, 255, 255, 0.04),
+            0 0 16px
+            rgba(98, 198, 217, 0.08);
+    }
+
+    .form-section-title {
+        margin: 0;
+
+        color: #ddecfa;
+
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .form-section-description {
+        margin-top: 3px;
+
+        color: #8da1ba;
+
+        font-size: 12px;
+    }
+
+    .required-mark {
+        color: #ef7d89;
+    }
+
+    .field-help {
+        margin-top: 5px;
+
+        color: #71869f;
+
+        font-size: 11px;
+    }
+
+    .form-label {
+        color: #cbd8e7;
+
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 44px;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.24);
+
+        border-radius: 10px;
+
+        background: #0c1728;
+        color: #f8fafc;
+
+        transition:
+            border-color 0.2s ease,
+            background 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .form-control::placeholder {
+        color: #687d96;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #62c6d9;
+
+        background: #0e1b2e;
+        color: #f8fafc;
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(98, 198, 217, 0.13);
+    }
+
+    .form-select {
+        color-scheme: dark;
+    }
+
+    .form-select option {
+        background: #0c1728;
+        color: #f8fafc;
+    }
+
+    .input-group-text {
+        border-color:
+            rgba(121, 170, 214, 0.24);
+
+        background: #0a1424;
+        color: #62c6d9;
+    }
+
+    .form-actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+
+        padding: 18px 24px;
+
+        border-top:
+            1px solid rgba(121, 170, 214, 0.16);
+
+        background:
+            rgba(7, 16, 29, 0.94);
+
+        box-shadow:
+            0 -12px 30px
+            rgba(0, 0, 0, 0.24);
+
+        backdrop-filter: blur(14px);
+    }
+
+    .form-actions-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .form-actions .btn {
+        min-height: 42px;
+
+        border-radius: 10px;
+
+        font-size: 13px;
+        font-weight: 800;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .form-actions .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .server-summary {
+        position: relative;
+
+        padding: 18px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.21);
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(98, 198, 217, 0.08),
+                rgba(13, 23, 40, 0.74)
+            );
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255, 255, 255, 0.03);
+    }
+
+    .server-summary::after {
+        position: absolute;
+        right: -25px;
+        top: -30px;
+
+        width: 100px;
+        height: 100px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.15),
+                transparent 70%
+            );
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .server-summary-name {
+        position: relative;
+        z-index: 2;
+
+        color: #ddecfa;
+
+        font-weight: 900;
+    }
+
+    .server-summary-text {
+        position: relative;
+        z-index: 2;
+
+        margin-top: 3px;
+
+        color: #8da1ba;
+
+        font-size: 12px;
+    }
+
+    .errorlist {
+        margin: 6px 0 0;
+        padding: 0;
+
+        list-style: none;
+
+        color: #ef7d89;
+
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .is-invalid,
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+        border-color:
+            rgba(239, 125, 137, 0.70);
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(239, 125, 137, 0.10);
+    }
+
+    @media (max-width: 768px) {
+        .form-page-header {
+            padding: 18px;
+        }
+
+        .form-page-title {
+            font-size: 19px;
+        }
+
+        .form-section {
+            padding: 18px;
+        }
+
+        .form-section-header {
+            align-items: flex-start;
+        }
+
+        .form-section-icon {
+            width: 40px;
+            min-width: 40px;
+            height: 40px;
+
+            font-size: 16px;
+        }
+
+        .form-actions {
+            align-items: stretch;
+            flex-direction: column;
+
+            padding: 15px 18px;
+        }
+
+        .form-actions-buttons {
+            width: 100%;
+        }
+
+        .form-actions-buttons .btn {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-actions-buttons {
+            flex-direction: column;
+        }
+
+        .form-actions-buttons .btn,
+        .form-actions-buttons a {
+            width: 100%;
+        }
+
+        .form-section-header {
+            gap: 10px;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="card form-page-header mb-4">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+
+        <div>
+
+            <h2 class="form-page-title">
+                {{ titulo|default:"Cadastrar servidor" }}
+            </h2>
+
+            <div class="small-muted mt-1">
+
+                {% if contrato %}
+                    Cadastro de {{ contrato.nome }}
+                {% else %}
+                    Informe os dados solicitados para incluir o servidor no sistema
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% if contrato %}
+
+            <div class="server-summary">
+
+                <div class="server-summary-name">
+                    {{ contrato.nome }}
+                </div>
+
+                <div class="server-summary-text">
+                    CPF: {{ contrato.cpf }}
+                    •
+                    Cadastro nº {{ contrato.id }}
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<form
+    method="post"
+    novalidate
+>
+
+    {% csrf_token %}
+
+    {% if next_url %}
+
+        <input
+            type="hidden"
+            name="next"
+            value="{{ next_url }}"
+        >
+
+    {% endif %}
+
+    <div class="card form-card">
+
+        <!-- DADOS PESSOAIS -->
+        <section class="form-section">
+
+            <div class="form-section-header">
+
+                <div class="form-section-icon">
+                    <i class="bi bi-person-vcard-fill"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="form-section-title">
+                        Dados pessoais
+                    </h3>
+
+                    <div class="form-section-description">
+                        Informações de identificação do servidor
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-12 col-lg-6">
+
+                    <label
+                        for="nome"
+                        class="form-label"
+                    >
+                        Nome completo
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nome"
+                        id="nome"
+                        class="form-control"
+                        maxlength="150"
+                        required
+                        autofocus
+                        value="{% if dados %}{{ dados.nome }}{% elif contrato %}{{ contrato.nome }}{% endif %}"
+                        placeholder="Digite o nome completo"
+                    >
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="cpf"
+                        class="form-label"
+                    >
+                        CPF
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="cpf"
+                        id="cpf"
+                        class="form-control"
+                        maxlength="14"
+                        required
+                        inputmode="numeric"
+                        value="{% if dados %}{{ dados.cpf }}{% elif contrato %}{{ contrato.cpf }}{% endif %}"
+                        placeholder="000.000.000-00"
+                    >
+
+                    <div class="field-help">
+                        O CPF não pode estar cadastrado para outro servidor.
+                    </div>
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="rg"
+                        class="form-label"
+                    >
+                        RG
+                    </label>
+
+                    <input
+                        type="text"
+                        name="rg"
+                        id="rg"
+                        class="form-control"
+                        maxlength="30"
+                        value="{% if dados %}{{ dados.rg }}{% elif contrato %}{{ contrato.rg|default:'' }}{% endif %}"
+                        placeholder="Número do RG"
+                    >
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="data_nascimento"
+                        class="form-label"
+                    >
+                        Data de nascimento
+                    </label>
+
+                    <input
+                        type="date"
+                        name="data_nascimento"
+                        id="data_nascimento"
+                        class="form-control"
+                        value="{% if dados %}{{ dados.data_nascimento }}{% elif contrato.data_nascimento %}{{ contrato.data_nascimento|date:'Y-m-d' }}{% endif %}"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- DADOS DO CONTRATO -->
+        <section class="form-section">
+
+            <div class="form-section-header">
+
+                <div
+                    class="form-section-icon"
+                    style="background:#ffedd5;color:#c2410c;"
+                >
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="form-section-title">
+                        Dados do contrato
+                    </h3>
+
+                    <div class="form-section-description">
+                        Função, lotação, modalidade e situação do servidor
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-12 col-lg-6">
+
+                    <label
+                        for="funcao"
+                        class="form-label"
+                    >
+                        Função
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="funcao"
+                        id="funcao"
+                        class="form-control"
+                        maxlength="150"
+                        required
+                        value="{% if dados %}{{ dados.funcao }}{% elif contrato %}{{ contrato.funcao }}{% endif %}"
+                        placeholder="Ex.: Auxiliar administrativo"
+                    >
+
+                </div>
+
+                <div class="col-12 col-lg-6">
+
+                    <label
+                        for="local_trabalho"
+                        class="form-label"
+                    >
+                        Local de trabalho
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="local_trabalho"
+                        id="local_trabalho"
+                        class="form-control"
+                        maxlength="150"
+                        required
+                        value="{% if dados %}{{ dados.local_trabalho }}{% elif contrato %}{{ contrato.local_trabalho }}{% endif %}"
+                        placeholder="Informe a unidade ou local de trabalho"
+                    >
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="secretaria"
+                        class="form-label"
+                    >
+                        Secretaria
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <select
+                        name="secretaria"
+                        id="secretaria"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        {% for codigo, nome in secretarias %}
+
+                            <option
+                                value="{{ codigo }}"
+
+                                {% if dados %}
+
+                                    {% if dados.secretaria == codigo %}
+                                        selected
+                                    {% endif %}
+
+                                {% elif contrato %}
+
+                                    {% if contrato.secretaria == codigo %}
+                                        selected
+                                    {% endif %}
+
+                                {% endif %}
+                            >
+                                {{ nome }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="modalidade"
+                        class="form-label"
+                    >
+                        Modalidade
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <select
+                        name="modalidade"
+                        id="modalidade"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione
+                        </option>
+
+                        {% for codigo, nome in modalidades %}
+
+                            <option
+                                value="{{ codigo }}"
+
+                                {% if dados %}
+
+                                    {% if dados.modalidade == codigo %}
+                                        selected
+                                    {% endif %}
+
+                                {% elif contrato %}
+
+                                    {% if contrato.modalidade == codigo %}
+                                        selected
+                                    {% endif %}
+
+                                {% endif %}
+                            >
+                                {{ nome }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="situacao"
+                        class="form-label"
+                    >
+                        Situação
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <select
+                        name="situacao"
+                        id="situacao"
+                        class="form-select"
+                        required
+                    >
+
+                        {% for codigo, nome in situacoes %}
+
+                            <option
+                                value="{{ codigo }}"
+
+                                {% if dados %}
+
+                                    {% if dados.situacao == codigo %}
+                                        selected
+                                    {% endif %}
+
+                                {% elif contrato %}
+
+                                    {% if contrato.situacao == codigo %}
+                                        selected
+                                    {% endif %}
+
+                                {% elif codigo == 'ativo' %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ nome }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="salario_fixo"
+                        class="form-label"
+                    >
+                        Salário fixo
+                        <span class="required-mark">*</span>
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            R$
+                        </span>
+
+                        <input
+                            type="text"
+                            name="salario_fixo"
+                            id="salario_fixo"
+                            class="form-control"
+                            required
+                            inputmode="decimal"
+                            value="{% if dados %}{{ dados.salario_fixo }}{% elif contrato %}{{ contrato.salario_fixo|floatformat:2 }}{% else %}0,00{% endif %}"
+                            placeholder="0,00"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- DADOS BANCÁRIOS -->
+        <section class="form-section">
+
+            <div class="form-section-header">
+
+                <div
+                    class="form-section-icon"
+                    style="background:#dcfce7;color:#15803d;"
+                >
+                    <i class="bi bi-bank2"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="form-section-title">
+                        Dados bancários
+                    </h3>
+
+                    <div class="form-section-description">
+                        Informações da conta utilizada para pagamento
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-12 col-lg-5">
+
+                    <label
+                        for="banco"
+                        class="form-label"
+                    >
+                        Banco
+                    </label>
+
+                    <input
+                        type="text"
+                        name="banco"
+                        id="banco"
+                        class="form-control"
+                        maxlength="100"
+                        value="{% if dados %}{{ dados.banco }}{% elif contrato %}{{ contrato.banco|default:'' }}{% endif %}"
+                        placeholder="Nome ou número do banco"
+                    >
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="agencia"
+                        class="form-label"
+                    >
+                        Agência
+                    </label>
+
+                    <input
+                        type="text"
+                        name="agencia"
+                        id="agencia"
+                        class="form-control"
+                        maxlength="30"
+                        value="{% if dados %}{{ dados.agencia }}{% elif contrato %}{{ contrato.agencia|default:'' }}{% endif %}"
+                        placeholder="Número da agência"
+                    >
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-4">
+
+                    <label
+                        for="conta_bancaria"
+                        class="form-label"
+                    >
+                        Conta bancária
+                    </label>
+
+                    <input
+                        type="text"
+                        name="conta_bancaria"
+                        id="conta_bancaria"
+                        class="form-control"
+                        maxlength="50"
+                        value="{% if dados %}{{ dados.conta_bancaria }}{% elif contrato %}{{ contrato.conta_bancaria|default:'' }}{% endif %}"
+                        placeholder="Número da conta e dígito"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- BOTÕES -->
+        <div class="form-actions">
+
+            <div class="small-muted">
+
+                <span class="required-mark">*</span>
+
+                Campos obrigatórios
+
+            </div>
+
+            <div class="form-actions-buttons">
+
+                {% if next_url %}
+
+                    <a
+                        href="{{ next_url }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+
+                        Cancelar
+                    </a>
+
+                {% elif contrato %}
+
+                    <a
+                        href="{% url 'detalhe_contrato' contrato.id %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+
+                        Cancelar
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'listar_contratos' %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+
+                        Cancelar
+                    </a>
+
+                {% endif %}
+
+                <button
+                    type="submit"
+                    class="btn btn-orange"
+                >
+
+                    {% if contrato %}
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        Salvar alterações
+
+                    {% else %}
+
+                        <i class="bi bi-person-plus-fill"></i>
+
+                        Cadastrar servidor
+
+                    {% endif %}
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+{% block extra_scripts %}
+
+<script>
+    const cpfInput =
+        document.getElementById('cpf');
+
+    if (cpfInput) {
+        cpfInput.addEventListener(
+            'input',
+            function () {
+                let valor =
+                    cpfInput.value.replace(/\D/g, '');
+
+                valor = valor.substring(0, 11);
+
+                valor = valor.replace(
+                    /(\d{3})(\d)/,
+                    '$1.$2'
+                );
+
+                valor = valor.replace(
+                    /(\d{3})(\d)/,
+                    '$1.$2'
+                );
+
+                valor = valor.replace(
+                    /(\d{3})(\d{1,2})$/,
+                    '$1-$2'
+                );
+
+                cpfInput.value = valor;
+            }
+        );
+    }
+
+    const salarioInput =
+        document.getElementById('salario_fixo');
+
+    if (salarioInput) {
+        salarioInput.addEventListener(
+            'blur',
+            function () {
+                let valor = salarioInput.value
+                    .replace(/R\$/g, '')
+                    .replace(/\s/g, '');
+
+                if (!valor) {
+                    salarioInput.value = '0,00';
+                    return;
+                }
+
+                if (
+                    valor.includes(',')
+                ) {
+                    valor = valor
+                        .replace(/\./g, '')
+                        .replace(',', '.');
+                }
+
+                const numero = Number(valor);
+
+                if (!Number.isNaN(numero)) {
+                    salarioInput.value =
+                        numero.toLocaleString(
+                            'pt-BR',
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        );
+                }
+            }
+        );
+    }
+</script>
+
+{% endblock %}

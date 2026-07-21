@@ -1,1339 +1,623 @@
-from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
-from django.db.models.functions import Lower, Trim
+from django.db.models import Count, Q, Sum
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.page import PageMargins
 
-from .models import Cargo, Funcionario, HoraExtra
+from .models import Contrato
 
 
-def tratar_data_falta(data_falta):
+SECRETARIAS = [
+    ('administracao', 'Administração e Finanças'),
+    ('assistencia', 'Assistência Social'),
+    ('agricultura', 'Agricultura'),
+    ('educacao', 'Educação'),
+    ('infraestrutura', 'Infraestrutura'),
+    ('saude', 'Saúde'),
+]
 
-    if not data_falta:
-        return None
+MODALIDADES = [
+    ('credenciamento', 'Credenciamento'),
+    ('prestacao', 'Prestação de Serviço'),
+]
+
+SITUACOES = [
+    ('ativo', 'Ativo'),
+    ('demitido', 'Demitido'),
+]
+
+
+def limpar_texto(valor):
+    return (valor or '').strip()
+
+
+def converter_decimal(valor):
+    valor = limpar_texto(valor)
+    valor = (
+        valor.replace('R$', '')
+        .replace('.', '')
+        .replace(',', '.')
+        .replace(' ', '')
+    )
+
+    if not valor:
+        return Decimal('0.00')
 
     try:
-
-        data_completa = f'{data_falta}/2026'
-
-        return datetime.strptime(
-            data_completa,
-            '%d/%m/%Y'
-        ).date()
-
-    except:
-
-        return None
-
-
-def limpar_observacao(texto):
-
-    texto = texto or ''
-
-    linhas_limpas = []
-
-    for linha in texto.splitlines():
-
-        linha = linha.strip()
-
-        if linha.lower() == 'none':
-            continue
-
-        if linha:
-            linhas_limpas.append(linha)
-
-    return '\n'.join(linhas_limpas)
-
-def usuario_pode_ver_valores(user):
-
-    return user.is_superuser
+        return Decimal(valor)
+    except (InvalidOperation, ValueError):
+        return Decimal('0.00')
 
 
 def obter_next_url_segura(request):
-
-    next_url = (
-        request.POST.get('next')
-        or request.GET.get('next')
-        or ''
-    )
+    next_url = request.POST.get('next') or request.GET.get('next') or ''
 
     if next_url and url_has_allowed_host_and_scheme(
         url=next_url,
         allowed_hosts={request.get_host()},
-        require_https=request.is_secure()
+        require_https=request.is_secure(),
     ):
         return next_url
 
     return ''
 
 
+def aplicar_filtros(queryset, request):
+    busca = limpar_texto(request.GET.get('busca'))
+    secretaria = limpar_texto(request.GET.get('secretaria'))
+    modalidade = limpar_texto(request.GET.get('modalidade'))
+    situacao = limpar_texto(request.GET.get('situacao'))
+
+    if busca:
+        queryset = queryset.filter(
+            Q(nome__icontains=busca)
+            | Q(cpf__icontains=busca)
+            | Q(rg__icontains=busca)
+            | Q(funcao__icontains=busca)
+            | Q(local_trabalho__icontains=busca)
+            | Q(banco__icontains=busca)
+        )
+
+    if secretaria:
+        queryset = queryset.filter(secretaria=secretaria)
+
+    if modalidade:
+        queryset = queryset.filter(modalidade=modalidade)
+
+    if situacao:
+        queryset = queryset.filter(situacao=situacao)
+
+    return queryset
+
+
 @login_required(login_url='/login/')
 def home(request):
+    ativos = Contrato.objects.filter(situacao='ativo')
+    ativos_filtrados = aplicar_filtros(ativos, request)
 
-    agora = datetime.now()
-
-    meses = [
-        '',
-        'Janeiro',
-        'Fevereiro',
-        'Março',
-        'Abril',
-        'Maio',
-        'Junho',
-        'Julho',
-        'Agosto',
-        'Setembro',
-        'Outubro',
-        'Novembro',
-        'Dezembro'
-    ]
-
-    funcionarios = Funcionario.objects.all().order_by('-id')[:10]
-
-    escolas_resumo = (
-    Funcionario.objects
-    .exclude(escola__isnull=True)
-    .exclude(escola='')
-    .annotate(escola_limpa=Trim('escola'))
-    .values('escola_limpa')
-    .annotate(total=Count('id'))
-    .order_by('escola_limpa')
-)
-
-    context = {
-
-    'funcionarios': funcionarios,
-
-    'total_funcionarios': Funcionario.objects.count(),
-
-    'ativos': Funcionario.objects.filter(
-        status='ativo'
-    ).count(),
-
-    'inativos': Funcionario.objects.filter(
-        status='inativo'
-    ).count(),
-
-    'demitidos': Funcionario.objects.filter(
-        status='demitido'
-    ).count(),
-
-    'horas_extras': HoraExtra.objects.count(),
-
-    'mes_atual': meses[agora.month],
-
-    'ano_atual': agora.year,
-
-    'escolas_resumo': escolas_resumo,
-
-}
-
-    return render(
-        request,
-        'home.html',
-        context
+    resumo_geral = ativos_filtrados.aggregate(
+        total_funcionarios=Count('id'),
+        valor_total=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
     )
 
-
-@login_required(login_url='/login/')
-def cadastrar_funcionario(request):
-
-    escolas = (
-        Funcionario.objects
-        .exclude(escola__isnull=True)
-        .exclude(escola='')
-        .annotate(escola_limpa=Trim('escola'))
-        .values_list('escola_limpa', flat=True)
-        .distinct()
-        .order_by('escola_limpa')
+    resumo_credenciamento = ativos_filtrados.filter(
+        modalidade='credenciamento'
+    ).aggregate(
+        quantidade=Count('id'),
+        valor=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
     )
 
-    if request.method == 'POST':
+    resumo_prestacao = ativos_filtrados.filter(
+        modalidade='prestacao'
+    ).aggregate(
+        quantidade=Count('id'),
+        valor=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
+    )
 
-        escola_existente = request.POST.get('escola_existente')
-        nova_escola = request.POST.get('nova_escola')
+    resumo_secretarias = []
 
-        escola = nova_escola.strip() if nova_escola else escola_existente
-
-        cargo_nome = request.POST.get('cargo')
-
-        cargo = None
-
-        if cargo_nome:
-
-            cargo, created = Cargo.objects.get_or_create(
-                nome=cargo_nome.strip()
-            )
-
-        Funcionario.objects.create(
-
-            nome=request.POST.get('nome'),
-
-            situacao_contratual=request.POST.get(
-                'situacao_contratual'
-            ),
-
-            cpf=request.POST.get('cpf'),
-
-            escola=escola,
-
-            carga_horaria=request.POST.get(
-                'carga_horaria'
-            ) or 0,
-
-            numero=request.POST.get('numero'),
-
-            localidade=request.POST.get('localidade'),
-
-            cargo=cargo,
-
-            data_admissao=request.POST.get(
-                'data_admissao'
-            ) or None,
-
-            status='ativo',
-
+    for codigo, nome in SECRETARIAS:
+        credenciamento = ativos_filtrados.filter(
+            secretaria=codigo,
+            modalidade='credenciamento',
+        ).aggregate(
+            quantidade=Count('id'),
+            valor=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
         )
 
-        return redirect('/funcionarios/')
-
-    return render(
-        request,
-        'funcionario.html',
-        {
-            'escolas': escolas
-        }
-    )
-
-
-
-
-@login_required(login_url='/login/')
-def funcionarios(request):
-
-    busca = request.GET.get('busca')
-
-    ordem = request.GET.get('ordem')
-
-    escola_filtro = request.GET.get('escola') or ''
-
-    funcionarios = Funcionario.objects.all()
-
-    if busca:
-
-        funcionarios = funcionarios.filter(
-            nome__icontains=busca
+        prestacao = ativos_filtrados.filter(
+            secretaria=codigo,
+            modalidade='prestacao',
+        ).aggregate(
+            quantidade=Count('id'),
+            valor=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
         )
 
-    if escola_filtro:
-
-        funcionarios = funcionarios.annotate(
-            escola_limpa=Trim('escola')
-        ).filter(
-            escola_limpa=escola_filtro.strip()
-    )
-
-    if ordem == 'antigo':
-
-        funcionarios = funcionarios.order_by('id')
-
-    else:
-
-        funcionarios = funcionarios.order_by('-id')
-
-    nomes_duplicados = (
-    Funcionario.objects
-    .annotate(nome_limpo=Lower(Trim('nome')))
-    .values('nome_limpo')
-    .annotate(total=Count('id'))
-    .filter(total__gt=1)
-)
-
-
-    escolas = (
-    Funcionario.objects
-    .exclude(escola__isnull=True)
-    .exclude(escola='')
-    .annotate(escola_limpa=Trim('escola'))
-    .values_list('escola_limpa', flat=True)
-    .distinct()
-    .order_by('escola_limpa')
-)
-    return render(
-        request,
-        'funcionarios.html',
-        {
-            'funcionarios': funcionarios,
-            'busca': busca,
-            'ordem': ordem,
-            'nomes_duplicados': nomes_duplicados,
-            'escolas': escolas,
-            'escola_filtro': escola_filtro,
-        }
-    )
-
-
-@login_required(login_url='/login/')
-def alterar_status(request, id):
-
-    funcionario = get_object_or_404(
-        Funcionario,
-        id=id
-    )
-
-    next_url = obter_next_url_segura(request)
-
-    if request.method == 'POST':
-
-        status = request.POST.get('status')
-
-        if status in {
-            'ativo',
-            'inativo',
-            'demitido'
-        }:
-            funcionario.status = status
-            funcionario.save(update_fields=['status'])
-
-    if next_url:
-        return redirect(next_url)
-
-    return redirect('funcionarios')
-
-
-@login_required(login_url='/login/')
-def editar_funcionario(request, id):
-
-    funcionario = get_object_or_404(
-        Funcionario,
-        id=id
-    )
-
-    next_url = obter_next_url_segura(request)
-
-    escolas = (
-        Funcionario.objects
-        .exclude(escola__isnull=True)
-        .exclude(escola='')
-        .annotate(escola_limpa=Trim('escola'))
-        .values_list('escola_limpa', flat=True)
-        .distinct()
-        .order_by('escola_limpa')
-    )
-
-    if request.method == 'POST':
-
-        nome = (
-            request.POST.get('nome')
-            or ''
-        ).strip()
-
-        nome_duplicado = (
-            Funcionario.objects
-            .filter(nome__iexact=nome)
-            .exclude(id=funcionario.id)
-            .first()
-        )
-
-        if nome_duplicado:
-
-            return render(
-                request,
-                'editar_funcionario.html',
-                {
-                    'funcionario': funcionario,
-                    'erro_nome_duplicado': True,
-                    'nome_duplicado': nome,
-                    'escolas': escolas,
-                    'next_url': next_url,
-                }
-            )
-
-        funcionario.nome = nome
-
-        funcionario.situacao_contratual = (
-            request.POST.get('situacao_contratual')
-            or ''
-        ).strip()
-
-        funcionario.cpf = (
-            request.POST.get('cpf')
-            or ''
-        ).strip()
-
-        escola_existente = (
-            request.POST.get('escola_existente')
-            or ''
-        ).strip()
-
-        nova_escola = (
-            request.POST.get('nova_escola')
-            or ''
-        ).strip()
-
-        if nova_escola:
-
-            funcionario.escola = nova_escola
-
-        elif (
-            escola_existente
-            and escola_existente != 'nova_escola'
-        ):
-
-            funcionario.escola = escola_existente
-
-        funcionario.carga_horaria = (
-            request.POST.get('carga_horaria')
-            or 0
-        )
-
-        funcionario.numero = (
-            request.POST.get('numero')
-            or ''
-        ).strip()
-
-        funcionario.localidade = (
-            request.POST.get('localidade')
-            or ''
-        ).strip()
-
-        funcionario.data_admissao = (
-            request.POST.get('data_admissao')
-            or None
-        )
-
-        cargo_nome = (
-            request.POST.get('cargo')
-            or ''
-        ).strip()
-
-        if cargo_nome:
-
-            cargo, _ = Cargo.objects.get_or_create(
-                nome=cargo_nome
-            )
-
-            funcionario.cargo = cargo
-
-        else:
-
-            funcionario.cargo = None
-
-        funcionario.save()
-
-        if next_url:
-            return redirect(next_url)
-
-        return redirect('funcionarios')
-
-    return render(
-        request,
-        'editar_funcionario.html',
-        {
-            'funcionario': funcionario,
-            'escolas': escolas,
-            'next_url': next_url,
-        }
-    )
-
-@login_required(login_url='/login/')
-def excluir_funcionario(request, id):
-
-    funcionario = get_object_or_404(
-        Funcionario,
-        id=id
-    )
-
-    next_url = obter_next_url_segura(request)
-
-    funcionario.delete()
-
-    if next_url:
-        return redirect(next_url)
-
-    return redirect('funcionarios')
-
-
-@login_required(login_url='/login/')
-def horas_extras(request):
-
-    busca = request.GET.get('busca')
-
-    funcionarios = []
-
-    if busca:
-        funcionarios = (
-            Funcionario.objects
-            .filter(nome__icontains=busca)
-            .order_by('nome')
-        )
-
-    return render(
-        request,
-        'horas_extras.html',
-        {
-            'busca': busca,
-            'funcionarios': funcionarios,
-        }
-    )
-
-
-@login_required(login_url='/login/')
-def adicionar_hora_extra(request, id):
-
-    funcionario = get_object_or_404(Funcionario, id=id)
-
-    agora = datetime.now()
-    mes_atual = agora.month
-    ano_atual = agora.year
-
-    if request.method == 'POST':
-
-        quantidade_horas = request.POST.get('quantidade_horas') or '0'
-        valor = request.POST.get('valor') or '0'
-
-        quantidade_horas = quantidade_horas.replace('h', '').replace('H', '').replace('R$', '').replace(' ', '').replace(',', '.')
-        valor = valor.replace('h', '').replace('H', '').replace('R$', '').replace(' ', '').replace(',', '.')
-
-        mes_referencia = request.POST.get('mes_referencia') or mes_atual
-        ano = request.POST.get('ano') or ano_atual
-
-        lancamento, criado = HoraExtra.objects.get_or_create(
-            funcionario=funcionario,
-            mes_referencia=mes_referencia,
-            ano=ano,
-            defaults={
-                'tipo': request.POST.get('tipo') or 'normal',
-                'quantidade_horas': 0,
-                'valor': 0,
-                'observacao_hora_extra': '',
-                'numero_faltas': 0,
-                'data_falta': None,
-                'observacao_falta': '',
-                'cor_texto': 'normal',
+        resumo_secretarias.append(
+            {
+                'codigo': codigo,
+                'nome': nome,
+                'credenciamento_quantidade': credenciamento['quantidade'],
+                'credenciamento_valor': credenciamento['valor'],
+                'prestacao_quantidade': prestacao['quantidade'],
+                'prestacao_valor': prestacao['valor'],
+                'total_quantidade': (
+                    credenciamento['quantidade'] + prestacao['quantidade']
+                ),
+                'total_valor': credenciamento['valor'] + prestacao['valor'],
             }
         )
 
-        lancamento.tipo = request.POST.get('tipo') or 'normal'
+    contratos_recentes = (
+        Contrato.objects.select_related()
+        .order_by('-criado_em')[:10]
+    )
 
-        try:
-            quantidade_horas_decimal = Decimal(quantidade_horas)
-        except:
-            quantidade_horas_decimal = Decimal('0')
-
-        try:
-            valor_decimal = Decimal(valor)
-        except:
-            valor_decimal = Decimal('0')
-
-        lancamento.quantidade_horas = Decimal(lancamento.quantidade_horas or 0) + quantidade_horas_decimal
-        lancamento.valor = Decimal(lancamento.valor or 0) + valor_decimal
-
-        nova_obs_hora = limpar_observacao(request.POST.get('observacao'))
-
-        if nova_obs_hora:
-            obs_antiga_hora = limpar_observacao(lancamento.observacao_hora_extra)
-            lancamento.observacao_hora_extra = (
-                obs_antiga_hora + '\n' + nova_obs_hora
-                if obs_antiga_hora else nova_obs_hora
-            )
-
-        numero_faltas = int(request.POST.get('numero_faltas') or 0)
-        lancamento.numero_faltas = int(lancamento.numero_faltas or 0) + numero_faltas
-
-        data_falta = tratar_data_falta(request.POST.get('data_falta'))
-
-        if data_falta:
-            lancamento.data_falta = data_falta
-
-        nova_obs_falta = limpar_observacao(request.POST.get('observacao_falta'))
-
-        if nova_obs_falta:
-            obs_antiga_falta = limpar_observacao(lancamento.observacao_falta)
-            lancamento.observacao_falta = (
-                obs_antiga_falta + '\n' + nova_obs_falta
-                if obs_antiga_falta else nova_obs_falta
-            )
-
-        lancamento.cor_texto = request.POST.get('cor_texto') or 'normal'
-
-        lancamento.save()
-
-        return redirect(f'/funcionario/{funcionario.id}/horas/')
-
-    return render(
-    request,
-    'adicionar_hora_extra.html',
-    {
-        'funcionario': funcionario,
-        'mes_atual': mes_atual,
-        'ano_atual': ano_atual,
-        'pode_ver_valores': usuario_pode_ver_valores(request.user),
+    context = {
+        'total_funcionarios': resumo_geral['total_funcionarios'],
+        'valor_total': resumo_geral['valor_total'],
+        'credenciamento_quantidade': resumo_credenciamento['quantidade'],
+        'credenciamento_valor': resumo_credenciamento['valor'],
+        'prestacao_quantidade': resumo_prestacao['quantidade'],
+        'prestacao_valor': resumo_prestacao['valor'],
+        'total_demitidos': Contrato.objects.filter(situacao='demitido').count(),
+        'resumo_secretarias': resumo_secretarias,
+        'contratos_recentes': contratos_recentes,
+        'secretarias': SECRETARIAS,
+        'modalidades': MODALIDADES,
+        'secretaria_filtro': request.GET.get('secretaria', ''),
+        'modalidade_filtro': request.GET.get('modalidade', ''),
+        'busca': request.GET.get('busca', ''),
+        'grafico_secretarias': [item['nome'] for item in resumo_secretarias],
+        'grafico_credenciamento_quantidades': [
+            item['credenciamento_quantidade'] for item in resumo_secretarias
+        ],
+        'grafico_prestacao_quantidades': [
+            item['prestacao_quantidade'] for item in resumo_secretarias
+        ],
+        'grafico_credenciamento_valores': [
+            float(item['credenciamento_valor']) for item in resumo_secretarias
+        ],
+        'grafico_prestacao_valores': [
+            float(item['prestacao_valor']) for item in resumo_secretarias
+        ],
     }
-)
+
+    return render(request, 'contratos/dashboard.html', context)
+
 
 @login_required(login_url='/login/')
-def horas_funcionario(request, id):
+def cadastrar_contrato(request):
+    if request.method == 'POST':
+        cpf = limpar_texto(request.POST.get('cpf'))
 
-    funcionario = get_object_or_404(
-        Funcionario,
-        id=id
-    )
+        if Contrato.objects.filter(cpf=cpf).exists():
+            messages.error(request, 'Já existe um servidor cadastrado com este CPF.')
+            return render(
+                request,
+                'contratos/formulario.html',
+                {
+                    'secretarias': SECRETARIAS,
+                    'modalidades': MODALIDADES,
+                    'situacoes': SITUACOES,
+                    'dados': request.POST,
+                    'titulo': 'Cadastrar servidor',
+                },
+            )
 
-    lancamentos = HoraExtra.objects.filter(
-        funcionario=funcionario
-    ).order_by(
-        '-ano',
-        '-mes_referencia',
-        '-id'
-    )
+        contrato = Contrato.objects.create(
+            nome=limpar_texto(request.POST.get('nome')),
+            funcao=limpar_texto(request.POST.get('funcao')),
+            local_trabalho=limpar_texto(request.POST.get('local_trabalho')),
+            cpf=cpf,
+            rg=limpar_texto(request.POST.get('rg')),
+            data_nascimento=request.POST.get('data_nascimento') or None,
+            banco=limpar_texto(request.POST.get('banco')),
+            agencia=limpar_texto(request.POST.get('agencia')),
+            conta_bancaria=limpar_texto(request.POST.get('conta_bancaria')),
+            salario_fixo=converter_decimal(request.POST.get('salario_fixo')),
+            secretaria=limpar_texto(request.POST.get('secretaria')),
+            modalidade=limpar_texto(request.POST.get('modalidade')),
+            situacao=limpar_texto(request.POST.get('situacao')) or 'ativo',
+        )
 
-
+        messages.success(request, f'{contrato.nome} foi cadastrado com sucesso.')
+        return redirect('listar_contratos')
 
     return render(
         request,
-        'horas_funcionario.html',
+        'contratos/formulario.html',
         {
-            'funcionario': funcionario,
-            'lancamentos': lancamentos,
-            
-            'pode_ver_valores': usuario_pode_ver_valores(request.user),
-        }
+            'secretarias': SECRETARIAS,
+            'modalidades': MODALIDADES,
+            'situacoes': SITUACOES,
+            'titulo': 'Cadastrar servidor',
+        },
     )
-
-
-
-
-
 
 
 @login_required(login_url='/login/')
-def editar_hora_extra(request, id):
+def listar_contratos(request):
+    contratos = aplicar_filtros(Contrato.objects.all(), request)
 
-    lancamento = get_object_or_404(
-        HoraExtra,
-        id=id
+    ordem = request.GET.get('ordem', 'nome')
+    ordenacoes = {
+        'nome': 'nome',
+        '-nome': '-nome',
+        'recente': '-criado_em',
+        'antigo': 'criado_em',
+        'maior_salario': '-salario_fixo',
+        'menor_salario': 'salario_fixo',
+    }
+    contratos = contratos.order_by(ordenacoes.get(ordem, 'nome'))
+
+    totais = contratos.aggregate(
+        quantidade=Count('id'),
+        valor=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
     )
 
-    next_url = (
-        request.POST.get('next')
-        or request.GET.get('next')
-        or ''
+    context = {
+        'contratos': contratos,
+        'total_resultados': totais['quantidade'],
+        'valor_resultados': totais['valor'],
+        'secretarias': SECRETARIAS,
+        'modalidades': MODALIDADES,
+        'situacoes': SITUACOES,
+        'busca': request.GET.get('busca', ''),
+        'secretaria_filtro': request.GET.get('secretaria', ''),
+        'modalidade_filtro': request.GET.get('modalidade', ''),
+        'situacao_filtro': request.GET.get('situacao', ''),
+        'ordem': ordem,
+    }
+
+    return render(request, 'contratos/lista.html', context)
+
+
+@login_required(login_url='/login/')
+def contratos_por_categoria(request, modalidade, secretaria):
+    modalidades_validas = {codigo for codigo, _ in MODALIDADES}
+    secretarias_validas = {codigo for codigo, _ in SECRETARIAS}
+
+    if modalidade not in modalidades_validas or secretaria not in secretarias_validas:
+        messages.error(request, 'Categoria de contratos inválida.')
+        return redirect('listar_contratos')
+
+    contratos = Contrato.objects.filter(
+        modalidade=modalidade,
+        secretaria=secretaria,
     )
+    contratos = aplicar_filtros(contratos, request).order_by('nome')
+
+    modalidade_nome = dict(MODALIDADES)[modalidade]
+    secretaria_nome = dict(SECRETARIAS)[secretaria]
+
+    totais = contratos.aggregate(
+        quantidade=Count('id'),
+        valor=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
+    )
+
+    return render(
+        request,
+        'contratos/lista.html',
+        {
+            'contratos': contratos,
+            'total_resultados': totais['quantidade'],
+            'valor_resultados': totais['valor'],
+            'secretarias': SECRETARIAS,
+            'modalidades': MODALIDADES,
+            'situacoes': SITUACOES,
+            'modalidade_filtro': modalidade,
+            'secretaria_filtro': secretaria,
+            'situacao_filtro': request.GET.get('situacao', ''),
+            'busca': request.GET.get('busca', ''),
+            'titulo_lista': f'{modalidade_nome} — {secretaria_nome}',
+        },
+    )
+
+
+@login_required(login_url='/login/')
+def detalhe_contrato(request, id):
+    contrato = get_object_or_404(Contrato, id=id)
+    return render(request, 'contratos/detalhe.html', {'contrato': contrato})
+
+
+@login_required(login_url='/login/')
+def editar_contrato(request, id):
+    contrato = get_object_or_404(Contrato, id=id)
+    next_url = obter_next_url_segura(request)
 
     if request.method == 'POST':
+        cpf = limpar_texto(request.POST.get('cpf'))
 
-        quantidade_horas = (
-            request.POST.get('quantidade_horas')
-            or '0'
+        cpf_duplicado = (
+            Contrato.objects.filter(cpf=cpf)
+            .exclude(id=contrato.id)
+            .exists()
         )
 
-        quantidade_horas = (
-            quantidade_horas
-            .replace('h', '')
-            .replace('H', '')
-            .replace(' ', '')
-            .replace(',', '.')
-        )
-
-        lancamento.tipo = (
-            request.POST.get('tipo')
-            or 'normal'
-        )
-
-        try:
-            lancamento.quantidade_horas = Decimal(
-                quantidade_horas
-            )
-        except:
-            lancamento.quantidade_horas = Decimal('0')
-
-        # Só altera o valor quando o usuário pode visualizá-lo
-        if usuario_pode_ver_valores(request.user):
-
-            valor = (
-                request.POST.get('valor')
-                or '0'
+        if cpf_duplicado:
+            messages.error(request, 'Já existe outro servidor com este CPF.')
+            return render(
+                request,
+                'contratos/formulario.html',
+                {
+                    'contrato': contrato,
+                    'secretarias': SECRETARIAS,
+                    'modalidades': MODALIDADES,
+                    'situacoes': SITUACOES,
+                    'dados': request.POST,
+                    'titulo': 'Editar servidor',
+                    'next_url': next_url,
+                },
             )
 
-            valor = (
-                valor
-                .replace('R$', '')
-                .replace(' ', '')
-                .replace(',', '.')
-            )
+        contrato.nome = limpar_texto(request.POST.get('nome'))
+        contrato.funcao = limpar_texto(request.POST.get('funcao'))
+        contrato.local_trabalho = limpar_texto(request.POST.get('local_trabalho'))
+        contrato.cpf = cpf
+        contrato.rg = limpar_texto(request.POST.get('rg'))
+        contrato.data_nascimento = request.POST.get('data_nascimento') or None
+        contrato.banco = limpar_texto(request.POST.get('banco'))
+        contrato.agencia = limpar_texto(request.POST.get('agencia'))
+        contrato.conta_bancaria = limpar_texto(request.POST.get('conta_bancaria'))
+        contrato.salario_fixo = converter_decimal(request.POST.get('salario_fixo'))
+        contrato.secretaria = limpar_texto(request.POST.get('secretaria'))
+        contrato.modalidade = limpar_texto(request.POST.get('modalidade'))
+        contrato.situacao = limpar_texto(request.POST.get('situacao')) or 'ativo'
+        contrato.save()
 
-            try:
-                lancamento.valor = Decimal(valor)
-            except:
-                # Mantém o valor anterior se o conteúdo for inválido
-                pass
-
-        lancamento.mes_referencia = (
-            request.POST.get('mes_referencia')
-            or lancamento.mes_referencia
-        )
-
-        lancamento.ano = (
-            request.POST.get('ano')
-            or lancamento.ano
-        )
-
-        lancamento.observacao_hora_extra = limpar_observacao(
-            request.POST.get('observacao_hora_extra')
-        )
-
-        lancamento.numero_faltas = (
-            request.POST.get('numero_faltas')
-            or 0
-        )
-
-        lancamento.data_falta = tratar_data_falta(
-            request.POST.get('data_falta')
-        )
-
-        lancamento.observacao_falta = limpar_observacao(
-            request.POST.get('observacao_falta')
-        )
-
-        lancamento.cor_texto = (
-            request.POST.get('cor_texto')
-            or 'normal'
-        )
-
-        lancamento.save()
-
-        next_url_valida = (
-            next_url
-            and url_has_allowed_host_and_scheme(
-                url=next_url,
-                allowed_hosts={request.get_host()},
-                require_https=request.is_secure()
-            )
-        )
-
-        if next_url_valida:
-            return redirect(next_url)
-
-        return redirect(
-            f'/funcionario/{lancamento.funcionario.id}/horas/'
-        )
+        messages.success(request, 'Cadastro atualizado com sucesso.')
+        return redirect(next_url or 'listar_contratos')
 
     return render(
         request,
-        'editar_hora_extra.html',
+        'contratos/formulario.html',
         {
-            'lancamento': lancamento,
-            'pode_ver_valores': usuario_pode_ver_valores(
-                request.user
-            ),
+            'contrato': contrato,
+            'secretarias': SECRETARIAS,
+            'modalidades': MODALIDADES,
+            'situacoes': SITUACOES,
+            'titulo': 'Editar servidor',
             'next_url': next_url,
-        }
+        },
     )
+
 
 @login_required(login_url='/login/')
-def excluir_hora_extra(request, id):
+@require_POST
+def alterar_situacao(request, id):
+    contrato = get_object_or_404(Contrato, id=id)
+    situacao = request.POST.get('situacao')
 
-    next_url = request.GET.get('next') or ''
+    situacoes_validas = {codigo for codigo, _ in SITUACOES}
 
-    lancamento = get_object_or_404(
-        HoraExtra,
-        id=id
-    )
+    if situacao in situacoes_validas:
+        contrato.situacao = situacao
+        contrato.save(update_fields=['situacao', 'atualizado_em'])
+        messages.success(request, 'Situação atualizada com sucesso.')
+    else:
+        messages.error(request, 'Situação inválida.')
 
-    mes = lancamento.mes_referencia
-    ano = lancamento.ano
+    return redirect(obter_next_url_segura(request) or 'listar_contratos')
 
-    next_url_valida = (
-        next_url
-        and url_has_allowed_host_and_scheme(
-            url=next_url,
-            allowed_hosts={request.get_host()},
-            require_https=request.is_secure()
-        )
-    )
-
-    if lancamento.encerrado:
-
-        if next_url_valida:
-            return redirect(next_url)
-
-        return redirect(
-            f'/lancamentos-mes/?mes={mes}&ano={ano}'
-        )
-
-    lancamento.delete()
-
-    if next_url_valida:
-        return redirect(next_url)
-
-    return redirect(
-        f'/lancamentos-mes/?mes={mes}&ano={ano}'
-    )
 
 @login_required(login_url='/login/')
-def exportar_pendencias_excel(request):
+@require_POST
+def excluir_contrato(request, id):
+    contrato = get_object_or_404(Contrato, id=id)
+    nome = contrato.nome
+    contrato.delete()
+    messages.success(request, f'O cadastro de {nome} foi excluído.')
+    return redirect(obter_next_url_segura(request) or 'listar_contratos')
 
-    mes = request.GET.get('mes')
-    ano = request.GET.get('ano')
-    busca = request.GET.get('busca') or ''
-    escola_filtro = request.GET.get('escola') or ''
 
-    if not mes or not ano:
-        return redirect('/lancamentos-mes/')
+@login_required(login_url='/login/')
+def relatorios(request):
+    contratos = aplicar_filtros(Contrato.objects.all(), request)
 
-    pode_ver_valores = usuario_pode_ver_valores(request.user)
-
-    lancamentos = HoraExtra.objects.filter(
-        mes_referencia=mes,
-        ano=ano
-    ).select_related(
-        'funcionario',
-        'funcionario__cargo'
+    resumo_secretaria = (
+        contratos.values('secretaria')
+        .annotate(
+            quantidade=Count('id'),
+            valor_total=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
+        )
+        .order_by('secretaria')
     )
 
-    if busca:
-        lancamentos = lancamentos.filter(
-            funcionario__nome__icontains=busca.strip()
+    resumo_modalidade = (
+        contratos.values('modalidade')
+        .annotate(
+            quantidade=Count('id'),
+            valor_total=Coalesce(Sum('salario_fixo'), Decimal('0.00')),
         )
+        .order_by('modalidade')
+    )
 
-    if escola_filtro:
-        lancamentos = lancamentos.annotate(
-            escola_limpa=Trim('funcionario__escola')
-        ).filter(
-            escola_limpa=escola_filtro.strip()
-        )
+    return render(
+        request,
+        'contratos/relatorios.html',
+        {
+            'resumo_secretaria': resumo_secretaria,
+            'resumo_modalidade': resumo_modalidade,
+            'secretarias': SECRETARIAS,
+            'modalidades': MODALIDADES,
+            'situacoes': SITUACOES,
+            'busca': request.GET.get('busca', ''),
+            'secretaria_filtro': request.GET.get('secretaria', ''),
+            'modalidade_filtro': request.GET.get('modalidade', ''),
+            'situacao_filtro': request.GET.get('situacao', ''),
+        },
+    )
 
-    lancamentos = lancamentos.order_by(
-    '-data_falta',
-    'funcionario__nome'
-)
+
+@login_required(login_url='/login/')
+def exportar_contratos_excel(request):
+    contratos = aplicar_filtros(Contrato.objects.all(), request).order_by(
+        'secretaria',
+        'modalidade',
+        'nome',
+    )
 
     wb = Workbook()
     ws = wb.active
-    ws.title = 'Pendências'
+    ws.title = 'Contratos'
 
     ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
     ws.page_setup.paperSize = ws.PAPERSIZE_A4
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0
-    ws.print_options.horizontalCentered = True
+    ws.freeze_panes = 'A4'
 
     ws.page_margins = PageMargins(
         left=0.15,
         right=0.15,
-        top=0.05,
-        bottom=0.15,
+        top=0.20,
+        bottom=0.20,
         header=0,
-        footer=0
+        footer=0,
     )
 
-    ws.merge_cells('A1:D1')
-
-    meses = {
-        '1': 'JANEIRO',
-        '2': 'FEVEREIRO',
-        '3': 'MARÇO',
-        '4': 'ABRIL',
-        '5': 'MAIO',
-        '6': 'JUNHO',
-        '7': 'JULHO',
-        '8': 'AGOSTO',
-        '9': 'SETEMBRO',
-        '10': 'OUTUBRO',
-        '11': 'NOVEMBRO',
-        '12': 'DEZEMBRO',
-    }
-
-    titulo_texto = f'FOLHA-MÊS DE {meses.get(str(mes), mes)} {ano}'
-
-    if escola_filtro:
-        titulo_texto += f' - {escola_filtro.strip()}'
-
+    ws.merge_cells('A1:N1')
     titulo = ws['A1']
-    titulo.value = titulo_texto
-    titulo.font = Font(bold=True, color='FFFFFF', size=13)
-    titulo.fill = PatternFill('solid', fgColor='1F4E78')
+    titulo.value = 'RELAÇÃO DE CONTRATOS — PREFEITURA MUNICIPAL'
+    titulo.font = Font(bold=True, color='FFFFFF', size=14)
+    titulo.fill = PatternFill('solid', fgColor='17365D')
     titulo.alignment = Alignment(horizontal='center', vertical='center')
 
-    ws.append([
-        'FUNCIONÁRIO',
-        'FUNÇÃO',
-        'LOCAL DE TRABALHO',
-        'PENDÊNCIA'
-    ])
-
-    borda = Border(
-        left=Side(style='thin'),
-        right=Side(style='thin'),
-        top=Side(style='thin'),
-        bottom=Side(style='thin')
-    )
-
-    for cell in ws[2]:
-        cell.font = Font(bold=True, color='FFFFFF', size=9)
-        cell.fill = PatternFill('solid', fgColor='244062')
-        cell.alignment = Alignment(horizontal='center', vertical='center')
-        cell.border = borda
-
-    for item in lancamentos:
-
-        pendencias = []
-
-        if item.quantidade_horas and item.quantidade_horas > 0:
-
-            if pode_ver_valores:
-                texto_hora = (
-                    f'{item.get_tipo_display()} | '
-                    f'Horas: {int(item.quantidade_horas)}h | '
-                    f'Valor: R$ {item.valor} | '
-                    f'Obs: {item.observacao_hora_extra or "Sem observação"}'
-                )
-            else:
-                texto_hora = (
-                    f'{item.get_tipo_display()} | '
-                    f'Horas: {int(item.quantidade_horas)}h | '
-                    f'Obs: {item.observacao_hora_extra or "Sem observação"}'
-                )
-
-            pendencias.append(texto_hora)
-
-        if item.numero_faltas and item.numero_faltas > 0:
-
-            data_falta = (
-                item.data_falta.strftime('%d/%m/%Y')
-                if item.data_falta else
-                'Não informada'
-            )
-
-            texto_falta = (
-                f'Faltas: {item.numero_faltas} | '
-                f'Data: {data_falta} | '
-                f'Obs: {item.observacao_falta or "Sem observação"}'
-            )
-
-            pendencias.append(texto_falta)
-
-        pendencia = ' || '.join(pendencias)
-
-        if not pendencia:
-            pendencia = 'Sem pendência'
-
-        ws.append([
-            item.funcionario.nome,
-            item.funcionario.cargo.nome if item.funcionario.cargo else '',
-            (item.funcionario.escola or '').strip(),
-            pendencia
-        ])
-
-        for cell in ws[ws.max_row]:
-            cell.font = Font(size=9)
-            cell.border = borda
-            cell.alignment = Alignment(
-                horizontal='center',
-                vertical='center',
-                wrap_text=True
-            )
-
-    ws.column_dimensions['A'].width = 34
-    ws.column_dimensions['B'].width = 24
-    ws.column_dimensions['C'].width = 34
-    ws.column_dimensions['D'].width = 65
-
-    ws.row_dimensions[1].height = 18
-    ws.row_dimensions[2].height = 15
-
-    for linha in range(3, ws.max_row + 1):
-        ws.row_dimensions[linha].height = 22
-
-    ws.freeze_panes = 'A3'
-
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-
-    nome_arquivo = f'pendencias_{mes}_{ano}'
-
-    if escola_filtro:
-        nome_arquivo += f'_{escola_filtro.strip().replace(" ", "_")}'
-
-    response['Content-Disposition'] = (
-        f'attachment; filename={nome_arquivo}.xlsx'
-    )
-
-    wb.save(response)
-
-    return response
-@login_required(login_url='/login/')
-def lancamentos_mes(request):
-
-    agora = datetime.now()
-
-    mes = request.GET.get('mes') or agora.month
-    ano = request.GET.get('ano') or agora.year
-    busca = request.GET.get('busca') or ''
-    escola_filtro = request.GET.get('escola') or ''
-
-    lancamentos = HoraExtra.objects.filter(
-        mes_referencia=mes,
-        ano=ano
-    ).select_related(
-        'funcionario',
-        'funcionario__cargo'
-    )
-
-    if busca:
-        lancamentos = lancamentos.filter(
-            funcionario__nome__icontains=busca.strip()
+    filtros = []
+    if request.GET.get('secretaria'):
+        filtros.append(
+            f"Secretaria: {dict(SECRETARIAS).get(request.GET['secretaria'], request.GET['secretaria'])}"
         )
-
-    if escola_filtro:
-        lancamentos = lancamentos.annotate(
-            escola_limpa=Trim('funcionario__escola')
-        ).filter(
-            escola_limpa=escola_filtro.strip()
+    if request.GET.get('modalidade'):
+        filtros.append(
+            f"Modalidade: {dict(MODALIDADES).get(request.GET['modalidade'], request.GET['modalidade'])}"
         )
-
-    lancamentos = lancamentos.order_by(
-        'funcionario__nome'
-    )
-
-    total_horas = Decimal('0')
-    total_valor = Decimal('0')
-
-    for item in lancamentos:
-        total_horas += item.quantidade_horas
-        total_valor += item.valor
-
-    mes_encerrado = lancamentos.filter(
-        encerrado=True
-    ).exists()
-
-    escolas = (
-        Funcionario.objects
-        .exclude(escola__isnull=True)
-        .exclude(escola='')
-        .annotate(escola_limpa=Trim('escola'))
-        .values_list('escola_limpa', flat=True)
-        .distinct()
-        .order_by('escola_limpa')
-    )
-
-    return render(
-        request,
-        'lancamentos_mes.html',
-        {
-            'lancamentos': lancamentos,
-            'mes': int(mes),
-            'ano': int(ano),
-            'busca': busca,
-            'escolas': escolas,
-            'escola_filtro': escola_filtro,
-            'total_horas': total_horas,
-            'total_valor': total_valor,
-            'mes_encerrado': mes_encerrado,
-
-             'pode_ver_valores': usuario_pode_ver_valores(request.user),
-        }
-    )
-
-@login_required(login_url='/login/')
-def encerrar_lancamentos_mes(request):
-
-    mes = request.GET.get('mes')
-    ano = request.GET.get('ano')
-
-    if not mes or not ano:
-        return redirect('/lancamentos-mes/')
-
-    HoraExtra.objects.filter(
-        mes_referencia=mes,
-        ano=ano,
-        encerrado=False
-    ).update(
-        encerrado=True,
-        data_encerramento=timezone.now()
-    )
-
-    return redirect('/lancamentos-gerais/')
-
-
-
-@login_required(login_url='/login/')
-def lancamentos_gerais(request):
-
-    mes = request.GET.get('mes')
-    ano = request.GET.get('ano')
-    escola_filtro = request.GET.get('escola') or ''
-
-    lancamentos = HoraExtra.objects.none()
-
-    if mes and ano:
-        lancamentos = HoraExtra.objects.filter(
-            encerrado=True,
-            mes_referencia=mes,
-            ano=ano
-        ).select_related(
-            'funcionario',
-            'funcionario__cargo'
+    if request.GET.get('situacao'):
+        filtros.append(
+            f"Situação: {dict(SITUACOES).get(request.GET['situacao'], request.GET['situacao'])}"
         )
+    if request.GET.get('busca'):
+        filtros.append(f"Pesquisa: {request.GET['busca']}")
 
-        if escola_filtro:
-            lancamentos = lancamentos.annotate(
-                escola_limpa=Trim('funcionario__escola')
-            ).filter(
-                escola_limpa=escola_filtro.strip()
-            )
-
-        lancamentos = lancamentos.order_by(
-            'funcionario__nome'
-        )
-
-    escolas = (
-        Funcionario.objects
-        .exclude(escola__isnull=True)
-        .exclude(escola='')
-        .annotate(escola_limpa=Trim('escola'))
-        .values_list('escola_limpa', flat=True)
-        .distinct()
-        .order_by('escola_limpa')
-    )
-
-    return render(
-        request,
-        'lancamentos_gerais.html',
-        {
-            'lancamentos': lancamentos,
-            'mes': int(mes) if mes else '',
-            'ano': int(ano) if ano else '',
-            'escolas': escolas,
-            'escola_filtro': escola_filtro,
-        }
-    )
-
-
-@login_required(login_url='/login/')
-def exportar_funcionarios_excel(request):
-
-    busca = request.GET.get('busca') or ''
-    escola_filtro = request.GET.get('escola') or ''
-    ordem = request.GET.get('ordem') or ''
-
-    funcionarios = (
-        Funcionario.objects
-        .select_related('cargo')
-        .all()
-    )
-
-    if busca:
-        funcionarios = funcionarios.filter(
-            nome__icontains=busca.strip()
-        )
-
-    if escola_filtro:
-        funcionarios = funcionarios.annotate(
-            escola_limpa=Trim('escola')
-        ).filter(
-            escola_limpa=escola_filtro.strip()
-        )
-
-    if ordem == 'antigo':
-        funcionarios = funcionarios.order_by('id')
-    else:
-        funcionarios = funcionarios.order_by('-id')
-
-    wb = Workbook()
-    ws = wb.active
-    ws.title = 'Funcionários'
-
-    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
-    ws.page_setup.paperSize = ws.PAPERSIZE_A4
-    ws.sheet_properties.pageSetUpPr.fitToPage = True
-    ws.page_setup.fitToWidth = 1
-    ws.page_setup.fitToHeight = 0
-
-    ws.page_margins = PageMargins(
-        left=0.20,
-        right=0.20,
-        top=0.30,
-        bottom=0.30,
-        header=0,
-        footer=0
-    )
-
-    # Título
-    ws.merge_cells('A1:J1')
-
-    titulo = ws['A1']
-    titulo.value = 'RELAÇÃO DE FUNCIONÁRIOS'
-    titulo.font = Font(
-        bold=True,
-        color='FFFFFF',
-        size=14
-    )
-    titulo.fill = PatternFill(
-        'solid',
-        fgColor='1F4E78'
-    )
-    titulo.alignment = Alignment(
-        horizontal='center',
-        vertical='center'
-    )
-
-    # Descrição dos filtros aplicados
-    filtros_aplicados = []
-
-    if busca:
-        filtros_aplicados.append(
-            f'Nome: {busca}'
-        )
-
-    if escola_filtro:
-        filtros_aplicados.append(
-            f'Escola: {escola_filtro}'
-        )
-
-    texto_filtros = (
-        'Filtros: ' + ' | '.join(filtros_aplicados)
-        if filtros_aplicados
-        else 'Todos os funcionários'
-    )
-
-    ws.merge_cells('A2:J2')
-
-    ws['A2'] = texto_filtros
-    ws['A2'].font = Font(
-        italic=True,
-        color='475569',
-        size=10
-    )
-    ws['A2'].alignment = Alignment(
-        horizontal='center',
-        vertical='center'
-    )
+    ws.merge_cells('A2:N2')
+    ws['A2'] = ' | '.join(filtros) if filtros else 'Todos os contratos'
+    ws['A2'].font = Font(italic=True, color='475569', size=10)
+    ws['A2'].alignment = Alignment(horizontal='center')
 
     cabecalhos = [
         'NOME',
-        'SITUAÇÃO CONTRATUAL',
+        'FUNÇÃO',
+        'LOCAL DE TRABALHO',
         'CPF',
-        'NÚMERO',
-        'LOCALIDADE',
-        'ESCOLA',
-        'CARGO',
-        'CARGA HORÁRIA',
-        'STATUS',
-        'DATA DE ADMISSÃO',
+        'RG',
+        'DATA DE NASCIMENTO',
+        'BANCO',
+        'AGÊNCIA',
+        'CONTA',
+        'SALÁRIO FIXO',
+        'SECRETARIA',
+        'MODALIDADE',
+        'SITUAÇÃO',
+        'CADASTRADO EM',
     ]
-
     ws.append(cabecalhos)
 
     borda = Border(
         left=Side(style='thin', color='94A3B8'),
         right=Side(style='thin', color='94A3B8'),
         top=Side(style='thin', color='94A3B8'),
-        bottom=Side(style='thin', color='94A3B8')
+        bottom=Side(style='thin', color='94A3B8'),
     )
 
     for cell in ws[3]:
-        cell.font = Font(
-            bold=True,
-            color='FFFFFF',
-            size=9
-        )
-        cell.fill = PatternFill(
-            'solid',
-            fgColor='244062'
-        )
+        cell.font = Font(bold=True, color='FFFFFF', size=9)
+        cell.fill = PatternFill('solid', fgColor='F97316')
         cell.alignment = Alignment(
             horizontal='center',
             vertical='center',
-            wrap_text=True
+            wrap_text=True,
         )
         cell.border = borda
 
-    for funcionario in funcionarios:
-
-        data_admissao = (
-            funcionario.data_admissao.strftime('%d/%m/%Y')
-            if funcionario.data_admissao
-            else ''
+    for contrato in contratos:
+        ws.append(
+            [
+                contrato.nome,
+                contrato.funcao,
+                contrato.local_trabalho,
+                contrato.cpf,
+                contrato.rg,
+                contrato.data_nascimento.strftime('%d/%m/%Y')
+                if contrato.data_nascimento
+                else '',
+                contrato.banco,
+                contrato.agencia,
+                contrato.conta_bancaria,
+                contrato.salario_fixo,
+                contrato.get_secretaria_display(),
+                contrato.get_modalidade_display(),
+                contrato.get_situacao_display(),
+                timezone.localtime(contrato.criado_em).strftime('%d/%m/%Y %H:%M'),
+            ]
         )
 
-        ws.append([
-            funcionario.nome,
-            funcionario.situacao_contratual or '',
-            funcionario.cpf or '',
-            funcionario.numero or '',
-            funcionario.localidade or '',
-            (funcionario.escola or '').strip(),
-            funcionario.cargo.nome if funcionario.cargo else '',
-            funcionario.carga_horaria or 0,
-            funcionario.get_status_display(),
-            data_admissao,
-        ])
-
         linha = ws.max_row
-
         for cell in ws[linha]:
             cell.font = Font(size=9)
             cell.border = borda
-            cell.alignment = Alignment(
-                vertical='center',
-                wrap_text=True
-            )
+            cell.alignment = Alignment(vertical='center', wrap_text=True)
 
-        ws.cell(
-            row=linha,
-            column=8
-        ).number_format = '0" h"'
+        ws.cell(row=linha, column=10).number_format = 'R$ #,##0.00'
 
-    ws.column_dimensions['A'].width = 32
-    ws.column_dimensions['B'].width = 22
-    ws.column_dimensions['C'].width = 18
-    ws.column_dimensions['D'].width = 16
-    ws.column_dimensions['E'].width = 25
-    ws.column_dimensions['F'].width = 35
-    ws.column_dimensions['G'].width = 25
-    ws.column_dimensions['H'].width = 16
-    ws.column_dimensions['I'].width = 15
-    ws.column_dimensions['J'].width = 18
+    larguras = {
+        'A': 30,
+        'B': 24,
+        'C': 28,
+        'D': 16,
+        'E': 15,
+        'F': 18,
+        'G': 18,
+        'H': 12,
+        'I': 18,
+        'J': 16,
+        'K': 28,
+        'L': 24,
+        'M': 14,
+        'N': 20,
+    }
 
-    ws.row_dimensions[1].height = 24
+    for coluna, largura in larguras.items():
+        ws.column_dimensions[coluna].width = largura
+
+    ws.row_dimensions[1].height = 25
     ws.row_dimensions[2].height = 20
-    ws.row_dimensions[3].height = 28
-
-    for linha in range(4, ws.max_row + 1):
-        ws.row_dimensions[linha].height = 24
-
-    ws.freeze_panes = 'A4'
+    ws.row_dimensions[3].height = 30
 
     if ws.max_row >= 4:
-        ws.auto_filter.ref = f'A3:J{ws.max_row}'
+        ws.auto_filter.ref = f'A3:N{ws.max_row}'
 
     response = HttpResponse(
         content_type=(
-            'application/vnd.openxmlformats-'
-            'officedocument.spreadsheetml.sheet'
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
     )
 
     data_atual = timezone.localdate().strftime('%d-%m-%Y')
-
     response['Content-Disposition'] = (
-        f'attachment; '
-        f'filename="funcionarios_{data_atual}.xlsx"'
+        f'attachment; filename="contratos_{data_atual}.xlsx"'
     )
 
     wb.save(response)
-
     return response

@@ -1,0 +1,1434 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Gestão de Contratos{% endblock %}</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+:root{
+  --bg:#08101d;
+  --bg2:#0b1424;
+  --sidebar:#070e1b;
+  --surface:#121e31;
+  --surface2:#17263d;
+  --surface3:#1b2b45;
+  --border:rgba(121,170,214,.17);
+  --border2:rgba(98,198,217,.36);
+  --cyan:#62c6d9;
+  --blue:#73a9f5;
+  --green:#65d29a;
+  --red:#ef7d89;
+  --gold:#e9bd68;
+  --purple:#8b5cf6;
+  --text:#f8fafc;
+  --text2:#c7d4e4;
+  --muted:#8da1ba;
+  --shadow:0 18px 44px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--bg)}
+body{
+  min-height:100vh;
+  margin:0;
+  color:var(--text)!important;
+  background:
+    radial-gradient(circle at 13% 7%,rgba(98,198,217,.10),transparent 27%),
+    radial-gradient(circle at 88% 11%,rgba(115,169,245,.08),transparent 25%),
+    linear-gradient(135deg,var(--bg),var(--bg2) 48%,#101b2e)!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif!important;
+  overflow-x:hidden
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.34;
+  background-image:
+    linear-gradient(rgba(119,163,207,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(119,163,207,.035) 1px,transparent 1px);
+  background-size:38px 38px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.95),transparent 96%)
+}
+body::after{
+  content:"";position:fixed;width:430px;height:430px;right:-150px;top:28%;z-index:-1;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(59,130,246,.14),transparent 70%);filter:blur(22px)
+}
+a{text-decoration:none}
+
+/* MENU LATERAL */
+.sidebar{
+  width:285px!important;color:var(--text);
+  background:linear-gradient(180deg,rgba(7,14,27,.995),rgba(10,18,33,.99))!important;
+  border-right:1px solid var(--border)!important;
+  box-shadow:18px 0 42px rgba(0,0,0,.24)
+}
+.sidebar::after{
+  content:"";position:absolute;top:0;right:0;width:2px;height:100%;pointer-events:none;
+  background:linear-gradient(transparent,var(--cyan),var(--blue),var(--purple),transparent);opacity:.46
+}
+.sidebar-brand{
+  position:relative;border-bottom:1px solid rgba(98,198,217,.14)!important;
+  background:linear-gradient(180deg,rgba(98,198,217,.025),transparent)
+}
+.sidebar-brand::before{
+  content:"ONLINE";position:absolute;right:18px;top:8px;color:#66809c;
+  font-size:8px;font-weight:900;letter-spacing:1.3px
+}
+.sidebar-brand::after{
+  content:"";position:absolute;right:9px;top:10px;width:6px;height:6px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 10px rgba(101,210,154,.8);animation:pulse 1.8s infinite
+}
+@keyframes pulse{50%{opacity:.35;transform:scale(.76)}}
+.brand-icon{
+  min-width:50px!important;height:50px!important;color:#07131f!important;
+  background:linear-gradient(135deg,#a4e3ec,#76aaf5)!important;
+  border:1px solid rgba(98,198,217,.55);
+  box-shadow:0 0 0 5px rgba(98,198,217,.045),0 0 24px rgba(98,198,217,.16)
+}
+.brand-title{color:#f8fafc;font-size:15px!important;letter-spacing:-.2px}
+.brand-subtitle{color:var(--muted)!important}
+.nav-section-title{color:#66809c!important;letter-spacing:1.5px!important}
+.sidebar-link,.sidebar-summary{
+  position:relative;isolation:isolate;overflow:hidden;min-height:46px;
+  color:#c7d4e4!important;
+  background:linear-gradient(135deg,rgba(17,30,50,.90),rgba(12,23,40,.86))!important;
+  border:1px solid rgba(34,211,238,.18)!important;border-radius:13px!important;
+  box-shadow:0 9px 20px rgba(0,0,0,.36),0 0 10px rgba(34,211,238,.12),inset 0 1px 0 rgba(255,255,255,.045);
+  transition:.24s ease
+}
+.sidebar-link::before,.sidebar-summary::before{
+  content:"";position:absolute;left:0;top:50%;width:3px;height:0;transform:translateY(-50%);
+  border-radius:0 8px 8px 0;background:linear-gradient(var(--cyan),var(--blue),var(--purple));
+  opacity:0;box-shadow:0 0 9px rgba(34,211,238,.70);transition:.24s ease
+}
+.sidebar-link:hover,.sidebar-summary:hover,.sidebar-link.active{
+  color:#fff!important;transform:translateX(5px);
+  background:linear-gradient(135deg,#172a45,#101e34)!important;
+  border-color:rgba(34,211,238,.55)!important;
+  box-shadow:0 14px 28px rgba(0,0,0,.52),0 0 16px rgba(34,211,238,.34),0 0 30px rgba(59,130,246,.16)!important
+}
+.sidebar-link:hover::before,.sidebar-summary:hover::before,.sidebar-link.active::before{height:27px;opacity:1}
+.sidebar-link.active{box-shadow:0 14px 28px rgba(0,0,0,.52),0 0 16px rgba(34,211,238,.34)!important}
+.sidebar-submenu{padding-left:21px!important}
+.sidebar-submenu .sidebar-link{font-size:12px!important;min-height:39px!important}
+.sidebar-user{
+  background:linear-gradient(145deg,rgba(20,33,54,.95),rgba(13,23,40,.95))!important;
+  border:1px solid var(--border)!important;box-shadow:var(--shadow)
+}
+.sidebar-user-name{color:var(--text)!important}
+.sidebar-user-description{color:var(--muted)!important}
+.logout-form {
+    width: 100%;
+    margin: 0;
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    width: 100%;
+    min-height: 41px;
+    padding: 10px 14px;
+
+    border: 1px solid rgba(251, 113, 133, 0.55);
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #991b1b,
+            #dc2626 55%,
+            #ef4444
+        );
+
+    color: #ffffff !important;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 22px rgba(220, 38, 38, 0.24),
+        0 0 12px rgba(239, 68, 68, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+
+    transition:
+        transform 0.22s ease,
+        background 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.logout-link:hover {
+    transform: translateY(-2px);
+
+    background:
+        linear-gradient(
+            135deg,
+            #b91c1c,
+            #ef4444 55%,
+            #fb7185
+        );
+
+    color: #ffffff !important;
+
+    box-shadow:
+        0 14px 28px rgba(220, 38, 38, 0.34),
+        0 0 18px rgba(239, 68, 68, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+.logout-link:active {
+    transform: scale(0.98);
+}
+
+/* CONTEÚDO */
+.main-container{margin-left:285px!important}
+.topbar{
+  min-height:78px!important;
+  background:rgba(8,16,29,.91)!important;
+  border-bottom:1px solid var(--border)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+  backdrop-filter:blur(14px)!important
+}
+.topbar-title{
+  color:transparent!important;
+  background:linear-gradient(90deg,#fff,#dbeafa 62%,#a9dce5);
+  background-clip:text;-webkit-background-clip:text
+}
+.topbar-subtitle,.small-muted{color:var(--muted)!important}
+.page-content{position:relative}
+
+/* CARTÕES */
+.card,.box,.tabela-box,
+.dashboard-filter,.stat-card,.chart-card,
+.page-header-card,.filter-card,.result-card,
+.form-page-header,.form-card,.information-card,
+.report-header,.report-stat,.report-option{
+  color:var(--text)!important;
+  background:linear-gradient(145deg,rgba(20,33,54,.97),rgba(13,23,40,.96))!important;
+  border:1px solid var(--border)!important;
+  box-shadow:var(--shadow)!important
+}
+.card{position:relative;overflow:hidden}
+.card::after{
+  content:"";position:absolute;left:20px;right:20px;bottom:0;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--cyan),var(--blue),transparent);opacity:.42
+}
+.card:hover{border-color:rgba(98,198,217,.28)!important}
+.section-title,.chart-card-title,.page-header-title,.form-page-title,.profile-name,
+.information-card-title,.report-title,.preview-title,.report-option-title,
+.server-name,.recent-name,.secretaria-name,.contract-function{
+  color:#ddecfa!important
+}
+.section-title{border-left-color:var(--cyan)!important}
+.stat-card-title,.result-label,.report-stat-label,.information-label{color:var(--muted)!important}
+.stat-card-value,.result-value,.report-stat-value,.stat-value{color:#f4f8fe!important}
+.stat-card-description,.chart-card-description,.form-section-description,
+.information-card-description,.report-option-description{color:var(--muted)!important}
+.stat-card-icon,.form-section-icon,.information-card-icon,.profile-icon,.report-option-icon{
+  color:var(--cyan)!important;
+  background:rgba(98,198,217,.08)!important;
+  border:1px solid rgba(98,198,217,.16)
+}
+
+/* BOTÕES */
+.btn-orange{
+  color:#07131f!important;background:linear-gradient(135deg,#7dd3fc,#60a5fa)!important;
+  border:1px solid rgba(125,211,252,.70)!important;
+  box-shadow:0 10px 22px rgba(59,130,246,.22);font-weight:800!important
+}
+.btn-orange:hover{
+  color:#04101d!important;transform:translateY(-2px);
+  background:linear-gradient(135deg,#a5f3fc,#73a9f5)!important;
+  box-shadow:0 13px 28px rgba(59,130,246,.32),0 0 18px rgba(34,211,238,.20)
+}
+.btn-outline-primary{color:var(--blue)!important;border-color:rgba(115,169,245,.45)!important}
+.btn-outline-primary:hover{color:#07131f!important;background:var(--blue)!important}
+.btn-outline-secondary{color:#b8c7d8!important;border-color:rgba(184,199,216,.28)!important}
+.btn-outline-secondary:hover{color:#fff!important;background:#334155!important}
+.btn-outline-success{color:var(--green)!important;border-color:rgba(101,210,154,.42)!important}
+.btn-outline-danger{color:var(--red)!important;border-color:rgba(239,125,137,.42)!important}
+.btn-outline-warning{color:var(--gold)!important;border-color:rgba(233,189,104,.42)!important}
+.btn-success{background:#178653!important;border-color:#35b879!important}
+.btn-light{color:var(--text)!important;background:var(--surface2)!important;border-color:var(--border)!important}
+
+/* FORMULÁRIOS */
+.form-label{color:#cbd8e7!important}
+.form-control,.form-select,.input-group-text{
+  color:var(--text)!important;background:#0c1728!important;
+  border-color:rgba(121,170,214,.24)!important
+}
+.form-control::placeholder{color:#687d96!important}
+.form-control:focus,.form-select:focus{
+  color:var(--text)!important;background:#0e1b2e!important;
+  border-color:var(--cyan)!important;box-shadow:0 0 0 .2rem rgba(98,198,217,.13)!important
+}
+.form-select{color-scheme:dark}
+.form-actions,.chart-card-header,.summary-card-header,.preview-header,
+.information-card-header,.registration-data{
+  background:rgba(7,16,29,.52)!important;border-color:var(--border)!important
+}
+.fixed-category,.filter-summary,.server-summary{
+  color:#bde8ef!important;background:rgba(98,198,217,.055)!important;
+  border-color:rgba(98,198,217,.18)!important
+}
+
+/* TABELAS */
+.table{--bs-table-bg:transparent!important;--bs-table-color:var(--text2)!important;
+  --bs-table-hover-bg:rgba(98,198,217,.035)!important;--bs-table-hover-color:#fff!important}
+.table thead th{
+  color:#91a6bf!important;background:rgba(5,12,23,.52)!important;
+  border-color:var(--border)!important
+}
+.table tbody td{color:#d7e2ef!important;border-color:rgba(255,255,255,.055)!important}
+.table-footer{color:var(--muted)!important;background:rgba(5,12,23,.40)!important;border-color:var(--border)!important}
+
+/* BADGES */
+.badge-active{color:var(--green)!important;background:rgba(101,210,154,.08)!important;border:1px solid rgba(101,210,154,.18)}
+.badge-dismissed{color:var(--red)!important;background:rgba(239,125,137,.08)!important;border:1px solid rgba(239,125,137,.18)}
+.badge-cred{color:#9cc5ff!important;background:rgba(115,169,245,.09)!important;border:1px solid rgba(115,169,245,.18)}
+.badge-prest{color:#b7eef5!important;background:rgba(98,198,217,.08)!important;border:1px solid rgba(98,198,217,.18)}
+
+/* DETALHES E STATUS */
+.status-active{background:rgba(101,210,154,.055)!important;border-color:rgba(101,210,154,.20)!important}
+.status-dismissed{background:rgba(239,125,137,.055)!important;border-color:rgba(239,125,137,.20)!important}
+.status-title{color:inherit}
+.status-description,.information-card-description,.registration-item,.field-help,.server-document,.contract-location{color:var(--muted)!important}
+.information-value{color:var(--text2)!important}
+.salary-value{color:var(--green)!important}
+
+/* GRÁFICOS */
+.chart-container{
+  background:
+    linear-gradient(rgba(98,198,217,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(98,198,217,.025) 1px,transparent 1px),
+    rgba(5,12,23,.18)!important;
+  background-size:28px 28px!important;
+  border-radius:0 0 16px 16px
+}
+
+/* ALERTAS */
+.alert{color:var(--text2)!important;background:var(--surface2)!important;border-color:var(--border)!important}
+.alert-success{border-left:4px solid var(--green)!important}
+.alert-danger{border-left:4px solid var(--red)!important}
+.alert-warning{border-left:4px solid var(--gold)!important}
+.alert-info{border-left:4px solid var(--cyan)!important}
+.btn-close{filter:invert(1) grayscale(1)}
+
+/* SCROLLBAR */
+*{scrollbar-width:thin;scrollbar-color:var(--blue) #08101d}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background:#08101d}
+*::-webkit-scrollbar-thumb{background:linear-gradient(var(--blue),var(--cyan));border-radius:999px}
+
+
+/* =========================================================
+   ESTRUTURA PRINCIPAL — CORREÇÃO DE LAYOUT
+   ========================================================= */
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    display: block;
+}
+
+/* Sidebar fixa */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 285px;
+    min-width: 285px;
+    min-height: 100vh;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    z-index: 1050;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    flex-shrink: 0;
+
+    padding: 22px 18px;
+}
+
+.brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
+
+    border-radius: 14px;
+
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.brand-title {
+    line-height: 1.25;
+}
+
+.brand-subtitle {
+    margin-top: 3px;
+
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+/* Navegação */
+.sidebar-nav {
+    flex: 1;
+
+    padding: 12px;
+}
+
+.nav-section-title {
+    margin: 18px 10px 8px;
+
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.sidebar-link,
+.sidebar-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    width: 100%;
+
+    margin-bottom: 7px;
+    padding: 11px 12px;
+
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.25;
+
+    cursor: pointer;
+}
+
+.sidebar-link i,
+.sidebar-summary i {
+    min-width: 18px;
+
+    font-size: 16px;
+    text-align: center;
+}
+
+details {
+    width: 100%;
+}
+
+details summary {
+    list-style: none;
+}
+
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+.sidebar-summary {
+    justify-content: space-between;
+}
+
+.summary-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.summary-arrow {
+    min-width: auto !important;
+
+    font-size: 11px !important;
+
+    transition: transform 0.2s ease;
+}
+
+details[open] .summary-arrow {
+    transform: rotate(90deg);
+}
+
+.sidebar-submenu {
+    padding: 2px 0 8px 20px;
+}
+
+.sidebar-submenu .sidebar-link {
+    min-height: 38px;
+
+    margin-bottom: 5px;
+    padding: 9px 10px;
+
+    font-size: 12px;
+    font-weight: 550;
+}
+
+/* Usuário no final da sidebar */
+.sidebar-user {
+    flex-shrink: 0;
+
+    margin: 8px 15px 15px;
+    padding: 14px;
+
+    border-radius: 13px;
+}
+
+.sidebar-user-name {
+    overflow: hidden;
+
+    font-size: 13px;
+    font-weight: 900;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-user-description {
+    margin: 3px 0 10px;
+
+    font-size: 11px;
+}
+
+.logout-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    font-size: 12px;
+    font-weight: 900;
+}
+
+/* Área principal */
+.main-container {
+    width: calc(100% - 285px);
+    min-height: 100vh;
+    margin-left: 285px;
+
+    overflow-x: hidden;
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    width: 100%;
+    min-height: 78px;
+    padding: 14px 26px;
+
+    z-index: 1020;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    min-width: 0;
+}
+
+.topbar-title {
+    margin: 0;
+
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.topbar-subtitle {
+    margin-top: 3px;
+
+    font-size: 12px;
+}
+
+.page-content {
+    width: 100%;
+    max-width: 1650px;
+
+    margin: 0 auto;
+    padding: 26px;
+}
+
+/* Componentes comuns */
+.card,
+.box,
+.tabela-box,
+.dashboard-filter,
+.stat-card,
+.chart-card,
+.page-header-card,
+.filter-card,
+.result-card,
+.form-page-header,
+.form-card,
+.information-card,
+.report-header,
+.report-stat,
+.report-option,
+.preview-card,
+.report-filter,
+.detail-header {
+    border-radius: 18px;
+}
+
+.mobile-menu-button {
+    display: none;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+/* Evita estouro horizontal em tabelas e cards */
+.table-responsive,
+.tabela-box,
+.preview-card,
+.chart-card,
+.form-card,
+.information-card {
+    min-width: 0;
+}
+
+img,
+svg,
+canvas {
+    max-width: 100%;
+}
+
+/* Notebook */
+@media (max-width: 1200px) {
+    .page-content {
+        padding: 22px;
+    }
+}
+
+/* Tablet e celular */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 285px !important;
+        min-width: 285px !important;
+
+        transform: translateX(-100%);
+    }
+
+    body.sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+
+    .main-container {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .mobile-menu-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    body.sidebar-open .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+
+        display: block;
+
+        z-index: 1040;
+    }
+
+    .topbar {
+        padding: 12px 16px;
+    }
+
+    .page-content {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .topbar-title {
+        font-size: 18px;
+    }
+
+    .topbar-subtitle {
+        display: none;
+    }
+
+    .topbar-new-button span {
+        display: none;
+    }
+
+    .topbar-new-button {
+        min-width: 42px;
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .page-content {
+        padding: 14px;
+    }
+}
+
+
+/* RESPONSIVO */
+@media(max-width:900px){
+  .main-container{
+    width:100%!important;
+    margin-left:0!important;
+  }
+
+  .sidebar{
+    width:285px!important;
+    min-width:285px!important;
+    transform:translateX(-100%);
+  }
+
+  body.sidebar-open .sidebar{
+    transform:translateX(0);
+  }
+
+  body.sidebar-open .sidebar-overlay{
+    background:rgba(2,7,15,.72)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+.sidebar-photo-area {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: auto;
+    padding: 20px 15px 28px;
+}
+
+.sidebar-photo-border {
+    position: relative;
+
+    width: 125px;
+    height: 125px;
+
+    padding: 4px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #62c6d9,
+            #73a9f5,
+            #8b5cf6
+        );
+
+    box-shadow:
+        0 0 0 5px rgba(98, 198, 217, 0.06),
+        0 0 22px rgba(98, 198, 217, 0.32),
+        0 0 40px rgba(115, 169, 245, 0.16);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.sidebar-photo-border:hover {
+    transform: scale(1.04);
+
+    box-shadow:
+        0 0 0 5px rgba(98, 198, 217, 0.09),
+        0 0 28px rgba(98, 198, 217, 0.48),
+        0 0 48px rgba(115, 169, 245, 0.24);
+}
+
+.sidebar-photo {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    border: 3px solid #08101d;
+    border-radius: 50%;
+
+    background: #08101d;
+
+    object-fit: cover;
+    object-position: center;
+}
+
+@media (max-height: 760px) {
+    .sidebar-photo-area {
+        padding: 10px 15px 18px;
+    }
+
+    .sidebar-photo-border {
+        width: 90px;
+        height: 90px;
+    }
+}
+    
+/* =========================================================
+   MARCA IVANTECH NA TOPBAR
+   ========================================================= */
+.developer-brand {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    min-width: 255px;
+    margin-left: auto;
+    margin-right: 16px;
+    padding: 10px 20px 11px;
+
+    border: 1px solid rgba(34, 211, 238, 0.60);
+    border-radius: 15px;
+
+    background:
+        radial-gradient(
+            circle at 18% 18%,
+            rgba(34, 211, 238, 0.10),
+            transparent 38%
+        ),
+        linear-gradient(
+            135deg,
+            #07101d,
+            #0d1c30 58%,
+            #10243a
+        );
+
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.38),
+        0 0 14px rgba(34, 211, 238, 0.25),
+        0 0 28px rgba(59, 130, 246, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.developer-brand::before {
+    position: absolute;
+    top: -95%;
+    left: -45%;
+
+    width: 30%;
+    height: 290%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.13),
+            transparent
+        );
+
+    transform: rotate(24deg);
+
+    animation: ivantechShine 4.5s ease-in-out infinite;
+
+    content: "";
+    pointer-events: none;
+}
+
+.developer-brand::after {
+    position: absolute;
+    right: 16px;
+    bottom: 0;
+    left: 16px;
+
+    height: 2px;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #22d3ee,
+            #60a5fa,
+            #22d3ee,
+            transparent
+        );
+
+    box-shadow:
+        0 0 8px rgba(34, 211, 238, 0.85),
+        0 0 17px rgba(59, 130, 246, 0.48);
+
+    content: "";
+}
+
+.developer-brand:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(103, 232, 249, 0.90);
+
+    box-shadow:
+        0 16px 34px rgba(0, 0, 0, 0.46),
+        0 0 18px rgba(34, 211, 238, 0.42),
+        0 0 35px rgba(59, 130, 246, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.developer-brand-name {
+    position: relative;
+    z-index: 2;
+
+    display: block;
+
+    color: transparent;
+
+    background:
+        linear-gradient(
+            90deg,
+            #a5f3fc,
+            #67e8f9,
+            #93c5fd
+        );
+
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    font-size: 20px;
+    font-weight: 950;
+    line-height: 1.05;
+    letter-spacing: -0.4px;
+
+    text-shadow:
+        0 0 10px rgba(34, 211, 238, 0.22);
+}
+
+.developer-brand-subtitle {
+    position: relative;
+    z-index: 2;
+
+    display: block;
+
+    margin-top: 5px;
+
+    color: #dbeafe;
+
+    font-size: 11px;
+    font-weight: 750;
+    line-height: 1.2;
+    letter-spacing: 0.1px;
+}
+
+@keyframes ivantechShine {
+    0% {
+        left: -45%;
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    45%,
+    100% {
+        left: 135%;
+        opacity: 0;
+    }
+}
+
+@media (max-width: 1150px) {
+    .developer-brand {
+        min-width: 205px;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    .developer-brand-name {
+        font-size: 17px;
+    }
+
+    .developer-brand-subtitle {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 900px) {
+    .developer-brand {
+        min-width: 190px;
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 720px) {
+    .developer-brand {
+        display: none;
+    }
+}
+
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<aside class="sidebar">
+
+    <div class="sidebar-brand">
+
+        <div class="brand-icon">
+            RH
+        </div>
+
+        <div>
+            <div class="brand-title">
+                Gestão de Contratos
+            </div>
+
+            <div class="brand-subtitle">
+                Prefeitura Municipal
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <div class="nav-section-title">
+            Visão geral
+        </div>
+
+        <a
+            href="{% url 'home' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+        >
+            <i class="bi bi-grid-1x2-fill"></i>
+            Dashboard
+        </a>
+
+        <a
+            href="{% url 'listar_contratos' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'listar_contratos' %}active{% endif %}"
+        >
+            <i class="bi bi-people-fill"></i>
+            Todos os contratos
+        </a>
+
+        <a
+            href="{% url 'cadastrar_contrato' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'cadastrar_contrato' %}active{% endif %}"
+        >
+            <i class="bi bi-person-plus-fill"></i>
+            Cadastrar servidor
+        </a>
+
+        <div class="nav-section-title">
+            Modalidades
+        </div>
+
+        <details {% if modalidade_filtro == 'credenciamento' %}open{% endif %}>
+
+            <summary class="sidebar-summary">
+                <span class="summary-content">
+                    <i class="bi bi-patch-check-fill"></i>
+                    Credenciamento
+                </span>
+
+                <i class="bi bi-chevron-right summary-arrow"></i>
+            </summary>
+
+            <div class="sidebar-submenu">
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'credenciamento' 'administracao' %}"
+                    class="sidebar-link"
+                >
+                    Administração e Finanças
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'credenciamento' 'assistencia' %}"
+                    class="sidebar-link"
+                >
+                    Assistência Social
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'credenciamento' 'agricultura' %}"
+                    class="sidebar-link"
+                >
+                    Agricultura
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'credenciamento' 'educacao' %}"
+                    class="sidebar-link"
+                >
+                    Educação
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'credenciamento' 'infraestrutura' %}"
+                    class="sidebar-link"
+                >
+                    Infraestrutura
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'credenciamento' 'saude' %}"
+                    class="sidebar-link"
+                >
+                    Saúde
+                </a>
+
+            </div>
+
+        </details>
+
+        <details {% if modalidade_filtro == 'prestacao' %}open{% endif %}>
+
+            <summary class="sidebar-summary">
+                <span class="summary-content">
+                    <i class="bi bi-briefcase-fill"></i>
+                    Prestação de Serviço
+                </span>
+
+                <i class="bi bi-chevron-right summary-arrow"></i>
+            </summary>
+
+            <div class="sidebar-submenu">
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'prestacao' 'administracao' %}"
+                    class="sidebar-link"
+                >
+                    Administração e Finanças
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'prestacao' 'assistencia' %}"
+                    class="sidebar-link"
+                >
+                    Assistência Social
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'prestacao' 'agricultura' %}"
+                    class="sidebar-link"
+                >
+                    Agricultura
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'prestacao' 'educacao' %}"
+                    class="sidebar-link"
+                >
+                    Educação
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'prestacao' 'infraestrutura' %}"
+                    class="sidebar-link"
+                >
+                    Infraestrutura
+                </a>
+
+                <a
+                    href="{% url 'contratos_por_categoria' 'prestacao' 'saude' %}"
+                    class="sidebar-link"
+                >
+                    Saúde
+                </a>
+
+            </div>
+
+        </details>
+
+        <div class="nav-section-title">
+            Análises
+        </div>
+
+        <a
+            href="{% url 'relatorios' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}"
+        >
+            <i class="bi bi-bar-chart-fill"></i>
+            Relatórios
+        </a>
+
+    </nav>
+
+<div class="sidebar-photo-area">
+
+    <div class="sidebar-photo-border">
+        <img
+            src="{% static 'img/foto-sidebar2.png' %}"
+            alt="Brasão da Prefeitura de Mulungu do Morro"
+            class="sidebar-photo"
+        >
+</div>
+
+</div>
+
+{% if request.user.is_authenticated %}
+
+    <div class="sidebar-user">
+
+        <div class="sidebar-user-name">
+            {{ request.user.get_full_name|default:request.user.username }}
+        </div>
+
+        <div class="sidebar-user-description">
+            Usuário autenticado
+        </div>
+
+            <form
+    method="post"
+    action="{% url 'logout' %}"
+    class="logout-form"
+>
+    {% csrf_token %}
+
+    <button
+        type="submit"
+        class="logout-link"
+    >
+        <i class="bi bi-box-arrow-right"></i>
+        Sair do sistema
+    </button>
+</form>
+
+        </div>
+
+    {% endif %}
+
+</aside>
+
+<div
+    class="sidebar-overlay"
+    id="sidebarOverlay"
+></div>
+
+<main class="main-container">
+
+    <header class="topbar">
+
+        <div class="topbar-left">
+
+            <button
+                type="button"
+                class="btn btn-light border mobile-menu-button"
+                id="menuButton"
+            >
+                <i class="bi bi-list"></i>
+            </button>
+
+            <div>
+
+                <h1 class="topbar-title">
+                    {% block topbar_title %}
+                        Gestão de Contratos
+                    {% endblock %}
+                </h1>
+
+                <div class="topbar-subtitle">
+                    {% block topbar_subtitle %}
+                        Controle gerencial dos contratos municipais
+                    {% endblock %}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="developer-brand"
+            aria-label="IvanTech Sistema Empresarial"
+        >
+            <span class="developer-brand-name">
+                IvanTech
+            </span>
+
+            <span class="developer-brand-subtitle">
+                IvanTech Sistema Empresarial
+            </span>
+        </div>
+
+        <a
+            href="{% url 'cadastrar_contrato' %}"
+            class="btn btn-orange topbar-new-button"
+        >
+            <i class="bi bi-person-plus-fill"></i>
+            <span>Novo servidor</span>
+        </a>
+
+    </header>
+
+    <section class="page-content">
+
+        {% if messages %}
+
+            <div class="mb-3">
+
+                {% for message in messages %}
+
+                    <div
+                        class="alert alert-dismissible fade show
+                        {% if message.tags == 'error' %}
+                            alert-danger
+                        {% elif message.tags == 'success' %}
+                            alert-success
+                        {% elif message.tags == 'warning' %}
+                            alert-warning
+                        {% else %}
+                            alert-info
+                        {% endif %}"
+                        role="alert"
+                    >
+                        {{ message }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                        ></button>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+    </section>
+
+</main>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
+<script>
+    const body = document.body;
+    const menuButton = document.getElementById('menuButton');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    if (menuButton) {
+        menuButton.addEventListener('click', function () {
+            body.classList.toggle('sidebar-open');
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function () {
+            body.classList.remove('sidebar-open');
+        });
+    }
+
+    document
+        .querySelectorAll('form[data-confirm]')
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                const mensagem =
+                    form.dataset.confirm
+                    || 'Deseja continuar?';
+
+                if (!confirm(mensagem)) {
+                    event.preventDefault();
+                }
+            });
+        });
+</script>
+
+{% block extra_scripts %}{% endblock %}
+
+<script>
+    /*
+     * Corrige automaticamente cores dos gráficos Chart.js
+     * criados pelo dashboard depois que o bloco extra_scripts é executado.
+     */
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!window.Chart) {
+            return;
+        }
+
+        Chart.defaults.color = '#c7d4e4';
+        Chart.defaults.borderColor = 'rgba(121, 170, 214, 0.15)';
+
+        Object.values(Chart.instances).forEach(function (chart) {
+            if (chart.options.plugins && chart.options.plugins.legend) {
+                chart.options.plugins.legend.labels = {
+                    ...(chart.options.plugins.legend.labels || {}),
+                    color: '#c7d4e4'
+                };
+            }
+
+            if (chart.options.scales) {
+                Object.values(chart.options.scales).forEach(function (scale) {
+                    scale.ticks = {
+                        ...(scale.ticks || {}),
+                        color: '#8da1ba'
+                    };
+
+                    scale.grid = {
+                        ...(scale.grid || {}),
+                        color: 'rgba(121, 170, 214, 0.10)'
+                    };
+                });
+            }
+
+            chart.update();
+        });
+    });
+</script>
+
+</body>
+</html>

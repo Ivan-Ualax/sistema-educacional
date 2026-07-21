@@ -1,0 +1,1161 @@
+{% extends 'contratos/base.html' %}
+
+{% block title %}
+    Relatórios | Gestão de Contratos
+{% endblock %}
+
+{% block topbar_title %}
+    Relatórios
+{% endblock %}
+
+{% block topbar_subtitle %}
+    Gere relatórios dos contratos por modalidade, secretaria e situação
+{% endblock %}
+
+{% block extra_head %}
+
+<style>
+    .report-header {
+        position: relative;
+
+        padding: 24px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 19px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .report-header::after {
+        position: absolute;
+        right: -55px;
+        top: -65px;
+
+        width: 190px;
+        height: 190px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.13),
+                transparent 70%
+            );
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .report-title {
+        position: relative;
+        z-index: 2;
+
+        margin: 0;
+
+        color: #f4f8fe;
+
+        font-size: 23px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    .report-description {
+        position: relative;
+        z-index: 2;
+
+        margin-top: 6px;
+
+        color: #8da1ba;
+
+        font-size: 13px;
+    }
+
+    .report-actions {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    .report-actions .btn {
+        min-height: 41px;
+
+        border-radius: 10px;
+
+        font-size: 13px;
+        font-weight: 800;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .report-actions .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .report-stat {
+        position: relative;
+
+        height: 100%;
+        padding: 20px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 17px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 16px 38px rgba(0, 0, 0, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+        transition:
+            transform 0.25s ease,
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+    .report-stat::before {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 0;
+
+        height: 2px;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                #62c6d9,
+                #73a9f5,
+                transparent
+            );
+
+        opacity: 0.43;
+
+        content: "";
+    }
+
+    .report-stat::after {
+        position: absolute;
+        right: -35px;
+        bottom: -40px;
+
+        width: 120px;
+        height: 120px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.12),
+                transparent 70%
+            );
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .report-stat:hover {
+        transform: translateY(-4px);
+
+        border-color:
+            rgba(98, 198, 217, 0.30);
+
+        box-shadow:
+            0 21px 48px rgba(0, 0, 0, 0.36),
+            0 0 17px rgba(98, 198, 217, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .report-stat-label {
+        position: relative;
+        z-index: 2;
+
+        color: #8da1ba;
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .report-stat-value {
+        position: relative;
+        z-index: 2;
+
+        margin-top: 7px;
+
+        color: #f4f8fe;
+
+        font-size: 29px;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -1px;
+    }
+
+    .report-stat-description {
+        position: relative;
+        z-index: 2;
+
+        margin-top: 7px;
+
+        color: #8da1ba;
+
+        font-size: 11px;
+    }
+
+    .report-option {
+        position: relative;
+
+        height: 100%;
+        padding: 22px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+        transition:
+            transform 0.25s ease,
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+    .report-option:hover {
+        transform: translateY(-4px);
+
+        border-color:
+            rgba(98, 198, 217, 0.31);
+
+        box-shadow:
+            0 22px 52px rgba(0, 0, 0, 0.38),
+            0 0 18px rgba(98, 198, 217, 0.10),
+            inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .report-option-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 48px;
+        min-width: 48px;
+        height: 48px;
+
+        margin-bottom: 16px;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.20);
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(98, 198, 217, 0.12),
+                rgba(115, 169, 245, 0.10)
+            );
+
+        color: #62c6d9;
+
+        font-size: 20px;
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255, 255, 255, 0.04),
+            0 0 16px
+            rgba(98, 198, 217, 0.08);
+    }
+
+    .report-option-title {
+        margin: 0;
+
+        color: #ddecfa;
+
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .report-option-description {
+        margin-top: 7px;
+        margin-bottom: 17px;
+
+        color: #8da1ba;
+
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .report-option .btn {
+        min-height: 40px;
+
+        border-radius: 10px;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .preview-card {
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+
+        padding: 18px 20px;
+
+        border-bottom:
+            1px solid rgba(121, 170, 214, 0.14);
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(7, 16, 29, 0.62),
+                rgba(15, 28, 47, 0.45)
+            );
+    }
+
+    .preview-title {
+        margin: 0;
+
+        color: #ddecfa;
+
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .preview-description {
+        margin-top: 4px;
+
+        color: #8da1ba;
+
+        font-size: 11px;
+    }
+
+    .filter-summary {
+        padding: 12px 14px;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.21);
+
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(98, 198, 217, 0.08),
+                rgba(13, 23, 40, 0.72)
+            );
+
+        color: #b7dce4;
+
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .report-filter {
+        padding: 20px;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .report-filter .form-label {
+        color: #cbd8e7;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .report-filter .form-control,
+    .report-filter .form-select {
+        min-height: 43px;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.24);
+
+        border-radius: 10px;
+
+        background: #0c1728;
+        color: #f8fafc;
+    }
+
+    .report-filter .form-control::placeholder {
+        color: #687d96;
+    }
+
+    .report-filter .form-control:focus,
+    .report-filter .form-select:focus {
+        border-color: #62c6d9;
+
+        background: #0e1b2e;
+        color: #f8fafc;
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(98, 198, 217, 0.13);
+    }
+
+    .report-filter .form-select {
+        color-scheme: dark;
+    }
+
+    .table {
+        --bs-table-bg: transparent;
+        --bs-table-color: #c7d4e4;
+        --bs-table-border-color:
+            rgba(255, 255, 255, 0.055);
+        --bs-table-hover-bg:
+            rgba(98, 198, 217, 0.035);
+        --bs-table-hover-color: #ffffff;
+    }
+
+    .table thead th {
+        padding: 13px;
+
+        border-color:
+            rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(5, 12, 23, 0.48);
+
+        color: #91a6bf;
+
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 14px;
+
+        border-color:
+            rgba(255, 255, 255, 0.055);
+
+        color: #d7e2ef;
+
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover td {
+        background:
+            rgba(98, 198, 217, 0.035);
+    }
+
+    .table-footer {
+        padding: 15px 20px;
+
+        border-top:
+            1px solid rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(5, 12, 23, 0.40);
+
+        color: #8da1ba;
+
+        font-size: 12px;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+
+        color: #8da1ba;
+
+        text-align: center;
+    }
+
+    .empty-state i {
+        display: block;
+
+        margin-bottom: 12px;
+
+        color: #62c6d9;
+
+        font-size: 46px;
+
+        filter:
+            drop-shadow(
+                0 0 12px
+                rgba(98, 198, 217, 0.25)
+            );
+    }
+
+    .badge-active {
+        border:
+            1px solid rgba(101, 210, 154, 0.18);
+
+        background:
+            rgba(101, 210, 154, 0.08);
+
+        color: #65d29a;
+    }
+
+    .badge-dismissed {
+        border:
+            1px solid rgba(239, 125, 137, 0.18);
+
+        background:
+            rgba(239, 125, 137, 0.08);
+
+        color: #ef7d89;
+    }
+
+    .badge-cred {
+        border:
+            1px solid rgba(115, 169, 245, 0.18);
+
+        background:
+            rgba(115, 169, 245, 0.09);
+
+        color: #9cc5ff;
+    }
+
+    .badge-prest {
+        border:
+            1px solid rgba(98, 198, 217, 0.18);
+
+        background:
+            rgba(98, 198, 217, 0.08);
+
+        color: #b7eef5;
+    }
+
+    @media (max-width: 768px) {
+        .report-header {
+            padding: 18px;
+        }
+
+        .report-title {
+            font-size: 19px;
+        }
+
+        .report-actions {
+            width: 100%;
+        }
+
+        .report-actions .btn {
+            flex: 1;
+        }
+
+        .preview-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .report-filter {
+            padding: 16px;
+        }
+
+        .report-stat-value {
+            font-size: 25px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .report-actions {
+            flex-direction: column;
+        }
+
+        .report-actions .btn,
+        .report-actions a {
+            width: 100%;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- CABEÇALHO -->
+<div class="card report-header mb-4">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+
+        <div>
+
+            <h2 class="report-title">
+                Central de relatórios
+            </h2>
+
+            <div class="small-muted mt-1">
+                Selecione os filtros e exporte a relação de contratos em Excel.
+            </div>
+
+        </div>
+
+        <a
+            href="{% url 'listar_contratos' %}"
+            class="btn btn-outline-secondary"
+        >
+            <i class="bi bi-people-fill"></i>
+
+            Ver todos os contratos
+        </a>
+
+    </div>
+
+</div>
+
+<!-- CARDS -->
+<div class="row g-4 mb-4">
+
+    <div class="col-12 col-md-6">
+
+        <div class="card report-stat">
+
+            <div class="report-stat-label">
+                Contratos encontrados
+            </div>
+
+            <div class="report-stat-value">
+                {{ total_resultados|default:0 }}
+            </div>
+
+            <div class="report-stat-description">
+                Quantidade correspondente aos filtros selecionados
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-md-6">
+
+        <div class="card report-stat">
+
+            <div class="report-stat-label">
+                Valor total
+            </div>
+
+            <div class="report-stat-value">
+                R$ {{ valor_resultados|default:0|floatformat:2 }}
+            </div>
+
+            <div class="report-stat-description">
+                Soma dos salários apresentados no relatório
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- FILTROS -->
+<div class="card filter-card mb-4">
+
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+
+            <h2 class="section-title mb-1">
+                Configurar relatório
+            </h2>
+
+            <div class="small-muted">
+                Deixe os campos vazios para incluir todos os contratos.
+            </div>
+
+        </div>
+
+        {% if busca or secretaria_filtro or modalidade_filtro or situacao_filtro %}
+
+            <a
+                href="{% url 'relatorios' %}"
+                class="btn btn-outline-secondary btn-sm"
+            >
+                <i class="bi bi-x-circle"></i>
+
+                Limpar
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    <form
+        method="get"
+        action="{% url 'relatorios' %}"
+    >
+
+        <div class="row g-3">
+
+            <div class="col-12 col-lg-4">
+
+                <label
+                    for="busca"
+                    class="form-label"
+                >
+                    Pesquisa
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <input
+                        type="search"
+                        name="busca"
+                        id="busca"
+                        class="form-control"
+                        value="{{ busca }}"
+                        placeholder="Nome, CPF, RG, função ou local"
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-2">
+
+                <label
+                    for="secretaria"
+                    class="form-label"
+                >
+                    Secretaria
+                </label>
+
+                <select
+                    name="secretaria"
+                    id="secretaria"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Todas
+                    </option>
+
+                    {% for codigo, nome in secretarias %}
+
+                        <option
+                            value="{{ codigo }}"
+                            {% if secretaria_filtro == codigo %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ nome }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-2">
+
+                <label
+                    for="modalidade"
+                    class="form-label"
+                >
+                    Modalidade
+                </label>
+
+                <select
+                    name="modalidade"
+                    id="modalidade"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Todas
+                    </option>
+
+                    {% for codigo, nome in modalidades %}
+
+                        <option
+                            value="{{ codigo }}"
+                            {% if modalidade_filtro == codigo %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ nome }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-2">
+
+                <label
+                    for="situacao"
+                    class="form-label"
+                >
+                    Situação
+                </label>
+
+                <select
+                    name="situacao"
+                    id="situacao"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Todas
+                    </option>
+
+                    {% for codigo, nome in situacoes %}
+
+                        <option
+                            value="{{ codigo }}"
+                            {% if situacao_filtro == codigo %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ nome }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-12 col-lg-2 d-flex align-items-end">
+
+                <button
+                    type="submit"
+                    class="btn btn-orange w-100"
+                >
+                    <i class="bi bi-funnel-fill"></i>
+
+                    Visualizar
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+    {% if busca or secretaria_filtro or modalidade_filtro or situacao_filtro %}
+
+        <div class="filter-summary mt-4">
+
+            <i class="bi bi-filter-circle-fill"></i>
+
+            <strong>Filtros aplicados:</strong>
+
+            {% if busca %}
+                Pesquisa “{{ busca }}”
+            {% endif %}
+
+            {% if secretaria_filtro %}
+                {% if busca %} • {% endif %}
+                Secretaria selecionada
+            {% endif %}
+
+            {% if modalidade_filtro %}
+                {% if busca or secretaria_filtro %} • {% endif %}
+                Modalidade selecionada
+            {% endif %}
+
+            {% if situacao_filtro %}
+                {% if busca or secretaria_filtro or modalidade_filtro %} • {% endif %}
+                Situação selecionada
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+<!-- EXPORTAÇÃO -->
+<div class="row g-4 mb-4">
+
+    <div class="col-12">
+
+        <div class="card report-option">
+
+            <div class="report-option-icon">
+                <i class="bi bi-file-earmark-excel-fill"></i>
+            </div>
+
+            <div class="flex-grow-1">
+
+                <h3 class="report-option-title">
+                    Exportar relatório para Excel
+                </h3>
+
+                <div class="report-option-description">
+                    O arquivo conterá os dados pessoais, contratuais, bancários,
+                    situação, secretaria, modalidade e salário dos servidores.
+                </div>
+
+                <a
+                    href="{% url 'exportar_contratos_excel' %}?busca={{ busca|urlencode }}&secretaria={{ secretaria_filtro|urlencode }}&modalidade={{ modalidade_filtro|urlencode }}&situacao={{ situacao_filtro|urlencode }}"
+                    class="btn btn-success mt-3"
+                >
+                    <i class="bi bi-download"></i>
+
+                    Baixar relatório em Excel
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- PRÉVIA -->
+<div class="card overflow-hidden">
+
+    <div class="preview-header">
+
+        <div>
+
+            <h2 class="preview-title">
+                Prévia do relatório
+            </h2>
+
+            <div class="small-muted mt-1">
+                Confira os registros antes de exportar.
+            </div>
+
+        </div>
+
+        <span class="badge text-bg-primary">
+            {{ total_resultados|default:0 }}
+            registro{{ total_resultados|default:0|pluralize:"s" }}
+        </span>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table table-hover mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>
+                        Servidor
+                    </th>
+
+                    <th>
+                        Função
+                    </th>
+
+                    <th>
+                        Secretaria
+                    </th>
+
+                    <th>
+                        Modalidade
+                    </th>
+
+                    <th>
+                        Situação
+                    </th>
+
+                    <th class="text-end">
+                        Salário
+                    </th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for contrato in contratos %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="server-name">
+                                {{ contrato.nome }}
+                            </div>
+
+                            <div class="small-muted">
+                                CPF: {{ contrato.cpf }}
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            <div class="fw-semibold">
+                                {{ contrato.funcao }}
+                            </div>
+
+                            <div class="small-muted">
+                                {{ contrato.local_trabalho }}
+                            </div>
+
+                        </td>
+
+                        <td>
+                            {{ contrato.get_secretaria_display }}
+                        </td>
+
+                        <td>
+
+                            {% if contrato.modalidade == 'credenciamento' %}
+
+                                <span class="badge badge-cred">
+                                    Credenciamento
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-prest">
+                                    Prestação de Serviço
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if contrato.situacao == 'ativo' %}
+
+                                <span class="badge badge-active">
+                                    Ativo
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-dismissed">
+                                    Demitido
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td class="text-end fw-bold text-nowrap">
+                            R$ {{ contrato.salario_fixo|floatformat:2 }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="empty-state"
+                        >
+
+                            <i class="bi bi-file-earmark-text"></i>
+
+                            <h3 class="h5 fw-bold">
+                                Nenhum registro encontrado
+                            </h3>
+
+                            <p class="mb-3">
+                                Altere os filtros ou cadastre um novo servidor.
+                            </p>
+
+                            <a
+                                href="{% url 'cadastrar_contrato' %}"
+                                class="btn btn-orange"
+                            >
+                                Cadastrar servidor
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

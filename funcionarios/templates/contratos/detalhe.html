@@ -1,0 +1,974 @@
+{% extends 'contratos/base.html' %}
+
+{% block title %}
+    {{ contrato.nome }} | Gestão de Contratos
+{% endblock %}
+
+{% block topbar_title %}
+    Detalhes do servidor
+{% endblock %}
+
+{% block topbar_subtitle %}
+    Consulte os dados pessoais, contratuais e bancários
+{% endblock %}
+
+{% block extra_head %}
+
+<style>
+    .detail-header {
+        position: relative;
+
+        padding: 24px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 19px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .detail-header::after {
+        position: absolute;
+        right: -55px;
+        bottom: -65px;
+
+        width: 190px;
+        height: 190px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.13),
+                transparent 70%
+            );
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .profile-area {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .profile-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 62px;
+        min-width: 62px;
+        height: 62px;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.30);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(98, 198, 217, 0.18),
+                rgba(115, 169, 245, 0.15)
+            );
+
+        color: #8fe5f1;
+
+        font-size: 26px;
+
+        box-shadow:
+            0 10px 24px rgba(0, 0, 0, 0.24),
+            0 0 18px rgba(98, 198, 217, 0.13),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .profile-name {
+        margin: 0;
+
+        color: #f4f8fe;
+
+        font-size: 23px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    .profile-description {
+        margin-top: 5px;
+
+        color: #8da1ba;
+
+        font-size: 13px;
+    }
+
+    .detail-actions {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .detail-actions form {
+        margin: 0;
+    }
+
+    .detail-actions .btn {
+        min-height: 39px;
+
+        border-radius: 10px;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .detail-actions .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .information-card {
+        height: 100%;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+        transition:
+            transform 0.25s ease,
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+    .information-card:hover {
+        transform: translateY(-3px);
+
+        border-color:
+            rgba(98, 198, 217, 0.27);
+
+        box-shadow:
+            0 22px 50px rgba(0, 0, 0, 0.36),
+            0 0 18px rgba(98, 198, 217, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .information-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        padding: 18px 20px;
+
+        border-bottom:
+            1px solid rgba(121, 170, 214, 0.14);
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(7, 16, 29, 0.62),
+                rgba(15, 28, 47, 0.45)
+            );
+    }
+
+    .information-card-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 42px;
+        min-width: 42px;
+        height: 42px;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.19);
+
+        border-radius: 12px;
+
+        background:
+            rgba(98, 198, 217, 0.08);
+
+        color: #62c6d9;
+
+        font-size: 18px;
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255, 255, 255, 0.04);
+    }
+
+    .information-card-title {
+        margin: 0;
+
+        color: #ddecfa;
+
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .information-card-description {
+        margin-top: 3px;
+
+        color: #8da1ba;
+
+        font-size: 11px;
+    }
+
+    .information-card-body {
+        padding: 20px;
+    }
+
+    .information-item {
+        position: relative;
+
+        padding: 14px 0;
+
+        border-bottom:
+            1px solid rgba(255, 255, 255, 0.055);
+    }
+
+    .information-item:first-child {
+        padding-top: 0;
+    }
+
+    .information-item:last-child {
+        padding-bottom: 0;
+
+        border-bottom: 0;
+    }
+
+    .information-item:hover {
+        padding-left: 8px;
+
+        transition: padding-left 0.2s ease;
+    }
+
+    .information-label {
+        margin-bottom: 5px;
+
+        color: #71869f;
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .information-value {
+        color: #d7e2ef;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        word-break: break-word;
+    }
+
+    .salary-value {
+        color: #65d29a;
+
+        font-size: 21px;
+        font-weight: 900;
+
+        text-shadow:
+            0 0 12px
+            rgba(101, 210, 154, 0.16);
+    }
+
+    .status-panel {
+        position: relative;
+
+        padding: 20px;
+
+        overflow: hidden;
+
+        border-radius: 15px;
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255, 255, 255, 0.03);
+    }
+
+    .status-panel::after {
+        position: absolute;
+        right: -20px;
+        top: -25px;
+
+        width: 90px;
+        height: 90px;
+
+        border-radius: 50%;
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .status-active {
+        border:
+            1px solid rgba(101, 210, 154, 0.24);
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(101, 210, 154, 0.10),
+                rgba(13, 23, 40, 0.70)
+            );
+    }
+
+    .status-active::after {
+        background:
+            radial-gradient(
+                circle,
+                rgba(101, 210, 154, 0.18),
+                transparent 70%
+            );
+    }
+
+    .status-dismissed {
+        border:
+            1px solid rgba(239, 125, 137, 0.24);
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(239, 125, 137, 0.10),
+                rgba(13, 23, 40, 0.70)
+            );
+    }
+
+    .status-dismissed::after {
+        background:
+            radial-gradient(
+                circle,
+                rgba(239, 125, 137, 0.18),
+                transparent 70%
+            );
+    }
+
+    .status-title {
+        position: relative;
+        z-index: 2;
+
+        margin-bottom: 5px;
+
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .status-active .status-title {
+        color: #65d29a;
+    }
+
+    .status-dismissed .status-title {
+        color: #ef7d89;
+    }
+
+    .status-description {
+        position: relative;
+        z-index: 2;
+
+        color: #8da1ba;
+
+        font-size: 12px;
+    }
+
+    .registration-data {
+        padding: 18px 20px;
+
+        border-top:
+            1px solid rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(5, 12, 23, 0.40);
+    }
+
+    .registration-item {
+        color: #8da1ba;
+
+        font-size: 11px;
+    }
+
+    .registration-item strong {
+        color: #c7d4e4;
+    }
+
+    @media (max-width: 768px) {
+        .detail-header {
+            padding: 18px;
+        }
+
+        .profile-area {
+            align-items: flex-start;
+        }
+
+        .profile-icon {
+            width: 52px;
+            min-width: 52px;
+            height: 52px;
+
+            border-radius: 15px;
+
+            font-size: 22px;
+        }
+
+        .profile-name {
+            font-size: 19px;
+        }
+
+        .detail-actions {
+            justify-content: flex-start;
+            width: 100%;
+        }
+
+        .detail-actions .btn,
+        .detail-actions form {
+            width: 100%;
+        }
+
+        .detail-actions form .btn {
+            width: 100%;
+        }
+
+        .information-card-body {
+            padding: 17px;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- CABEÇALHO -->
+<div class="card detail-header mb-4">
+
+    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-4">
+
+        <div class="profile-area">
+
+            <div class="profile-icon">
+                <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div>
+
+                <h2 class="profile-name">
+                    {{ contrato.nome }}
+                </h2>
+
+                <div class="profile-description">
+
+                    {{ contrato.funcao|default:"Função não informada" }}
+
+                    {% if contrato.local_trabalho %}
+                        • {{ contrato.local_trabalho }}
+                    {% endif %}
+
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-2">
+
+                    {% if contrato.modalidade == 'credenciamento' %}
+
+                        <span class="badge badge-cred">
+                            <i class="bi bi-patch-check-fill"></i>
+
+                            Credenciamento
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge badge-prest">
+                            <i class="bi bi-briefcase-fill"></i>
+
+                            Prestação de Serviço
+                        </span>
+
+                    {% endif %}
+
+                    {% if contrato.situacao == 'ativo' %}
+
+                        <span class="badge badge-active">
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            Ativo
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge badge-dismissed">
+                            <i class="bi bi-x-circle-fill"></i>
+
+                            Demitido
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="detail-actions">
+
+            <a
+                href="{% url 'listar_contratos' %}"
+                class="btn btn-outline-secondary"
+            >
+                <i class="bi bi-arrow-left"></i>
+
+                Voltar
+            </a>
+
+            <a
+                href="{% url 'editar_contrato' contrato.id %}"
+                class="btn btn-outline-primary"
+            >
+                <i class="bi bi-pencil-fill"></i>
+
+                Editar
+            </a>
+
+            <form
+                method="post"
+                action="{% url 'alterar_situacao' contrato.id %}"
+                data-confirm="
+                    {% if contrato.situacao == 'ativo' %}
+                        Deseja marcar este servidor como demitido?
+                    {% else %}
+                        Deseja reativar este servidor?
+                    {% endif %}
+                "
+            >
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="next"
+                    value="{% url 'detalhe_contrato' contrato.id %}"
+                >
+
+                {% if contrato.situacao == 'ativo' %}
+
+                    <input
+                        type="hidden"
+                        name="situacao"
+                        value="demitido"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-warning"
+                    >
+                        <i class="bi bi-person-x-fill"></i>
+
+                        Marcar como demitido
+                    </button>
+
+                {% else %}
+
+                    <input
+                        type="hidden"
+                        name="situacao"
+                        value="ativo"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-success"
+                    >
+                        <i class="bi bi-person-check-fill"></i>
+
+                        Reativar servidor
+                    </button>
+
+                {% endif %}
+
+            </form>
+
+            <form
+                method="post"
+                action="{% url 'excluir_contrato' contrato.id %}"
+                data-confirm="Tem certeza que deseja excluir permanentemente o cadastro de {{ contrato.nome }}?"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-outline-danger"
+                >
+                    <i class="bi bi-trash-fill"></i>
+
+                    Excluir
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- SITUAÇÃO -->
+{% if contrato.situacao == 'ativo' %}
+
+    <div class="status-panel status-active mb-4">
+
+        <div class="status-title">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            Servidor ativo
+        </div>
+
+        <div class="status-description">
+            Este servidor está sendo considerado nos indicadores, gráficos e valores do dashboard.
+        </div>
+
+    </div>
+
+{% else %}
+
+    <div class="status-panel status-dismissed mb-4">
+
+        <div class="status-title">
+
+            <i class="bi bi-exclamation-circle-fill"></i>
+
+            Servidor demitido
+        </div>
+
+        <div class="status-description">
+            Este cadastro permanece disponível para consulta e histórico, mas não é considerado nos indicadores de servidores ativos.
+        </div>
+
+    </div>
+
+{% endif %}
+
+<div class="row g-4">
+
+    <!-- DADOS PESSOAIS -->
+    <div class="col-12 col-xl-4">
+
+        <div class="card information-card">
+
+            <div class="information-card-header">
+
+                <div class="information-card-icon">
+                    <i class="bi bi-person-vcard-fill"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="information-card-title">
+                        Dados pessoais
+                    </h3>
+
+                    <div class="information-card-description">
+                        Identificação do servidor
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="information-card-body">
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Nome completo
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.nome }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        CPF
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.cpf|default:"Não informado" }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        RG
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.rg|default:"Não informado" }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Data de nascimento
+                    </div>
+
+                    <div class="information-value">
+
+                        {% if contrato.data_nascimento %}
+                            {{ contrato.data_nascimento|date:"d/m/Y" }}
+                        {% else %}
+                            Não informada
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- DADOS DO CONTRATO -->
+    <div class="col-12 col-xl-4">
+
+        <div class="card information-card">
+
+            <div class="information-card-header">
+
+                <div
+                    class="information-card-icon"
+                    style="background:#ffedd5;color:#c2410c;"
+                >
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="information-card-title">
+                        Dados do contrato
+                    </h3>
+
+                    <div class="information-card-description">
+                        Lotação, modalidade e remuneração
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="information-card-body">
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Função
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.funcao|default:"Não informada" }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Local de trabalho
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.local_trabalho|default:"Não informado" }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Secretaria
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.get_secretaria_display }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Modalidade
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.get_modalidade_display }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Salário fixo
+                    </div>
+
+                    <div class="salary-value">
+                        R$ {{ contrato.salario_fixo|floatformat:2 }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- DADOS BANCÁRIOS -->
+    <div class="col-12 col-xl-4">
+
+        <div class="card information-card">
+
+            <div class="information-card-header">
+
+                <div
+                    class="information-card-icon"
+                    style="background:#dcfce7;color:#15803d;"
+                >
+                    <i class="bi bi-bank2"></i>
+                </div>
+
+                <div>
+
+                    <h3 class="information-card-title">
+                        Dados bancários
+                    </h3>
+
+                    <div class="information-card-description">
+                        Informações para pagamento
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="information-card-body">
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Banco
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.banco|default:"Não informado" }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Agência
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.agencia|default:"Não informada" }}
+                    </div>
+
+                </div>
+
+                <div class="information-item">
+
+                    <div class="information-label">
+                        Conta bancária
+                    </div>
+
+                    <div class="information-value">
+                        {{ contrato.conta_bancaria|default:"Não informada" }}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="registration-data">
+
+                <div class="registration-item mb-2">
+
+                    <strong>Cadastrado em:</strong>
+
+                    {% if contrato.criado_em %}
+                        {{ contrato.criado_em|date:"d/m/Y H:i" }}
+                    {% else %}
+                        Não disponível
+                    {% endif %}
+
+                </div>
+
+                <div class="registration-item">
+
+                    <strong>Última atualização:</strong>
+
+                    {% if contrato.atualizado_em %}
+                        {{ contrato.atualizado_em|date:"d/m/Y H:i" }}
+                    {% else %}
+                        Não disponível
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

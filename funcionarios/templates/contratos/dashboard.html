@@ -1,0 +1,1359 @@
+{% extends 'contratos/base.html' %}
+
+{% block title %}
+    Dashboard | Gestão de Contratos
+{% endblock %}
+
+{% block topbar_title %}
+    Dashboard
+{% endblock %}
+
+{% block topbar_subtitle %}
+    Visão geral dos contratos e servidores municipais
+{% endblock %}
+
+{% block extra_head %}
+
+ <style>
+    .dashboard-filter {
+        padding: 20px;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .dashboard-filter .form-control,
+    .dashboard-filter .form-select {
+        min-height: 44px;
+
+        border-color:
+            rgba(121, 170, 214, 0.24);
+
+        background: #0c1728;
+        color: #f8fafc;
+    }
+
+    .dashboard-filter .form-control::placeholder {
+        color: #687d96;
+    }
+
+    .dashboard-filter .form-control:focus,
+    .dashboard-filter .form-select:focus {
+        border-color: #62c6d9;
+
+        background: #0e1b2e;
+        color: #f8fafc;
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(98, 198, 217, 0.13);
+    }
+
+    .stat-card {
+        position: relative;
+
+        height: 100%;
+        padding: 20px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+        transition:
+            transform 0.25s ease,
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+
+        border-color:
+            rgba(98, 198, 217, 0.32);
+
+        box-shadow:
+            0 22px 52px rgba(0, 0, 0, 0.38),
+            0 0 18px rgba(34, 211, 238, 0.10),
+            inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    }
+
+    .stat-card::before {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 0;
+
+        height: 2px;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                #62c6d9,
+                #73a9f5,
+                transparent
+            );
+
+        opacity: 0.45;
+
+        content: "";
+    }
+
+    .stat-card::after {
+        position: absolute;
+        right: -35px;
+        bottom: -40px;
+
+        width: 125px;
+        height: 125px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.12),
+                transparent 70%
+            );
+
+        content: "";
+    }
+
+    .stat-card-header {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .stat-card-title {
+        color: #8da1ba;
+
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+    }
+
+    .stat-card-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 46px;
+        min-width: 46px;
+        height: 46px;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.16);
+
+        border-radius: 14px;
+
+        font-size: 19px;
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255, 255, 255, 0.04);
+    }
+
+    .icon-blue {
+        background:
+            rgba(115, 169, 245, 0.09);
+
+        border-color:
+            rgba(115, 169, 245, 0.20);
+
+        color: #73a9f5;
+    }
+
+    .icon-green {
+        background:
+            rgba(101, 210, 154, 0.08);
+
+        border-color:
+            rgba(101, 210, 154, 0.20);
+
+        color: #65d29a;
+    }
+
+    .icon-orange {
+        background:
+            rgba(233, 189, 104, 0.08);
+
+        border-color:
+            rgba(233, 189, 104, 0.20);
+
+        color: #e9bd68;
+    }
+
+    .icon-red {
+        background:
+            rgba(239, 125, 137, 0.08);
+
+        border-color:
+            rgba(239, 125, 137, 0.20);
+
+        color: #ef7d89;
+    }
+
+    .icon-purple {
+        background:
+            rgba(139, 92, 246, 0.09);
+
+        border-color:
+            rgba(139, 92, 246, 0.20);
+
+        color: #a78bfa;
+    }
+
+    .stat-card-value {
+        position: relative;
+        z-index: 2;
+
+        margin-top: 12px;
+
+        color: #f4f8fe;
+
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -1px;
+    }
+
+    .stat-card-description {
+        position: relative;
+        z-index: 2;
+
+        margin-top: 8px;
+
+        color: #8da1ba;
+
+        font-size: 12px;
+    }
+
+    .chart-card {
+        height: 100%;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .chart-card-header {
+        padding: 18px 20px;
+
+        border-bottom:
+            1px solid rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(7, 16, 29, 0.42);
+    }
+
+    .chart-card-title {
+        margin: 0;
+
+        color: #ddecfa;
+
+        font-size: 17px;
+        font-weight: 900;
+    }
+
+    .chart-card-description {
+        margin-top: 4px;
+
+        color: #8da1ba;
+
+        font-size: 12px;
+    }
+
+    .chart-container {
+        position: relative;
+
+        min-height: 340px;
+        padding: 20px;
+
+        background:
+            linear-gradient(
+                rgba(98, 198, 217, 0.025) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(98, 198, 217, 0.025) 1px,
+                transparent 1px
+            ),
+            rgba(5, 12, 23, 0.18);
+
+        background-size:
+            28px 28px,
+            28px 28px,
+            auto;
+    }
+
+    .summary-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+
+        padding: 18px 20px;
+
+        border-bottom:
+            1px solid rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(7, 16, 29, 0.42);
+    }
+
+    .summary-table {
+        --bs-table-bg: transparent;
+        --bs-table-color: #c7d4e4;
+        --bs-table-border-color:
+            rgba(255, 255, 255, 0.055);
+        --bs-table-hover-bg:
+            rgba(98, 198, 217, 0.035);
+        --bs-table-hover-color: #ffffff;
+    }
+
+    .summary-table thead th {
+        padding: 13px;
+
+        border-color:
+            rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(5, 12, 23, 0.48);
+
+        color: #91a6bf;
+
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .summary-table tbody td {
+        padding: 14px;
+
+        border-color:
+            rgba(255, 255, 255, 0.055);
+
+        color: #d7e2ef;
+
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .summary-table tbody tr:hover td {
+        background:
+            rgba(98, 198, 217, 0.035);
+    }
+
+    .secretaria-name {
+        min-width: 190px;
+
+        color: #b7dce4;
+
+        font-weight: 800;
+    }
+
+    .recent-name {
+        color: #ddecfa;
+
+        font-weight: 800;
+    }
+
+    .empty-state {
+        padding: 50px 20px;
+
+        color: #8da1ba;
+
+        text-align: center;
+    }
+
+    .empty-state i {
+        display: block;
+
+        margin-bottom: 12px;
+
+        color: #62c6d9;
+
+        font-size: 42px;
+
+        filter:
+            drop-shadow(
+                0 0 12px
+                rgba(98, 198, 217, 0.25)
+            );
+    }
+
+    @media (max-width: 768px) {
+        .chart-container {
+            min-height: 300px;
+            padding: 14px;
+        }
+
+        .summary-card-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .stat-card-value {
+            font-size: 28px;
+        }
+    }
+</style>  
+
+{% endblock %}
+
+{% block content %}
+
+    <!-- FILTROS DO DASHBOARD -->
+    <div class="card dashboard-filter mb-4">
+
+        <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+
+            <div>
+
+                <h2 class="section-title mb-1">
+                    Filtros do dashboard
+                </h2>
+
+                <div class="small-muted">
+                    Os indicadores e gráficos serão atualizados conforme os filtros.
+                </div>
+
+            </div>
+
+            {% if busca or secretaria_filtro or modalidade_filtro %}
+
+                <a
+                    href="{% url 'home' %}"
+                    class="btn btn-outline-secondary btn-sm"
+                >
+                    <i class="bi bi-x-circle"></i>
+
+                    Limpar filtros
+                </a>
+
+            {% endif %}
+
+        </div>
+
+        <form
+            method="get"
+            action="{% url 'home' %}"
+        >
+
+            <div class="row g-3">
+
+                <div class="col-12 col-lg-5">
+
+                    <label
+                        for="busca"
+                        class="form-label"
+                    >
+                        Pesquisa rápida
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input
+                            type="search"
+                            name="busca"
+                            id="busca"
+                            class="form-control"
+                            value="{{ busca }}"
+                            placeholder="Nome, CPF, RG, função, local ou banco"
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <label
+                        for="secretaria"
+                        class="form-label"
+                    >
+                        Secretaria
+                    </label>
+
+                    <select
+                        name="secretaria"
+                        id="secretaria"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Todas as secretarias
+                        </option>
+
+                        {% for codigo, nome in secretarias %}
+
+                            <option
+                                value="{{ codigo }}"
+                                {% if secretaria_filtro == codigo %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ nome }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-2">
+
+                    <label
+                        for="modalidade"
+                        class="form-label"
+                    >
+                        Modalidade
+                    </label>
+
+                    <select
+                        name="modalidade"
+                        id="modalidade"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Todas
+                        </option>
+
+                        {% for codigo, nome in modalidades %}
+
+                            <option
+                                value="{{ codigo }}"
+                                {% if modalidade_filtro == codigo %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ nome }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-12 col-lg-2 d-flex align-items-end">
+
+                    <button
+                        type="submit"
+                        class="btn btn-orange w-100"
+                    >
+                        <i class="bi bi-funnel-fill"></i>
+
+                        Aplicar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- CARDS GERAIS -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-sm-6 col-xl">
+
+            <div class="card stat-card">
+
+                <div class="stat-card-header">
+
+                    <div class="stat-card-title">
+                        Funcionários ativos
+                    </div>
+
+                    <div class="stat-card-icon icon-blue">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+
+                </div>
+
+                <div class="stat-card-value">
+                    {{ total_funcionarios|default:0 }}
+                </div>
+
+                <div class="stat-card-description">
+                    Total considerado nos indicadores
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl">
+
+            <div class="card stat-card">
+
+                <div class="stat-card-header">
+
+                    <div class="stat-card-title">
+                        Valor total
+                    </div>
+
+                    <div class="stat-card-icon icon-green">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+
+                </div>
+
+                <div class="stat-card-value">
+                    R$ {{ valor_total|default:0|floatformat:2 }}
+                </div>
+
+                <div class="stat-card-description">
+                    Soma dos salários dos contratos ativos
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl">
+
+            <div class="card stat-card">
+
+                <div class="stat-card-header">
+
+                    <div class="stat-card-title">
+                        Credenciamento
+                    </div>
+
+                    <div class="stat-card-icon icon-purple">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+
+                </div>
+
+                <div class="stat-card-value">
+                    {{ credenciamento_quantidade|default:0 }}
+                </div>
+
+                <div class="stat-card-description">
+                    R$ {{ credenciamento_valor|default:0|floatformat:2 }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl">
+
+            <div class="card stat-card">
+
+                <div class="stat-card-header">
+
+                    <div class="stat-card-title">
+                        Prestação de serviço
+                    </div>
+
+                    <div class="stat-card-icon icon-orange">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+
+                </div>
+
+                <div class="stat-card-value">
+                    {{ prestacao_quantidade|default:0 }}
+                </div>
+
+                <div class="stat-card-description">
+                    R$ {{ prestacao_valor|default:0|floatformat:2 }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl">
+
+            <div class="card stat-card">
+
+                <div class="stat-card-header">
+
+                    <div class="stat-card-title">
+                        Demitidos
+                    </div>
+
+                    <div class="stat-card-icon icon-red">
+                        <i class="bi bi-person-x-fill"></i>
+                    </div>
+
+                </div>
+
+                <div class="stat-card-value">
+                    {{ total_demitidos|default:0 }}
+                </div>
+
+                <div class="stat-card-description">
+                    Mantidos para consulta e histórico
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- GRÁFICOS -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-xl-6">
+
+            <div class="card chart-card">
+
+                <div class="chart-card-header">
+
+                    <h2 class="chart-card-title">
+                        Funcionários por secretaria
+                    </h2>
+
+                    <div class="chart-card-description">
+                        Comparação entre credenciamento e prestação de serviço
+                    </div>
+
+                </div>
+
+                <div class="chart-container">
+
+                    <canvas id="graficoQuantidade"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-xl-6">
+
+            <div class="card chart-card">
+
+                <div class="chart-card-header">
+
+                    <h2 class="chart-card-title">
+                        Valores por secretaria
+                    </h2>
+
+                    <div class="chart-card-description">
+                        Soma dos salários ativos em cada modalidade
+                    </div>
+
+                </div>
+
+                <div class="chart-container">
+
+                    <canvas id="graficoValores"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RESUMO POR SECRETARIA -->
+    <div class="card mb-4">
+
+        <div class="summary-card-header">
+
+            <div>
+
+                <h2 class="chart-card-title">
+                    Resumo por secretaria
+                </h2>
+
+                <div class="chart-card-description">
+                    Quantidade e valores dos contratos ativos
+                </div>
+
+            </div>
+
+            <a
+                href="{% url 'listar_contratos' %}"
+                class="btn btn-outline-primary btn-sm"
+            >
+                <i class="bi bi-list-ul"></i>
+
+                Ver contratos
+            </a>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover summary-table mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th rowspan="2">
+                            Secretaria
+                        </th>
+
+                        <th
+                            colspan="2"
+                            class="text-center"
+                        >
+                            Credenciamento
+                        </th>
+
+                        <th
+                            colspan="2"
+                            class="text-center"
+                        >
+                            Prestação de Serviço
+                        </th>
+
+                        <th
+                            colspan="2"
+                            class="text-center"
+                        >
+                            Total
+                        </th>
+                    </tr>
+
+                    <tr>
+                        <th class="text-center">
+                            Quantidade
+                        </th>
+
+                        <th class="text-end">
+                            Valor
+                        </th>
+
+                        <th class="text-center">
+                            Quantidade
+                        </th>
+
+                        <th class="text-end">
+                            Valor
+                        </th>
+
+                        <th class="text-center">
+                            Quantidade
+                        </th>
+
+                        <th class="text-end">
+                            Valor
+                        </th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in resumo_secretarias %}
+
+                        <tr>
+
+                            <td class="secretaria-name">
+                                {{ item.nome }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ item.credenciamento_quantidade }}
+                            </td>
+
+                            <td class="text-end">
+                                R$ {{ item.credenciamento_valor|floatformat:2 }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ item.prestacao_quantidade }}
+                            </td>
+
+                            <td class="text-end">
+                                R$ {{ item.prestacao_valor|floatformat:2 }}
+                            </td>
+
+                            <td class="text-center fw-bold">
+                                {{ item.total_quantidade }}
+                            </td>
+
+                            <td class="text-end fw-bold">
+                                R$ {{ item.total_valor|floatformat:2 }}
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="empty-state"
+                            >
+                                <i class="bi bi-bar-chart"></i>
+
+                                Nenhum dado disponível para exibição.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- CONTRATOS RECENTES -->
+    <div class="card">
+
+        <div class="summary-card-header">
+
+            <div>
+
+                <h2 class="chart-card-title">
+                    Cadastros recentes
+                </h2>
+
+                <div class="chart-card-description">
+                    Últimos servidores adicionados ao sistema
+                </div>
+
+            </div>
+
+            <a
+                href="{% url 'cadastrar_contrato' %}"
+                class="btn btn-orange btn-sm"
+            >
+                <i class="bi bi-person-plus-fill"></i>
+
+                Novo servidor
+            </a>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th>
+                            Servidor
+                        </th>
+
+                        <th>
+                            Função
+                        </th>
+
+                        <th>
+                            Secretaria
+                        </th>
+
+                        <th>
+                            Modalidade
+                        </th>
+
+                        <th>
+                            Situação
+                        </th>
+
+                        <th>
+                            Salário
+                        </th>
+
+                        <th class="text-end">
+                            Ação
+                        </th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for contrato in contratos_recentes %}
+
+                        <tr>
+
+                            <td>
+
+                                <div class="recent-name">
+                                    {{ contrato.nome }}
+                                </div>
+
+                                <div class="small-muted">
+                                    CPF: {{ contrato.cpf }}
+                                </div>
+
+                            </td>
+
+                            <td>
+                                {{ contrato.funcao }}
+                            </td>
+
+                            <td>
+                                {{ contrato.get_secretaria_display }}
+                            </td>
+
+                            <td>
+
+                                {% if contrato.modalidade == 'credenciamento' %}
+
+                                    <span class="badge badge-cred">
+                                        Credenciamento
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-prest">
+                                        Prestação de Serviço
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if contrato.situacao == 'ativo' %}
+
+                                    <span class="badge badge-active">
+                                        Ativo
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-dismissed">
+                                        Demitido
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                R$ {{ contrato.salario_fixo|floatformat:2 }}
+                            </td>
+
+                            <td class="text-end">
+
+                                <a
+                                    href="{% url 'detalhe_contrato' contrato.id %}"
+                                    class="btn btn-sm btn-outline-primary"
+                                    title="Visualizar cadastro"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="empty-state"
+                            >
+                                <i class="bi bi-person-plus"></i>
+
+                                Nenhum servidor foi cadastrado ainda.
+
+                                <div class="mt-3">
+
+                                    <a
+                                        href="{% url 'cadastrar_contrato' %}"
+                                        class="btn btn-orange"
+                                    >
+                                        Cadastrar primeiro servidor
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- DADOS DOS GRÁFICOS -->
+    {{ grafico_secretarias|json_script:"dados-secretarias" }}
+
+    {{ grafico_credenciamento_quantidades|json_script:"dados-credenciamento-quantidades" }}
+
+    {{ grafico_prestacao_quantidades|json_script:"dados-prestacao-quantidades" }}
+
+    {{ grafico_credenciamento_valores|json_script:"dados-credenciamento-valores" }}
+
+    {{ grafico_prestacao_valores|json_script:"dados-prestacao-valores" }}
+
+{% endblock %}
+
+{% block extra_scripts %}
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
+    ></script>
+
+    <script>
+        const secretarias = JSON.parse(
+            document.getElementById(
+                'dados-secretarias'
+            ).textContent
+        );
+
+        const credenciamentoQuantidades = JSON.parse(
+            document.getElementById(
+                'dados-credenciamento-quantidades'
+            ).textContent
+        );
+
+        const prestacaoQuantidades = JSON.parse(
+            document.getElementById(
+                'dados-prestacao-quantidades'
+            ).textContent
+        );
+
+        const credenciamentoValores = JSON.parse(
+            document.getElementById(
+                'dados-credenciamento-valores'
+            ).textContent
+        );
+
+        const prestacaoValores = JSON.parse(
+            document.getElementById(
+                'dados-prestacao-valores'
+            ).textContent
+        );
+
+        const formatoMoeda = new Intl.NumberFormat(
+            'pt-BR',
+            {
+                style: 'currency',
+                currency: 'BRL'
+            }
+        );
+
+        const graficoQuantidadeElemento =
+            document.getElementById(
+                'graficoQuantidade'
+            );
+
+        if (graficoQuantidadeElemento) {
+
+            new Chart(
+                graficoQuantidadeElemento,
+                {
+                    type: 'bar',
+
+                    data: {
+                        labels: secretarias,
+
+                        datasets: [
+                            {
+                                label: 'Credenciamento',
+                                data: credenciamentoQuantidades,
+                                backgroundColor: '#173b63',
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'Prestação de Serviço',
+                                data: prestacaoQuantidades,
+                                backgroundColor: '#f97316',
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+
+                                ticks: {
+                                    precision: 0
+                                },
+
+                                grid: {
+                                    color: '#e2e8f0'
+                                }
+                            },
+
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+
+        }
+
+        const graficoValoresElemento =
+            document.getElementById(
+                'graficoValores'
+            );
+
+        if (graficoValoresElemento) {
+
+            new Chart(
+                graficoValoresElemento,
+                {
+                    type: 'bar',
+
+                    data: {
+                        labels: secretarias,
+
+                        datasets: [
+                            {
+                                label: 'Credenciamento',
+                                data: credenciamentoValores,
+                                backgroundColor: '#173b63',
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'Prestação de Serviço',
+                                data: prestacaoValores,
+                                backgroundColor: '#f97316',
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return (
+                                            context.dataset.label
+                                            + ': '
+                                            + formatoMoeda.format(
+                                                context.raw
+                                            )
+                                        );
+                                    }
+                                }
+                            }
+                        },
+
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+
+                                ticks: {
+                                    callback: function (valor) {
+                                        return formatoMoeda.format(
+                                            valor
+                                        );
+                                    }
+                                },
+
+                                grid: {
+                                    color: '#e2e8f0'
+                                }
+                            },
+
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+
+        }
+    </script>
+
+{% endblock %}

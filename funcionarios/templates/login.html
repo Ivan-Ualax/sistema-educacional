@@ -1,293 +1,1265 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login - Sistema Escolar</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Entrar | Gestão de Contratos</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
 
     <style>
+    :root {
+        --fundo-principal: #08101d;
+        --fundo-secundario: #0b1424;
+        --card: #121e31;
+        --card-secundario: #17263d;
 
-    *{
-        margin:0;
-        padding:0;
-        box-sizing:border-box;
+        --borda: rgba(121, 170, 214, 0.17);
+        --borda-destaque: rgba(98, 198, 217, 0.42);
+
+        --ciano: #62c6d9;
+        --azul: #73a9f5;
+        --verde: #65d29a;
+        --vermelho: #ef7d89;
+
+        --texto: #f8fafc;
+        --texto-secundario: #c7d4e4;
+        --texto-suave: #8da1ba;
     }
 
-    html{
-        width:100%;
-        min-height:100%;
-        overflow-x:hidden;
+    * {
+        box-sizing: border-box;
     }
 
-    body{
-        min-height:100vh;
-        width:100%;
-        max-width:100%;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        background:#020617;
-        font-family:'Segoe UI', Arial, Helvetica, sans-serif;
-        color:white;
-        overflow-x:hidden;
-        padding:20px;
+    body {
+        position: relative;
+
+        min-height: 100vh;
+        margin: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 24px;
+
+        overflow-x: hidden;
+
+        background:
+            radial-gradient(
+                circle at 12% 10%,
+                rgba(98, 198, 217, 0.13),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 88% 12%,
+                rgba(115, 169, 245, 0.12),
+                transparent 28%
+            ),
+            linear-gradient(
+                135deg,
+                var(--fundo-principal),
+                var(--fundo-secundario) 48%,
+                #101b2e
+            );
+
+        color: var(--texto);
+
+        font-family:
+            Inter,
+            ui-sans-serif,
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Arial,
+            sans-serif;
     }
 
-    img,
-    input,
-    button{
-        max-width:100%;
+    body::before {
+        position: fixed;
+        inset: 0;
+
+        z-index: 0;
+
+        pointer-events: none;
+
+        opacity: 0.34;
+
+        background-image:
+            linear-gradient(
+                rgba(119, 163, 207, 0.04) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                rgba(119, 163, 207, 0.04) 1px,
+                transparent 1px
+            );
+
+        background-size: 38px 38px;
+
+        mask-image:
+            linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.95),
+                transparent 96%
+            );
+
+        content: "";
     }
 
-    .login-box{
-        width:100%;
-        max-width:400px;
-        background:#0f172a;
-        border:1px solid #1e293b;
-        border-radius:20px;
-        padding:40px;
-        box-shadow:0 15px 40px rgba(0,0,0,0.4);
+    body::after {
+        position: fixed;
+        right: -160px;
+        bottom: -170px;
+
+        z-index: 0;
+
+        width: 460px;
+        height: 460px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(59, 130, 246, 0.15),
+                transparent 70%
+            );
+
+        filter: blur(25px);
+
+        pointer-events: none;
+
+        content: "";
     }
 
-    .logo{
-        text-align:center;
-        margin-bottom:30px;
+    .login-container {
+        position: relative;
+        z-index: 2;
+
+        width: 100%;
+        max-width: 1020px;
+
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+
+        overflow: hidden;
+
+        border:
+            1px solid var(--borda);
+
+        border-radius: 26px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.98),
+                rgba(13, 23, 40, 0.97)
+            );
+
+        box-shadow:
+            0 30px 80px rgba(0, 0, 0, 0.46),
+            0 0 30px rgba(34, 211, 238, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
     }
 
-    .logo img{
-        width:120px;
-        height:120px;
-        border-radius:50%;
-        margin-bottom:15px;
-        object-fit:cover;
+    .login-presentation {
+        position: relative;
+
+        min-height: 610px;
+        padding: 52px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        overflow: hidden;
+
+        border-right:
+            1px solid var(--borda);
+
+        background:
+            radial-gradient(
+                circle at 18% 18%,
+                rgba(98, 198, 217, 0.10),
+                transparent 35%
+            ),
+            linear-gradient(
+                145deg,
+                #07101d,
+                #0c1a2d 60%,
+                #10243a
+            );
+
+        color: var(--texto);
     }
 
-    .logo h1{
-        font-size:clamp(26px,5vw,30px);
-        font-weight:800;
-        line-height:1.2;
+    .login-presentation::before {
+        position: absolute;
+        left: 10%;
+        right: 10%;
+        bottom: 0;
+
+        height: 2px;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                var(--ciano),
+                var(--azul),
+                transparent
+            );
+
+        box-shadow:
+            0 0 14px
+            rgba(98, 198, 217, 0.38);
+
+        content: "";
     }
 
-    .logo span{
-        color:#38bdf8;
+    .login-presentation::after {
+        position: absolute;
+        right: -100px;
+        bottom: -120px;
+
+        width: 320px;
+        height: 320px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.13),
+                transparent 70%
+            );
+
+        content: "";
     }
 
-    .input-group{
-        margin-bottom:20px;
+    .brand {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+        gap: 14px;
     }
 
-    .input-group label{
-        display:block;
-        margin-bottom:8px;
-        color:#94a3b8;
-        font-size:14px;
+    .brand-icon {
+        width: 58px;
+        height: 58px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.55);
+
+        border-radius: 17px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #a4e3ec,
+                #76aaf5
+            );
+
+        color: #07131f;
+
+        font-size: 20px;
+        font-weight: 900;
+
+        box-shadow:
+            0 0 0 5px
+            rgba(98, 198, 217, 0.045),
+            0 0 24px
+            rgba(98, 198, 217, 0.18);
     }
 
-    .input-group input{
-        width:100%;
-        padding:14px;
-        border:none;
-        outline:none;
-        border-radius:12px;
-        background:#020617;
-        border:1px solid #1e293b;
-        color:white;
-        font-size:15px;
-        transition:0.3s;
+    .brand-title {
+        color: var(--texto);
+
+        font-size: 18px;
+        font-weight: 900;
     }
 
-    .input-group input:focus{
-        border-color:#38bdf8;
+    .brand-subtitle {
+        margin-top: 3px;
+
+        color: var(--texto-suave);
+
+        font-size: 12px;
     }
 
-    .btn-login{
-        width:100%;
-        padding:14px;
-        border:none;
-        border-radius:12px;
-        background:linear-gradient(135deg,#2563eb,#1d4ed8);
-        color:white;
-        font-size:16px;
-        font-weight:bold;
-        cursor:pointer;
-        transition:0.3s;
+    .presentation-content {
+        position: relative;
+        z-index: 2;
     }
 
-    .btn-login:hover{
-        transform:translateY(-2px);
+    .presentation-content h1 {
+        max-width: 450px;
+
+        margin: 0 0 18px;
+
+        color: transparent;
+
+        background:
+            linear-gradient(
+                90deg,
+                #ffffff,
+                #dbeafa 62%,
+                #a9dce5
+            );
+
+        background-clip: text;
+        -webkit-background-clip: text;
+
+        font-size: clamp(36px, 4vw, 54px);
+        font-weight: 900;
+        line-height: 1.04;
+        letter-spacing: -1.8px;
     }
 
-    .erro{
-        background:#7f1d1d;
-        color:#fecaca;
-        padding:12px;
-        border-radius:10px;
-        margin-bottom:20px;
-        font-size:14px;
-        text-align:center;
-        line-height:1.5;
+    .presentation-content p {
+        max-width: 430px;
+
+        margin: 0;
+
+        color: var(--texto-suave);
+
+        font-size: 14px;
+        line-height: 1.75;
     }
 
-    /* TABLET */
+    .presentation-footer {
+        position: relative;
+        z-index: 2;
 
-    @media(max-width:768px){
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
 
-        body{
-            padding:24px;
+        width: max-content;
+
+        padding: 8px 12px;
+
+        border:
+            1px solid rgba(101, 210, 154, 0.16);
+
+        border-radius: 999px;
+
+        background:
+            rgba(101, 210, 154, 0.06);
+
+        color: #bcebd2;
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .presentation-footer::before {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: var(--verde);
+
+        box-shadow:
+            0 0 10px
+            rgba(101, 210, 154, 0.78);
+
+        content: "";
+    }
+
+    .login-form-area {
+        padding: 54px 46px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        background:
+            rgba(7, 16, 29, 0.44);
+    }
+
+    .login-title {
+        margin: 0 0 8px;
+
+        color: var(--texto);
+
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: -0.6px;
+    }
+
+    .login-description {
+        margin: 0 0 28px;
+
+        color: var(--texto-suave);
+
+        font-size: 13px;
+    }
+
+    .form-label {
+        color: var(--texto-secundario);
+
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .input-group-text {
+        width: 48px;
+        min-height: 49px;
+
+        justify-content: center;
+
+        border-color:
+            rgba(121, 170, 214, 0.24);
+
+        background: #0c1728;
+        color: var(--ciano);
+    }
+
+    .form-control {
+        min-height: 49px;
+
+        border-color:
+            rgba(121, 170, 214, 0.24);
+
+        background: #0c1728;
+        color: var(--texto);
+    }
+
+    .form-control::placeholder {
+        color: #687d96;
+    }
+
+    .form-control:focus {
+        border-color: var(--ciano);
+
+        background: #0e1b2e;
+        color: var(--texto);
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(98, 198, 217, 0.13);
+    }
+
+    .input-group .btn-outline-secondary {
+        min-width: 48px;
+
+        border-color:
+            rgba(121, 170, 214, 0.24);
+
+        background: #0c1728;
+        color: var(--texto-secundario);
+    }
+
+    .input-group .btn-outline-secondary:hover {
+        border-color: var(--ciano);
+
+        background: #17263d;
+        color: var(--ciano);
+    }
+
+    .btn-login {
+        min-height: 50px;
+
+        border:
+            1px solid rgba(125, 211, 252, 0.70);
+
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #7dd3fc,
+                #60a5fa
+            );
+
+        color: #07131f;
+
+        font-weight: 900;
+
+        box-shadow:
+            0 12px 26px
+            rgba(59, 130, 246, 0.23);
+
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .btn-login:hover,
+    .btn-login:focus {
+        transform: translateY(-2px);
+
+        border-color:
+            rgba(165, 243, 252, 0.80);
+
+        background:
+            linear-gradient(
+                135deg,
+                #a5f3fc,
+                #73a9f5
+            );
+
+        color: #04101d;
+
+        box-shadow:
+            0 15px 32px
+            rgba(59, 130, 246, 0.31),
+            0 0 18px
+            rgba(34, 211, 238, 0.20);
+    }
+
+    .login-error {
+        padding: 13px 15px;
+
+        border:
+            1px solid rgba(239, 125, 137, 0.25);
+
+        border-left:
+            4px solid var(--vermelho);
+
+        border-radius: 11px;
+
+        background:
+            rgba(239, 125, 137, 0.07);
+
+        color: #fecdd3;
+
+        font-size: 12px;
+    }
+
+    .login-security {
+        margin-top: 22px;
+
+        color: #687d96;
+
+        font-size: 11px;
+        text-align: center;
+    }
+
+    .login-security i {
+        color: var(--ciano);
+    }
+
+    @media (max-width: 850px) {
+        .login-container {
+            max-width: 520px;
+
+            grid-template-columns: 1fr;
         }
 
-        .login-box{
-            max-width:450px;
-            padding:32px;
+        .login-presentation {
+            min-height: auto;
+            padding: 30px;
+
+            border-right: 0;
+
+            border-bottom:
+                1px solid var(--borda);
         }
 
-        .logo img{
-            width:100px;
-            height:100px;
-        }
-    }
-
-    /* CELULAR */
-
-    @media(max-width:600px){
-
-        body{
-            padding:16px;
-            align-items:center;
+        .presentation-content {
+            margin: 44px 0;
         }
 
-        .login-box{
-            padding:24px;
-            border-radius:18px;
+        .presentation-content h1 {
+            font-size: 31px;
         }
 
-        .logo{
-            margin-bottom:24px;
-        }
-
-        .logo img{
-            width:90px;
-            height:90px;
-        }
-
-        .input-group input{
-            padding:13px;
-            font-size:14px;
-        }
-
-        .btn-login{
-            padding:13px;
-            font-size:15px;
+        .login-form-area {
+            padding: 38px 28px;
         }
     }
 
-    /* CELULAR PEQUENO */
-
-    @media(max-width:380px){
-
-        body{
-            padding:12px;
+    @media (max-width: 480px) {
+        body {
+            padding: 12px;
         }
 
-        .login-box{
-            padding:18px;
-            border-radius:16px;
+        .login-container {
+            border-radius: 20px;
         }
 
-        .logo img{
-            width:80px;
-            height:80px;
+        .login-presentation {
+            padding: 24px;
         }
 
-        .logo h1{
-            font-size:24px;
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+
+            font-size: 17px;
         }
 
-        .input-group label{
-            font-size:13px;
+        .brand-title {
+            font-size: 15px;
         }
 
-        .input-group input{
-            font-size:14px;
+        .presentation-content {
+            margin: 34px 0;
         }
 
-        .btn-login{
-            font-size:14px;
+        .presentation-content h1 {
+            font-size: 27px;
+        }
+
+        .presentation-content p {
+            font-size: 13px;
+        }
+
+        .login-form-area {
+            padding: 30px 22px;
+        }
+
+        .login-title {
+            font-size: 24px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
+
+    /* =========================================================
+       AJUSTES VISUAIS DO LOGIN
+       ========================================================= */
+
+    .login-container {
+        position: relative;
+    }
+
+    /* Marca IvanTech no canto superior direito da página */
+    .ivantech-login-brand {
+        position: fixed;
+        top: 24px;
+        right: 28px;
+        z-index: 20;
+
+        min-width: 240px;
+        padding: 11px 18px 12px;
+
+        overflow: hidden;
+
+        border: 1px solid rgba(34, 211, 238, 0.58);
+        border-radius: 15px;
+
+        background:
+            radial-gradient(
+                circle at 15% 20%,
+                rgba(34, 211, 238, 0.12),
+                transparent 38%
+            ),
+            linear-gradient(
+                135deg,
+                rgba(7, 16, 29, 0.97),
+                rgba(13, 28, 48, 0.97)
+            );
+
+        box-shadow:
+            0 14px 32px rgba(0, 0, 0, 0.40),
+            0 0 16px rgba(34, 211, 238, 0.25),
+            0 0 32px rgba(59, 130, 246, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    }
+
+    .ivantech-login-brand::before {
+        position: absolute;
+        top: -110%;
+        left: -50%;
+
+        width: 30%;
+        height: 320%;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.14),
+                transparent
+            );
+
+        transform: rotate(24deg);
+
+        animation: ivantechLoginShine 4.5s ease-in-out infinite;
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .ivantech-login-brand::after {
+        position: absolute;
+        right: 16px;
+        bottom: 0;
+        left: 16px;
+
+        height: 2px;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                #22d3ee,
+                #60a5fa,
+                #22d3ee,
+                transparent
+            );
+
+        box-shadow:
+            0 0 9px rgba(34, 211, 238, 0.85),
+            0 0 18px rgba(59, 130, 246, 0.50);
+
+        content: "";
+    }
+
+    .ivantech-login-name {
+        position: relative;
+        z-index: 2;
+
+        display: block;
+
+        color: transparent;
+
+        background:
+            linear-gradient(
+                90deg,
+                #a5f3fc,
+                #67e8f9,
+                #93c5fd
+            );
+
+        background-clip: text;
+        -webkit-background-clip: text;
+
+        font-size: 20px;
+        font-weight: 950;
+        line-height: 1.05;
+        letter-spacing: -0.4px;
+    }
+
+    .ivantech-login-subtitle {
+        position: relative;
+        z-index: 2;
+
+        display: block;
+
+        margin-top: 5px;
+
+        color: #dbeafe;
+
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    @keyframes ivantechLoginShine {
+        0% {
+            left: -50%;
+            opacity: 0;
+        }
+
+        15% {
+            opacity: 1;
+        }
+
+        45%,
+        100% {
+            left: 135%;
+            opacity: 0;
+        }
+    }
+
+    /* Brasão no ponto marcado */
+    .login-city-seal-area {
+        position: absolute;
+        top: 118px;
+        left: 50%;
+
+        z-index: 4;
+
+        transform: translateX(-50%);
+    }
+
+    .login-city-seal-border {
+        position: relative;
+
+        width: 126px;
+        height: 126px;
+        padding: 4px;
+
+        border-radius: 50%;
+
+        background:
+            linear-gradient(
+                135deg,
+                #62c6d9,
+                #73a9f5,
+                #8b5cf6
+            );
+
+        box-shadow:
+            0 0 0 6px rgba(98, 198, 217, 0.055),
+            0 0 23px rgba(98, 198, 217, 0.34),
+            0 0 42px rgba(115, 169, 245, 0.18);
+
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+    .login-city-seal-border:hover {
+        transform: scale(1.045);
+
+        box-shadow:
+            0 0 0 6px rgba(98, 198, 217, 0.08),
+            0 0 29px rgba(98, 198, 217, 0.50),
+            0 0 50px rgba(115, 169, 245, 0.25);
+    }
+
+    .login-city-seal {
+        display: block;
+
+        width: 100%;
+        height: 100%;
+
+        border: 3px solid #08101d;
+        border-radius: 50%;
+
+        background: #ffffff;
+
+        object-fit: contain;
+        object-position: center;
+    }
+
+    /* Reposiciona o texto para não colidir com o brasão */
+    .presentation-content {
+        margin-top: 145px;
+    }
+
+    /* Título colorido e mais elegante */
+    .presentation-content h1 {
+        position: relative;
+
+        max-width: 430px;
+        margin-bottom: 0;
+
+        color: transparent;
+
+        background:
+            linear-gradient(
+                90deg,
+                #f8fafc 0%,
+                #a5f3fc 28%,
+                #60a5fa 58%,
+                #c4b5fd 82%,
+                #f8fafc 100%
+            );
+
+        background-size: 220% auto;
+        background-clip: text;
+        -webkit-background-clip: text;
+
+        animation: loginTitleFlow 7s linear infinite;
+
+        font-size: clamp(44px, 4.7vw, 67px);
+        font-weight: 950;
+        line-height: 0.98;
+        letter-spacing: -2.8px;
+
+        text-shadow:
+            0 0 18px rgba(34, 211, 238, 0.10);
+    }
+
+    .presentation-content h1::after {
+        display: block;
+
+        width: 120px;
+        height: 3px;
+        margin-top: 18px;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #22d3ee,
+                #60a5fa,
+                #8b5cf6,
+                transparent
+            );
+
+        box-shadow:
+            0 0 12px rgba(34, 211, 238, 0.38);
+
+        content: "";
+    }
+
+    @keyframes loginTitleFlow {
+        from {
+            background-position: 0 center;
+        }
+
+        to {
+            background-position: 220% center;
+        }
+    }
+
+    @media (max-width: 1100px) {
+        .ivantech-login-brand {
+            top: 16px;
+            right: 16px;
+
+            min-width: 205px;
+        }
+    }
+
+    @media (max-width: 850px) {
+        .ivantech-login-brand {
+            position: relative;
+            top: auto;
+            right: auto;
+
+            width: min(100%, 520px);
+            margin: 0 auto 16px;
+        }
+
+        body {
+            flex-direction: column;
+        }
+
+        .login-city-seal-area {
+            top: 102px;
+        }
+
+        .presentation-content {
+            margin-top: 155px;
+        }
+
+        .presentation-content h1 {
+            font-size: 38px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .ivantech-login-brand {
+            min-width: 0;
+            padding: 10px 15px;
+        }
+
+        .ivantech-login-name {
+            font-size: 17px;
+        }
+
+        .login-city-seal-border {
+            width: 102px;
+            height: 102px;
+        }
+
+        .login-city-seal-area {
+            top: 92px;
+        }
+
+        .presentation-content {
+            margin-top: 135px;
+        }
+
+        .presentation-content h1 {
+            font-size: 34px;
+            letter-spacing: -1.8px;
         }
     }
 
 </style>
-
 </head>
 
 <body>
 
-    <div class="login-box">
 
-        <div class="logo">
+    <div
+        class="ivantech-login-brand"
+        aria-label="IvanTech Sistema Empresarial"
+    >
+        <span class="ivantech-login-name">
+            IvanTech
+        </span>
 
-            <img src="{% static 'img/mulungu.png' %}" alt="Logo">
-
-            <h1>
-                Sistema <span>Educacional</span>
-            </h1>
-
-        </div>
-
-        {% if form.errors %}
-
-            <div class="erro">
-                Usuário ou senha inválidos.
-            </div>
-
-        {% endif %}
-
-        <form method="POST">
-
-            {% csrf_token %}
-
-            <div class="input-group">
-
-                <label>
-                    Usuário
-                </label>
-
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Digite seu usuário"
-                    required
-                >
-
-            </div>
-
-            <div class="input-group">
-
-                <label>
-                    Senha
-                </label>
-
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Digite sua senha"
-                    required
-                >
-
-            </div>
-
-            <button type="submit" class="btn-login">
-                Entrar no Sistema
-            </button>
-
-        </form>
-
+        <span class="ivantech-login-subtitle">
+            IvanTech Sistema Empresarial
+        </span>
     </div>
+
+
+
+    <main class="login-container">
+
+        <section class="login-presentation">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    RH
+                </div>
+
+                <div>
+
+                    <div class="brand-title">
+                        Gestão de Contratos
+                    </div>
+
+                    <div class="brand-subtitle">
+                        Prefeitura Municipal
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="login-city-seal-area">
+
+                <div class="login-city-seal-border">
+
+                    <img
+                        src="{% static 'img/foto-sidebar2.png' %}"
+                        alt="Brasão da Prefeitura de Mulungu do Morro"
+                        class="login-city-seal"
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="presentation-content">
+
+                <h1>
+                    Controle de<br>
+                    contratos
+                </h1>
+
+                
+
+            </div>
+
+            <div class="presentation-footer">
+                Sistema interno de uso autorizado
+            </div>
+
+        </section>
+
+        <section class="login-form-area">
+
+            <h2 class="login-title">
+                Acessar o sistema
+            </h2>
+
+            <p class="login-description">
+                Informe seu usuário e sua senha para continuar.
+            </p>
+
+            {% if form.errors %}
+
+                <div class="login-error mb-3">
+
+                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                    Usuário ou senha incorretos. Verifique os dados e tente novamente.
+
+                </div>
+
+            {% endif %}
+
+            {% if next and user.is_authenticated %}
+
+                <div class="login-error mb-3">
+                    Sua conta não possui permissão para acessar esta página.
+                </div>
+
+            {% endif %}
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                {% if next %}
+
+                    <input
+                        type="hidden"
+                        name="next"
+                        value="{{ next }}"
+                    >
+
+                {% endif %}
+
+                <div class="mb-3">
+
+                    <label
+                        for="id_username"
+                        class="form-label"
+                    >
+                        Usuário
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            <i class="bi bi-person-fill"></i>
+                        </span>
+
+                        <input
+                            type="text"
+                            name="username"
+                            id="id_username"
+                            class="form-control"
+                            value="{{ form.username.value|default:'' }}"
+                            autocomplete="username"
+                            placeholder="Digite seu usuário"
+                            required
+                            autofocus
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label
+                        for="id_password"
+                        class="form-label"
+                    >
+                        Senha
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
+
+                        <input
+                            type="password"
+                            name="password"
+                            id="id_password"
+                            class="form-control"
+                            autocomplete="current-password"
+                            placeholder="Digite sua senha"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            id="togglePassword"
+                            title="Mostrar ou ocultar senha"
+                        >
+                            <i
+                                class="bi bi-eye"
+                                id="passwordIcon"
+                            ></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-login w-100"
+                >
+                    <i class="bi bi-box-arrow-in-right"></i>
+
+                    Entrar
+                </button>
+
+            </form>
+
+            <div class="login-security">
+
+                <i class="bi bi-shield-lock-fill"></i>
+
+                Acesso protegido e restrito a usuários autorizados
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        const togglePassword =
+            document.getElementById(
+                'togglePassword'
+            );
+
+        const passwordInput =
+            document.getElementById(
+                'id_password'
+            );
+
+        const passwordIcon =
+            document.getElementById(
+                'passwordIcon'
+            );
+
+        if (
+            togglePassword
+            && passwordInput
+            && passwordIcon
+        ) {
+            togglePassword.addEventListener(
+                'click',
+                function () {
+
+                    const senhaVisivel =
+                        passwordInput.type === 'text';
+
+                    passwordInput.type =
+                        senhaVisivel
+                        ? 'password'
+                        : 'text';
+
+                    passwordIcon.className =
+                        senhaVisivel
+                        ? 'bi bi-eye'
+                        : 'bi bi-eye-slash';
+
+                }
+            );
+        }
+    </script>
 
 </body>
 

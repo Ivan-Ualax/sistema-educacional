@@ -1,0 +1,1174 @@
+{% extends 'contratos/base.html' %}
+
+{% block title %}
+    {% if titulo_lista %}
+        {{ titulo_lista }}
+    {% else %}
+        Todos os contratos
+    {% endif %}
+    | Gestão de Contratos
+{% endblock %}
+
+{% block topbar_title %}
+    {% if titulo_lista %}
+        {{ titulo_lista }}
+    {% else %}
+        Todos os contratos
+    {% endif %}
+{% endblock %}
+
+{% block topbar_subtitle %}
+    Consulte, pesquise e gerencie os servidores contratados
+{% endblock %}
+
+{% block extra_head %}
+
+<style>
+    .page-header-card {
+        position: relative;
+
+        padding: 22px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .page-header-card::after {
+        position: absolute;
+        right: -55px;
+        top: -65px;
+
+        width: 180px;
+        height: 180px;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(98, 198, 217, 0.13),
+                transparent 70%
+            );
+
+        content: "";
+        pointer-events: none;
+    }
+
+    .page-header-title {
+        position: relative;
+        z-index: 2;
+
+        margin: 0;
+
+        color: #f4f8fe;
+
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    .filter-card {
+        padding: 20px;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 18px 44px rgba(0, 0, 0, 0.30),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .filter-card .form-label {
+        color: #cbd8e7;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select {
+        min-height: 43px;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.24);
+
+        border-radius: 10px;
+
+        background: #0c1728;
+        color: #f8fafc;
+    }
+
+    .filter-card .form-control::placeholder {
+        color: #687d96;
+    }
+
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        border-color: #62c6d9;
+
+        background: #0e1b2e;
+        color: #f8fafc;
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(98, 198, 217, 0.13);
+    }
+
+    .filter-card .form-select {
+        color-scheme: dark;
+    }
+
+    .result-card {
+        position: relative;
+
+        height: 100%;
+        padding: 18px;
+
+        overflow: hidden;
+
+        border:
+            1px solid rgba(121, 170, 214, 0.17);
+
+        border-radius: 16px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20, 33, 54, 0.97),
+                rgba(13, 23, 40, 0.96)
+            );
+
+        box-shadow:
+            0 16px 38px rgba(0, 0, 0, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+        transition:
+            transform 0.25s ease,
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+    .result-card::after {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 0;
+
+        height: 2px;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                #62c6d9,
+                #73a9f5,
+                transparent
+            );
+
+        opacity: 0.42;
+
+        content: "";
+    }
+
+    .result-card:hover {
+        transform: translateY(-3px);
+
+        border-color:
+            rgba(98, 198, 217, 0.28);
+
+        box-shadow:
+            0 20px 46px rgba(0, 0, 0, 0.36),
+            0 0 16px rgba(98, 198, 217, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .result-label {
+        color: #8da1ba;
+
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .result-value {
+        margin-top: 5px;
+
+        color: #f4f8fe;
+
+        font-size: 27px;
+        font-weight: 900;
+        letter-spacing: -0.8px;
+    }
+
+    .server-name {
+        color: #ddecfa;
+
+        font-weight: 900;
+    }
+
+    .server-document {
+        margin-top: 3px;
+
+        color: #8da1ba;
+
+        font-size: 11px;
+    }
+
+    .contract-function {
+        color: #c7d4e4;
+
+        font-weight: 700;
+    }
+
+    .contract-location {
+        margin-top: 3px;
+
+        color: #8da1ba;
+
+        font-size: 11px;
+    }
+
+    .table {
+        --bs-table-bg: transparent;
+        --bs-table-color: #c7d4e4;
+        --bs-table-border-color:
+            rgba(255, 255, 255, 0.055);
+        --bs-table-hover-bg:
+            rgba(98, 198, 217, 0.035);
+        --bs-table-hover-color: #ffffff;
+    }
+
+    .table thead th {
+        padding: 13px;
+
+        border-color:
+            rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(5, 12, 23, 0.48);
+
+        color: #91a6bf;
+
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 14px;
+
+        border-color:
+            rgba(255, 255, 255, 0.055);
+
+        color: #d7e2ef;
+
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover td {
+        background:
+            rgba(98, 198, 217, 0.035);
+    }
+
+    .table-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 5px;
+
+        min-width: 170px;
+    }
+
+    .table-actions form {
+        margin: 0;
+    }
+
+    .table-actions .btn {
+        min-width: 35px;
+        min-height: 34px;
+
+        border-radius: 9px;
+
+        font-size: 12px;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .table-actions .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+
+        color: #8da1ba;
+
+        text-align: center;
+    }
+
+    .empty-state i {
+        display: block;
+
+        margin-bottom: 12px;
+
+        color: #62c6d9;
+
+        font-size: 46px;
+
+        filter:
+            drop-shadow(
+                0 0 12px
+                rgba(98, 198, 217, 0.25)
+            );
+    }
+
+    .fixed-category {
+        padding: 12px 14px;
+
+        border:
+            1px solid rgba(98, 198, 217, 0.21);
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                135deg,
+                rgba(98, 198, 217, 0.08),
+                rgba(13, 23, 40, 0.72)
+            );
+
+        color: #b7dce4;
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .table-footer {
+        padding: 15px 20px;
+
+        border-top:
+            1px solid rgba(121, 170, 214, 0.14);
+
+        background:
+            rgba(5, 12, 23, 0.40);
+
+        color: #8da1ba;
+
+        font-size: 12px;
+    }
+
+    .badge-active {
+        border:
+            1px solid rgba(101, 210, 154, 0.18);
+
+        background:
+            rgba(101, 210, 154, 0.08);
+
+        color: #65d29a;
+    }
+
+    .badge-dismissed {
+        border:
+            1px solid rgba(239, 125, 137, 0.18);
+
+        background:
+            rgba(239, 125, 137, 0.08);
+
+        color: #ef7d89;
+    }
+
+    .badge-cred {
+        border:
+            1px solid rgba(115, 169, 245, 0.18);
+
+        background:
+            rgba(115, 169, 245, 0.09);
+
+        color: #9cc5ff;
+    }
+
+    .badge-prest {
+        border:
+            1px solid rgba(98, 198, 217, 0.18);
+
+        background:
+            rgba(98, 198, 217, 0.08);
+
+        color: #b7eef5;
+    }
+
+    @media (max-width: 768px) {
+        .page-header-card {
+            padding: 18px;
+        }
+
+        .page-header-title {
+            font-size: 19px;
+        }
+
+        .filter-card {
+            padding: 16px;
+        }
+
+        .result-value {
+            font-size: 24px;
+        }
+
+        .table-actions {
+            justify-content: flex-start;
+
+            min-width: 160px;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- CABEÇALHO DA PÁGINA -->
+<div class="card page-header-card mb-4">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+
+        <div>
+
+            <h2 class="page-header-title">
+
+                {% if titulo_lista %}
+                    {{ titulo_lista }}
+                {% else %}
+                    Relação completa de contratos
+                {% endif %}
+
+            </h2>
+
+            <div class="small-muted mt-1">
+
+                {% if titulo_lista %}
+                    Servidores cadastrados nesta modalidade e secretaria
+                {% else %}
+                    Todos os servidores cadastrados no sistema
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a
+                href="{% url 'exportar_contratos_excel' %}?busca={{ busca|urlencode }}&secretaria={{ secretaria_filtro|urlencode }}&modalidade={{ modalidade_filtro|urlencode }}&situacao={{ situacao_filtro|urlencode }}"
+                class="btn btn-outline-success"
+            >
+                <i class="bi bi-file-earmark-excel-fill"></i>
+
+                Exportar Excel
+            </a>
+
+            <a
+                href="{% url 'cadastrar_contrato' %}"
+                class="btn btn-orange"
+            >
+                <i class="bi bi-person-plus-fill"></i>
+
+                Cadastrar servidor
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- RESUMO -->
+<div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-6">
+
+        <div class="card result-card">
+
+            <div class="result-label">
+                Servidores encontrados
+            </div>
+
+            <div class="result-value">
+                {{ total_resultados|default:0 }}
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-md-6">
+
+        <div class="card result-card">
+
+            <div class="result-label">
+                Valor total dos resultados
+            </div>
+
+            <div class="result-value">
+                R$ {{ valor_resultados|default:0|floatformat:2 }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- FILTROS -->
+<div class="card filter-card mb-4">
+
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+
+        <div>
+
+            <h2 class="section-title mb-1">
+                Pesquisa e filtros
+            </h2>
+
+            <div class="small-muted">
+                Localize servidores e refine os resultados exibidos.
+            </div>
+
+        </div>
+
+        {% if busca or situacao_filtro or secretaria_filtro or modalidade_filtro %}
+
+            <a
+                href="{{ request.path }}"
+                class="btn btn-outline-secondary btn-sm"
+            >
+                <i class="bi bi-x-circle"></i>
+
+                Limpar
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    {% if titulo_lista %}
+
+        <div class="fixed-category mb-3">
+
+            <i class="bi bi-filter-circle-fill"></i>
+
+            Categoria selecionada:
+
+            <strong>{{ titulo_lista }}</strong>
+
+        </div>
+
+    {% endif %}
+
+    <form method="get">
+
+        <div class="row g-3">
+
+            <div
+                class="
+                    col-12
+
+                    {% if titulo_lista %}
+                        col-lg-6
+                    {% else %}
+                        col-lg-4
+                    {% endif %}
+                "
+            >
+
+                <label
+                    for="busca"
+                    class="form-label"
+                >
+                    Pesquisar servidor
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <input
+                        type="search"
+                        name="busca"
+                        id="busca"
+                        class="form-control"
+                        value="{{ busca }}"
+                        placeholder="Nome, CPF, RG, função, local ou banco"
+                    >
+
+                </div>
+
+            </div>
+
+            {% if not titulo_lista %}
+
+                <div class="col-12 col-md-6 col-lg-2">
+
+                    <label
+                        for="secretaria"
+                        class="form-label"
+                    >
+                        Secretaria
+                    </label>
+
+                    <select
+                        name="secretaria"
+                        id="secretaria"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Todas
+                        </option>
+
+                        {% for codigo, nome in secretarias %}
+
+                            <option
+                                value="{{ codigo }}"
+                                {% if secretaria_filtro == codigo %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ nome }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-2">
+
+                    <label
+                        for="modalidade"
+                        class="form-label"
+                    >
+                        Modalidade
+                    </label>
+
+                    <select
+                        name="modalidade"
+                        id="modalidade"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Todas
+                        </option>
+
+                        {% for codigo, nome in modalidades %}
+
+                            <option
+                                value="{{ codigo }}"
+                                {% if modalidade_filtro == codigo %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ nome }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            {% endif %}
+
+            <div class="col-12 col-md-6 col-lg-2">
+
+                <label
+                    for="situacao"
+                    class="form-label"
+                >
+                    Situação
+                </label>
+
+                <select
+                    name="situacao"
+                    id="situacao"
+                    class="form-select"
+                >
+
+                    <option value="">
+                        Todas
+                    </option>
+
+                    {% for codigo, nome in situacoes %}
+
+                        <option
+                            value="{{ codigo }}"
+                            {% if situacao_filtro == codigo %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ nome }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            {% if not titulo_lista %}
+
+                <div class="col-12 col-md-6 col-lg-2">
+
+                    <label
+                        for="ordem"
+                        class="form-label"
+                    >
+                        Ordenar por
+                    </label>
+
+                    <select
+                        name="ordem"
+                        id="ordem"
+                        class="form-select"
+                    >
+
+                        <option
+                            value="nome"
+                            {% if ordem == 'nome' %}
+                                selected
+                            {% endif %}
+                        >
+                            Nome de A a Z
+                        </option>
+
+                        <option
+                            value="-nome"
+                            {% if ordem == '-nome' %}
+                                selected
+                            {% endif %}
+                        >
+                            Nome de Z a A
+                        </option>
+
+                        <option
+                            value="recente"
+                            {% if ordem == 'recente' %}
+                                selected
+                            {% endif %}
+                        >
+                            Mais recentes
+                        </option>
+
+                        <option
+                            value="antigo"
+                            {% if ordem == 'antigo' %}
+                                selected
+                            {% endif %}
+                        >
+                            Mais antigos
+                        </option>
+
+                        <option
+                            value="maior_salario"
+                            {% if ordem == 'maior_salario' %}
+                                selected
+                            {% endif %}
+                        >
+                            Maior salário
+                        </option>
+
+                        <option
+                            value="menor_salario"
+                            {% if ordem == 'menor_salario' %}
+                                selected
+                            {% endif %}
+                        >
+                            Menor salário
+                        </option>
+
+                    </select>
+
+                </div>
+
+            {% endif %}
+
+            <div
+                class="
+                    col-12
+                    col-md-6
+                    col-lg-2
+                    d-flex
+                    align-items-end
+                "
+            >
+
+                <button
+                    type="submit"
+                    class="btn btn-orange w-100"
+                >
+                    <i class="bi bi-funnel-fill"></i>
+
+                    Aplicar
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- TABELA -->
+<div class="card overflow-hidden">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover mb-0">
+
+            <thead>
+
+                <tr>
+                    <th>
+                        Servidor
+                    </th>
+
+                    <th>
+                        Função e local
+                    </th>
+
+                    <th>
+                        Secretaria
+                    </th>
+
+                    <th>
+                        Modalidade
+                    </th>
+
+                    <th>
+                        Situação
+                    </th>
+
+                    <th class="text-end">
+                        Salário
+                    </th>
+
+                    <th class="text-end">
+                        Ações
+                    </th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for contrato in contratos %}
+
+                    <tr>
+
+                        <!-- SERVIDOR -->
+                        <td>
+
+                            <div class="server-name">
+                                {{ contrato.nome }}
+                            </div>
+
+                            <div class="server-document">
+                                CPF:
+                                {{ contrato.cpf|default:"Não informado" }}
+                            </div>
+
+                            {% if contrato.rg %}
+
+                                <div class="server-document">
+                                    RG: {{ contrato.rg }}
+                                </div>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- FUNÇÃO E LOCAL -->
+                        <td>
+
+                            <div class="contract-function">
+                                {{ contrato.funcao|default:"Não informada" }}
+                            </div>
+
+                            <div class="contract-location">
+
+                                <i class="bi bi-geo-alt"></i>
+
+                                {{ contrato.local_trabalho|default:"Local não informado" }}
+
+                            </div>
+
+                        </td>
+
+                        <!-- SECRETARIA -->
+                        <td>
+                            {{ contrato.get_secretaria_display }}
+                        </td>
+
+                        <!-- MODALIDADE -->
+                        <td>
+
+                            {% if contrato.modalidade == 'credenciamento' %}
+
+                                <span class="badge badge-cred">
+                                    Credenciamento
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-prest">
+                                    Prestação de Serviço
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- SITUAÇÃO -->
+                        <td>
+
+                            {% if contrato.situacao == 'ativo' %}
+
+                                <span class="badge badge-active">
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    Ativo
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-dismissed">
+                                    <i class="bi bi-x-circle-fill"></i>
+
+                                    Demitido
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- SALÁRIO -->
+                        <td class="text-end fw-bold text-nowrap">
+                            R$ {{ contrato.salario_fixo|floatformat:2 }}
+                        </td>
+
+                        <!-- AÇÕES -->
+                        <td>
+
+                            <div class="table-actions">
+
+                                <a
+                                    href="{% url 'detalhe_contrato' contrato.id %}"
+                                    class="btn btn-sm btn-outline-primary"
+                                    title="Visualizar"
+                                >
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+
+                                <a
+                                    href="{% url 'editar_contrato' contrato.id %}?next={{ request.get_full_path|urlencode }}"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    title="Editar"
+                                >
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+
+                                <!-- ALTERAR SITUAÇÃO -->
+                                <form
+                                    method="post"
+                                    action="{% url 'alterar_situacao' contrato.id %}"
+                                    data-confirm="
+                                        {% if contrato.situacao == 'ativo' %}
+                                            Deseja marcar este servidor como demitido?
+                                        {% else %}
+                                            Deseja reativar este servidor?
+                                        {% endif %}
+                                    "
+                                >
+
+                                    {% csrf_token %}
+
+                                    <input
+                                        type="hidden"
+                                        name="next"
+                                        value="{{ request.get_full_path }}"
+                                    >
+
+                                    {% if contrato.situacao == 'ativo' %}
+
+                                        <input
+                                            type="hidden"
+                                            name="situacao"
+                                            value="demitido"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-warning"
+                                            title="Marcar como demitido"
+                                        >
+                                            <i class="bi bi-person-x-fill"></i>
+                                        </button>
+
+                                    {% else %}
+
+                                        <input
+                                            type="hidden"
+                                            name="situacao"
+                                            value="ativo"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-success"
+                                            title="Reativar servidor"
+                                        >
+                                            <i class="bi bi-person-check-fill"></i>
+                                        </button>
+
+                                    {% endif %}
+
+                                </form>
+
+                                <!-- EXCLUIR -->
+                                <form
+                                    method="post"
+                                    action="{% url 'excluir_contrato' contrato.id %}"
+                                    data-confirm="Tem certeza que deseja excluir permanentemente o cadastro de {{ contrato.nome }}?"
+                                >
+
+                                    {% csrf_token %}
+
+                                    <input
+                                        type="hidden"
+                                        name="next"
+                                        value="{{ request.get_full_path }}"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                        title="Excluir cadastro"
+                                    >
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="empty-state"
+                        >
+
+                            <i class="bi bi-search"></i>
+
+                            <h3 class="h5 fw-bold">
+                                Nenhum contrato encontrado
+                            </h3>
+
+                            <p class="mb-3">
+                                Não existem servidores correspondentes aos filtros informados.
+                            </p>
+
+                            <div class="d-flex justify-content-center flex-wrap gap-2">
+
+                                <a
+                                    href="{{ request.path }}"
+                                    class="btn btn-outline-secondary"
+                                >
+                                    Limpar filtros
+                                </a>
+
+                                <a
+                                    href="{% url 'cadastrar_contrato' %}"
+                                    class="btn btn-orange"
+                                >
+                                    Cadastrar servidor
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% if contratos %}
+
+        <div class="table-footer">
+
+            Exibindo
+
+            <strong>{{ total_resultados }}</strong>
+
+            servidor{{ total_resultados|pluralize:"es" }}.
+
+            Valor total:
+
+            <strong>
+                R$ {{ valor_resultados|floatformat:2 }}
+            </strong>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
